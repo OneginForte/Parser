@@ -164,15 +164,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
             return
 
-        Parser.read(dPars, self.local_filename_choose)
-        self.lfr1 = Parser.repack(dPars, dPars.grp, dPars.pro)
-        QListWidget.clear(self.list_widget)
-        self.list_widget.addItems(self.lfr1)
-        self.combo.addItems(dPars.grp)
-        self.statusBar().showMessage(str("Число участников - ") +
-                                     str(dPars.increment) + 
-                                     str(" Записей в протоколе - ") +
-                                     str(dPars.increment_pro))
+        self.reload()
 
         self.btn_choose1.setEnabled(True)
         self.btn_choose2.setEnabled(True)
@@ -189,7 +181,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lfr1 = Parser.repack(dPars, dPars.grp, dPars.pro)
         QListWidget.clear(self.list_widget)
         self.list_widget.addItems(self.lfr1)
-        self.statusBar().showMessage(str("Число участников - ")+str(dPars.increment))
+        self.combo.clear()
+        self.combo.addItems(dPars.grp)
+        self.statusBar().showMessage(str("Число участников - ") +
+                                     str(dPars.increment) +
+                                     str(" Записей в протоколе - ") +
+                                     str(dPars.increment_pro))
 
 class Parser:
 
@@ -209,6 +206,7 @@ class Parser:
 
         self.increment_pro = 0
         self.increment_grp = 0
+        self.increment = 0
 
         self.grp = []
         self.pro = []
@@ -219,7 +217,7 @@ class Parser:
         #Откроем файл групп
         file_open = open(filename_grp_ext, 'rb')
 
-        self.grp_zag.append(file_open.read(1969))
+        self.grp_zag.append(file_open.read(1833))
 
         data_bytes = file_open.read(136)
 
@@ -255,7 +253,12 @@ class Parser:
         tf = []
         L = []
         s = []   
-    
+
+        # data_byte[74] число участников в группе
+        # data_byte[17] пол групп "м" или "ж", "ю" или "д"
+        # data_byte[76] год рождения от
+        # data_byte[78] год рождения до
+
         # Выделяем i байт имени группы из записи 15 байт
         L = [data_byte[1+i] for i in range(data_byte[0])]
         
@@ -303,7 +306,7 @@ class Parser:
             tf.append(s)
 
             # Выделяем группу
-            S = data_byte[62]-1
+            S = data_byte[62]
             s = self.grp[S]
             grp = S
             s = ''.join(map(str, s))
