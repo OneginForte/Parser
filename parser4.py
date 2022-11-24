@@ -56,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.btn_chooseFile = QPushButton(self)  
         self.btn_chooseFile.setObjectName("Выбрать")
-        self.btn_chooseFile.setText("Выбрать файл")
+        self.btn_chooseFile.setText("Открыть протокол")
 
         self.text1 = QtWidgets.QLabel("Список участников, имеющие стартовый номер",
                                     alignment=QtCore.Qt.AlignCenter)
@@ -156,7 +156,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def slot_btn_chooseFile(self):
         
         self.local_filename_choose, filetype = QFileDialog.getOpenFileName(self,
-                                   "Выбрать файл",  
+                                   "Выбрать протокол",  
                                     self.cwd, # Начальный путь 
                                     "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой        
         
@@ -181,8 +181,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lfr1 = Parser.repack(dPars, dPars.grp, dPars.pro)
         QListWidget.clear(self.list_widget)
         self.list_widget.addItems(self.lfr1)
+        combo_index = self.combo.currentIndex()
         self.combo.clear()
         self.combo.addItems(dPars.grp)
+        if combo_index==-1: 
+            combo_index=0
+        self.combo.setCurrentIndex(combo_index)
         self.statusBar().showMessage(str("Число участников - ") +
                                      str(dPars.increment) +
                                      str(" Записей в протоколе - ") +
@@ -274,7 +278,7 @@ class Parser:
         tf.append(s)
         return tf
 
-    def parse_pro(self, data_byte):
+    def parse_pro(self, data_byte, group_rule, sorted_rule):
         
         M = 0
         rez = [0, 0, 0, 0]
@@ -294,6 +298,11 @@ class Parser:
             M = bytes(S)
             M = struct.unpack('<h', M)
             C = M
+
+            # Игнорируем участника без стартового номера
+            if C == (-1,):
+                return 0
+
             # В нулевой индекс закинем стартовый номер числом
             tf.append(C)  # tf = tf+s
             s = ''.join([str(element) for element in M])
@@ -309,12 +318,18 @@ class Parser:
             S = data_byte[62]
             s = self.grp[S]
             grp = S
+
+            # Игнорируем участника, если выборка не по его группе
+            if ((group_rule != grp) and (group_rule != 0)):
+                return 0
+
             s = ''.join(map(str, s))
             #s = str(S)
             s = s + "\t"
             tf.append(s)
+            
             # Если сортировка по группе, то добавляем в нулевой индекс номер группы
-            if w.sorted_rule==3:
+            if sorted_rule==3:
                 tf[0] = S
 
             # Выделяем i байт имени из записи 24 байт
@@ -325,7 +340,7 @@ class Parser:
             s = ''.join([str(element) for element in s])
 
             # Если сортировка по имени, то добавляем в нулевой индекс имя
-            if w.sorted_rule==1:
+            if sorted_rule==1:
                 tf[0] = s
 
             s = s + "\t"
@@ -358,7 +373,7 @@ class Parser:
             msec = int(s)
 
             # Если сортировка по результату, то добавляем в нулевой индекс абсолютный результат
-            if w.sorted_rule==2:
+            if sorted_rule==2:
                 tf[0]=msec
 
             rez[0] = msec // 360000
@@ -396,14 +411,7 @@ class Parser:
 
         else:  # Игнорируем удаленные и пустые записи
             return 0
-        
-        # Игнорируем группу, если выборка не по ней
-        if ((w.group_rule != grp) and (w.group_rule!=0)):
-            return 0
-
-        if C == (-1,): 
-            return 0
-            
+          
         return tf
 
     def repack(self, grp_buffer, pro_buffer):
@@ -425,7 +433,8 @@ class Parser:
 
         # Разберем список участников.
         for i in range(len(pro_buffer)):
-            tf = Parser.parse_pro(self, pro_buffer[i])
+            tf = Parser.parse_pro(
+                self, pro_buffer[i], w.group_rule, w.sorted_rule)
             if tf==0:
                 continue
             self.increment += 1
