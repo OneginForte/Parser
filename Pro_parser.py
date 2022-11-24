@@ -95,7 +95,7 @@ class Parser:
         tf.append(s)
         return tf
 
-    def parse_pro(self, data_byte, group_rule, sorted_rule):
+    def parse_pro(self, grp_d, data_byte, group_rule, sorted_rule):
 
         M = 0
         rez = [0, 0, 0, 0]
@@ -103,7 +103,7 @@ class Parser:
         C = (-1,)
         L = b''
         S = 0
-        grp = 0
+        grpr = 0
         s = ''
 
         # Разберем список участников из протокола. Не забудем проверить, запись это или нет
@@ -126,29 +126,22 @@ class Parser:
             if M < 100:
                 s = s + " "
             if M < 10:
-                s = s + "  "
-            s = s + "  "
+                s = s + " "
+            s = s + " "
             tf.append(s)
 
             # Выделяем группу
-            S = data_byte[62]
-            grp = S
+            grpr = data_byte[62]
 
             # Игнорируем участника, если выборка не по его группе
-            if ((group_rule != grp) and (group_rule != 0)):
+            if ((group_rule != grpr) and (group_rule != 0)):
                 return 0
-
-            s = self.grp[S]
-            s = ''.join(map(str, s))
-            #s = str(S)
-            s = s + " "
-            tf.append(s)
 
             # Если сортировка по группе, то добавляем в нулевой индекс номер группы
             if sorted_rule == 3:
                 tf[0] = S
 
-            # Выделяем i байт имени из записи 24 байт
+            # Выделяем data_byte[10] байт имени участника из записи 24 байт
             L = [data_byte[11+i] for i in range(data_byte[10])]
             # Преобразуем list через bytes и метод join в string
             M = [bytes([x]) for x in L if x > 0]
@@ -158,16 +151,19 @@ class Parser:
             # Если сортировка по имени, то добавляем в нулевой индекс имя
             if sorted_rule == 1:
                 tf[0] = s
-
             s = s + "\t"
+            if data_byte[10]<16:
+                s = s + "\t"  
             tf.append(s)  # tf =   tf+"  \t"+s  #
 
-            # Выделяем 41 байт наименования команды из записи
+            # Выделяем data_byte[165] (до 41) байт наименования команды из записи
             L = [data_byte[166+i] for i in range(data_byte[165])]
             # Преобразуем list через bytes и метод join в string
             M = [bytes([x]) for x in L if x > 0]
             s = [x.decode('cp1251', 'replace') for x in M]
             s = ''.join([str(element) for element in s])
+            if data_byte[165]<10:
+                 s = s + "\t"  
             s = s + "\t"
             tf.append(s)  # tf =  tf+"\t"+'\t'+'\t'+s  #
 
@@ -179,6 +175,13 @@ class Parser:
             s = s+"\t"
             tf.append(s)  # tf+"\t"+s
             M = 0
+
+            # Добавим группу после года рождения
+            s = grp_d[grpr]
+            s = ''.join(map(str, s))
+            #s = str(S)
+            s = s + " "
+            tf.append(s)
 
             # Выделяем результат
             S = [data_byte[232+i] for i in range(4)]
@@ -229,34 +232,47 @@ class Parser:
 
         return tf
 
-    def repack(self, grp_buffer, pro_buffer, group_rule, sorted_rule):
+    def repack_grp(self, grp_buffer):
 
-        self.grp = []
         lf = []
+        # Нулевая группа все вместе.
         tf = 'Все'
         lf.append(tf)
-        # Разберем список групп по названиям.
+        
+        # Разберем список групп по названиям. Еще не разбирается в консолидирующих группах
         for i in range(len(grp_buffer)):
             tf = Parser.parse_grp(self, grp_buffer[i])
             if tf == 0:
                 continue
             tf = ''.join(map(str, tf))
             lf.append(tf)
-        self.grp = lf
 
+        return lf
+
+    def repack_pro(self, grp, pro_buffer, group_rule, sorted_rule):
+        
         lf = []
 
         # Разберем список участников.
         for i in range(len(pro_buffer)):
-            tf = Parser.parse_pro(
-                self, pro_buffer[i], group_rule, sorted_rule)
+            tf = Parser.parse_pro(self, grp, pro_buffer[i], group_rule, sorted_rule)
             if tf == 0:
                 continue
             self.increment += 1
             lf.append(tf)
 
-        # Сортировка участников
+        # Сортировка участников по нулевому столбцу
         lf = Parser.sort(self, lf)
+
+        return lf
+
+    def sort(self, sorted_list):
+
+        #Сортируем списки по нулевому полю, в зависимости от правила сортировки
+        lf = sorted(sorted_list)
+
+        #Удаляем значения для сортировки
+        [(lf[i].pop(0)) for i in range(len(lf))]
 
         return lf
 
@@ -275,12 +291,3 @@ class Parser:
         #f.write(kf)
         #f.close()
 
-    def sort(self, sorted_list):
-
-        #Сортируем списки по нулевому полю, в зависимости от правила сортировки
-        lf = sorted(sorted_list)
-
-        #Удаляем значения для сортировки
-        [(lf[i].pop(0)) for i in range(len(lf))]
-
-        return lf

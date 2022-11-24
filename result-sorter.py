@@ -129,7 +129,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #centralWidget.addWidget(tempFrame)
         
         centralWidget.setLayout(grid)
-        self.setGeometry(500, 300, 900, 500)
+        self.setGeometry(500, 300, 910, 500)
         self.show()
  
 
@@ -145,21 +145,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose2.setChecked(False)
         self.btn_choose3.setChecked(False)
         self.sorted_rule = 0
-        self.reload()
+        self.reload(self.local_filename_choose)
 
     def slot_btn_choose2(self):
         self.btn_choose1.setChecked(False)
         #self.btn_choose2.setChecked(True)
         self.btn_choose3.setChecked(False)
         self.sorted_rule = 1
-        self.reload()
+        self.reload(self.local_filename_choose)
         
     def slot_btn_choose3(self):    
         self.btn_choose1.setChecked(False)
         self.btn_choose2.setChecked(False)
         #self.btn_choose3.setChecked(True)
         self.sorted_rule = 2
-        self.reload()
+        self.reload(self.local_filename_choose)
          
     
     def slot_btn_chooseFile(self):
@@ -173,7 +173,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
             return
 
-        self.reload()
+        self.reload(self.local_filename_choose)
 
         self.btn_choose1.setEnabled(True)
         self.btn_choose2.setEnabled(True)
@@ -184,9 +184,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if e.key() == Qt.Key_Escape:
             self.close()
 
-    def reload(self):
+    def reload(self, local_filename_choose):
 
-        filename_grp = self.local_filename_choose.rsplit('.', 1)[0] + '.grp'
+        filename_grp = local_filename_choose.rsplit('.', 1)[0] + '.grp'
 
         dPars.grp_zag, dPars.grp, dPars.increment_grp= Parser.read_grp(
             dPars, filename_grp)
@@ -194,18 +194,21 @@ class MainWindow(QtWidgets.QMainWindow):
         dPars.pro1, dPars.increment_pro1, dPars.increment = Parser.read_pro(
             dPars, self.local_filename_choose)
         
-        self.lfr1 = Parser.repack(
-            dPars, dPars.grp, dPars.pro1, w.group_rule, w.sorted_rule)
+        self.lfr_grp1 = Parser.repack_grp(
+            dPars, dPars.grp)
+        self.lfr_pro1 = Parser.repack_pro(
+            dPars, self.lfr_grp1, dPars.pro1, w.group_rule, w.sorted_rule)
+        
         QListWidget.clear(self.list_widget)
 
         # Преобразуем списки участников в чистый текст.
-        self.lfr1 = [''.join(self.lfr1[i]) for i in range(len(self.lfr1))]
+        self.lfr_pro1 = [''.join(self.lfr_pro1[i]) for i in range(len(self.lfr_pro1))]
 
-        self.list_widget.addItems(self.lfr1)
+        self.list_widget.addItems(self.lfr_pro1)
 
         combo_index = self.combo.currentIndex()
         self.combo.clear()
-        self.combo.addItems(dPars.grp)
+        self.combo.addItems(self.lfr_grp1)
         if combo_index == -1:
             combo_index = 0
         self.combo.setCurrentIndex(combo_index)
