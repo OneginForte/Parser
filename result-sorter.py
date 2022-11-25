@@ -138,7 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def onComboSelected(self, index_val):
         self.group_rule=index_val    
-        self.reload()
+        self.reload(self.local_filename_choose)
     
     def slot_btn_choose1(self):
         #self.btn_choose1.setChecked(True)
