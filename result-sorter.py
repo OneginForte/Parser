@@ -8,7 +8,7 @@ from Pro_parser import Parser
 #from tkinter import CENTER
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout, QListWidget,
                               QMessageBox, QPushButton, QVBoxLayout, QWidget)
 
@@ -32,6 +32,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("Генератор итоговых результатов для Марафон-Электро.")
         self.cwd = os.getcwd() # Получить текущее местоположение файла программы
         #self.resize(1500, 1300)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)
@@ -144,36 +145,45 @@ class MainWindow(QtWidgets.QMainWindow):
         
         centralWidget.setLayout(grid)
         self.setGeometry(500, 300, 910, 500)
+        self.oldPos = self.pos()
         self.show()
  
 
     def clicked(self, item):
         QMessageBox.information(self, "Подробнее", "Участник номер: " + item.text(),QMessageBox.Ok)
+    
+    def mousePressEvent(self, event):
+        self.oldPos = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        delta = QPoint (event.globalPos() - self.oldPos)
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.oldPos = event.globalPos()
 
     def onComboSelected(self, index_val):
         self.group_rule=index_val    
-        self.reload(self.local_filename_choose)
+        self.reload(self.local_filename_choose1)
     
     def slot_btn_choose1(self):
         #self.btn_choose1.setChecked(True)
         self.btn_choose2.setChecked(False)
         self.btn_choose3.setChecked(False)
         self.sorted_rule = 0
-        self.reload(self.local_filename_choose)
+        self.reload(self.local_filename_choose1)
 
     def slot_btn_choose2(self):
         self.btn_choose1.setChecked(False)
         #self.btn_choose2.setChecked(True)
         self.btn_choose3.setChecked(False)
         self.sorted_rule = 1
-        self.reload(self.local_filename_choose)
+        self.reload(self.local_filename_choose1)
         
     def slot_btn_choose3(self):    
         self.btn_choose1.setChecked(False)
         self.btn_choose2.setChecked(False)
         #self.btn_choose3.setChecked(True)
         self.sorted_rule = 2
-        self.reload(self.local_filename_choose)
+        self.reload(self.local_filename_choose1)
          
     
     def slot_btn_chooseFile1(self):

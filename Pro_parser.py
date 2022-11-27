@@ -117,16 +117,20 @@ class Parser:
 
             # Игнорируем участника без стартового номера
             if C == (-1,):
-                return 0
-
-            # В нулевой индекс закинем стартовый номер числом
+                s = " "
+            #   return 0
+            else:
+            
+                
+                s = ''.join([str(element) for element in M])
+                M = int(s)
+                if M < 100:
+                    s = s + " "
+                if M < 10:
+                    s = s + " "
+            
+            # В нулевой индекс закинем стартовый номер числом. По умолчанию сортировка по нему.                    
             tf.append(C)  # tf = tf+s
-            s = ''.join([str(element) for element in M])
-            M = int(s)
-            if M < 100:
-                s = s + " "
-            if M < 10:
-                s = s + " "
             s = s + " "
             tf.append(s)
 
@@ -190,19 +194,27 @@ class Parser:
             s = ''.join([str(element) for element in M])
             msec = int(s)
 
+                
             # Если сортировка по результату, то добавляем в нулевой индекс абсолютный результат
             if sorted_rule == 2:
-                tf[0] = msec
+                tf[0] = msec  
+                
+            if msec!=4294967295:
+                rez[0] = msec // 360000
+                msec = msec % 360000
+                rez[1] = msec // 6000
+                msec = msec % 6000
+                rez[2] = msec // 100
+                msec = msec % 100
+                rez[3] = msec
+            else:
+                rez[0] = 0
+                rez[1] = 0
+                rez[2] = 0
+                rez[3] = 0
 
-            rez[0] = msec // 360000
-            msec = msec % 360000
-            rez[1] = msec // 6000
-            msec = msec % 6000
-            rez[2] = msec // 100
-            msec = msec % 100
-            rez[3] = msec
 
-            s = ''
+            s = ""
 
             if rez[0] > 9:
                 s = s + str(rez[0])
