@@ -9,46 +9,41 @@ class Parser:
 
         self.lf = []
         self.kf = ''
-        self.grp = []
-        self.pro1 = []
-        self.pro2 = []
-        self.pro3 = []
-        self.increment = 0
-        self.increment_pro1 = 0
-        self.increment_pro2 = 0
-        self.increment_pro3 = 0
         self.grp_zag = []
+        self.grp = []
+        self.pro = []
+        self.increment = 0
         self.increment_grp = 0
+        self.increment_pro = 0
 
     def read_grp(self, file):
 
-        increment_grp = 0
-
-        grp_zag = []
-        grp = []
+        self.increment_grp = 0
+        self.grp_zag = []
+        self.grp = []
 
         #Откроем файл групп
         file_open = open(file, 'rb')
 
-        grp_zag.append(file_open.read(1833))
+        self.grp_zag.append(file_open.read(1833))
 
         data_bytes = file_open.read(136)
 
         while data_bytes:
             #Не забудем проверить, запись это или нет
-            grp.append(data_bytes)
+            self.grp.append(data_bytes)
             data_bytes = file_open.read(136)
-            increment_grp += 1
+            self.increment_grp += 1
 
         #Закроем уже не нужный файл
         file_open.close()
 
-        return grp_zag, grp, increment_grp
+        return self.grp_zag, self.grp, self.increment_grp
 
     def read_pro(self, file):
 
-        increment_pro = 0
-        increment = 0
+        self.increment_pro = 0
+        
         pro = []
 
         #Откроем файл протокола
@@ -61,13 +56,13 @@ class Parser:
             #Не забудем проверить, запись это или нет
             if data_bytes[0] == 0:
                 pro.append(data_bytes)
-                increment_pro += 1
+                self.increment_pro += 1
             data_bytes = file_open.read(282)
 
         #Закроем уже не нужный файл
         file_open.close()
 
-        return pro, increment_pro, increment
+        return pro, self.increment_pro
 
     def parse_grp(self, data_byte):
         M = 0
@@ -95,7 +90,7 @@ class Parser:
         tf.append(s)
         return tf
 
-    def parse_pro(self, grp_d, data_byte, group_rule, sorted_rule):
+    def parse_pro(self, grp_d, data_byte, group_rule, sorted_rule, view_rule):
 
         M = 0
         rez = [0, 0, 0, 0]
@@ -114,21 +109,20 @@ class Parser:
             M = bytes(S)
             M = struct.unpack('<h', M)
             C = M
-
+            s = ''.join([str(element) for element in M])
+            M = int(s)
+                        
             # Игнорируем участника без стартового номера
             if C == (-1,):
-                s = " "
-            #   return 0
+                s = "   "
+                if view_rule != 1: 
+                    return 0
             else:
-            
-                
-                s = ''.join([str(element) for element in M])
-                M = int(s)
                 if M < 100:
                     s = s + " "
                 if M < 10:
-                    s = s + " "
-            
+                    s = s + " "       
+                    
             # В нулевой индекс закинем стартовый номер числом. По умолчанию сортировка по нему.                    
             tf.append(C)  # tf = tf+s
             s = s + " "
@@ -214,7 +208,7 @@ class Parser:
                 rez[3] = 0
 
 
-            s = ""
+            s = " "
 
             if rez[0] > 9:
                 s = s + str(rez[0])
@@ -261,13 +255,14 @@ class Parser:
 
         return lf
 
-    def repack_pro(self, grp, pro_buffer, group_rule, sorted_rule):
+    def repack_pro(self, grp, pro_buffer, group_rule, sorted_rule, view_rule):
         
         lf = []
+        self.increment = 0
 
         # Разберем список участников.
         for i in range(len(pro_buffer)):
-            tf = Parser.parse_pro(self, grp, pro_buffer[i], group_rule, sorted_rule)
+            tf = Parser.parse_pro(self, grp, pro_buffer[i], group_rule, sorted_rule, view_rule)
             if tf == 0:
                 continue
             self.increment += 1
@@ -276,7 +271,7 @@ class Parser:
         # Сортировка участников по нулевому столбцу
         lf = Parser.sort(self, lf)
 
-        return lf
+        return lf, self.increment
 
     def sort(self, sorted_list):
 

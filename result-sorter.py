@@ -20,8 +20,24 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         self.lfr = ""
         self.sorted_rule = 0
+        self.view_rule = 0
         self.group_rule = 0
         self.all_tabs = []
+
+        self.grp1 = []
+        self.grp2 = []
+        self.grp3 = []
+        self.pro1 = []
+        self.pro2 = []
+        self.pro3 = []
+        self.grp_zag = []
+        self.increment_grp1 = 0
+        self.increment_grp2 = 0
+        self.increment_grp3 = 0
+        self.increment_pro = 0
+        self.increment_pro1 = 0
+        self.increment_pro2 = 0
+        self.increment_pro3 = 0
 
         self.local_filename_choose1 = ''
         self.local_filename_choose2 = ''
@@ -68,6 +84,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose3.setCheckable(True)
         self.btn_choose3.setEnabled(False)
         
+        self.btn_choose4 = QPushButton(self)  
+        self.btn_choose4.setObjectName("Пустые")
+        self.btn_choose4.setText("Показывать пустые")        
+        self.btn_choose4.setCheckable(True)
+        self.btn_choose4.setEnabled(False)
+                
+        
         self.btn_chooseFile1 = QPushButton(self)  
         self.btn_chooseFile1.setObjectName("Выбрать")
         self.btn_chooseFile1.setText("Открыть протокол 1")
@@ -76,11 +99,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_chooseFile2.setObjectName("Выбрать")
         self.btn_chooseFile2.setText("Открыть протокол 2")
         self.btn_chooseFile2.setEnabled(False)
-
+        
         self.btn_chooseFile3 = QPushButton(self)  
         self.btn_chooseFile3.setObjectName("Выбрать")
-        self.btn_chooseFile3.setText("Сохранить итоговый протокол")
-        self.btn_chooseFile3.setEnabled(False)
+        self.btn_chooseFile3.setText("Открыть протокол 3")
+        self.btn_chooseFile3.setEnabled(False)        
+
+        self.btn_chooseFile4 = QPushButton(self)  
+        self.btn_chooseFile4.setObjectName("Выбрать")
+        self.btn_chooseFile4.setText("Сохранить итоговый протокол")
+        self.btn_chooseFile4.setEnabled(False)
 
         self.text1 = QtWidgets.QLabel("Список участников, имеющие стартовый номер",
                                     alignment=QtCore.Qt.AlignCenter)
@@ -106,9 +134,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose1.pressed.connect(self.slot_btn_choose1) 
         self.btn_choose2.pressed.connect(self.slot_btn_choose2) 
         self.btn_choose3.pressed.connect(self.slot_btn_choose3)
+        self.btn_choose4.pressed.connect(self.slot_btn_choose4)
         self.btn_chooseFile1.clicked.connect(self.slot_btn_chooseFile1)
         self.btn_chooseFile2.clicked.connect(self.slot_btn_chooseFile2)
-        self.btn_chooseFile3.clicked.connect(self.slot_btn_chooseFile3)               
+        self.btn_chooseFile3.clicked.connect(self.slot_btn_chooseFile3) 
+        self.btn_chooseFile4.clicked.connect(self.slot_btn_chooseFile4)              
         self.list_widget.itemClicked.connect(self.clicked)
         self.combo.activated[int].connect(self.onComboSelected)
         
@@ -127,10 +157,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.text2)
         self.left_layout.addWidget(self.btn_choose1) 
         self.left_layout.addWidget(self.btn_choose2) 
-        self.left_layout.addWidget(self.btn_choose3)         
+        self.left_layout.addWidget(self.btn_choose3)
+        self.left_layout.addWidget(self.btn_choose4)          
         self.left_layout.addWidget(self.btn_chooseFile1) #,alignment=QtCore.Qt.AlignTop
         self.left_layout.addWidget(self.btn_chooseFile2) 
-        self.left_layout.addWidget(self.btn_chooseFile3) 
+        self.left_layout.addWidget(self.btn_chooseFile3)
+        self.left_layout.addWidget(self.btn_chooseFile4)  
         self.left_layout.addWidget(self.text3)
         self.left_layout.addWidget(self.combo)
 
@@ -148,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #centralWidget.addWidget(tempFrame)
         
         centralWidget.setLayout(grid)
-        self.setGeometry(500, 300, 910, 500)
+        self.setGeometry(500, 300, 980, 500)
         self.oldPos = self.pos()
         self.show()
  
@@ -166,28 +198,39 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def onComboSelected(self, index_val):
         self.group_rule=index_val    
-        self.reload(self.local_filename_choose1)
+        self.preload(self.local_filename_choose1)
     
     def slot_btn_choose1(self):
         #self.btn_choose1.setChecked(True)
         self.btn_choose2.setChecked(False)
         self.btn_choose3.setChecked(False)
         self.sorted_rule = 0
-        self.reload(self.local_filename_choose1)
+        self.preload(self.local_filename_choose1)
 
     def slot_btn_choose2(self):
         self.btn_choose1.setChecked(False)
         #self.btn_choose2.setChecked(True)
         self.btn_choose3.setChecked(False)
         self.sorted_rule = 1
-        self.reload(self.local_filename_choose1)
+        self.preload(self.local_filename_choose1)
         
     def slot_btn_choose3(self):    
         self.btn_choose1.setChecked(False)
         self.btn_choose2.setChecked(False)
         #self.btn_choose3.setChecked(True)
         self.sorted_rule = 2
-        self.reload(self.local_filename_choose1)
+        self.preload(self.local_filename_choose1)
+
+    def slot_btn_choose4(self):    
+        #self.btn_choose1.setChecked(False)
+        #self.btn_choose2.setChecked(False)
+        #self.btn_choose3.setChecked(True)
+        if self.btn_choose4.isChecked():
+            self.view_rule = 0
+            self.preload(self.local_filename_choose1)  
+        else:
+            self.view_rule = 1
+            self.preload(self.local_filename_choose1)        
          
     
     def slot_btn_chooseFile1(self):
@@ -198,20 +241,48 @@ class MainWindow(QtWidgets.QMainWindow):
                                     "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой        
         
         if self.local_filename_choose1 == "":
-            
+            QMessageBox.warning(self, "Ошибка", "Не выбран протокол!",QMessageBox.Ok)
             return
 
-        self.reload(self.local_filename_choose1)
+        self.preload(self.local_filename_choose1)
 
         self.btn_choose1.setEnabled(True)
         self.btn_choose2.setEnabled(True)
         self.btn_choose3.setEnabled(True)
+        self.btn_choose4.setEnabled(True)
         self.btn_chooseFile2.setEnabled(True)
 
     def slot_btn_chooseFile2(self):
+        
+        self.local_filename_choose2, filetype = QFileDialog.getOpenFileName(self,
+                                   "Выбрать протокол",  
+                                    self.cwd, # Начальный путь 
+                                    "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой        
+        
+        if self.local_filename_choose2 == "" or self.local_filename_choose2==self.local_filename_choose1 :
+            
+            QMessageBox.warning(self, "Ошибка", "Выберете другой протокол",QMessageBox.Ok)
+            return
+        
+        self.btn_chooseFile4.setEnabled(True)
         return
 
     def slot_btn_chooseFile3(self):        
+        return
+
+    def slot_btn_chooseFile4(self):    
+
+        self.local_filename_choose4, filetype = QFileDialog.getSaveFileName(self,
+                                   "Выбрать протокол",  
+                                    self.cwd, # Начальный путь 
+                                    "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой  
+
+        if self.local_filename_choose4 == "" or self.local_filename_choose4==self.local_filename_choose1 or self.local_filename_choose4==self.local_filename_choose2 or self.local_filename_choose4==self.local_filename_choose3:
+            
+            QMessageBox.warning(self, "Ошибка", "Нельзя заменить входной протокол",QMessageBox.Ok)
+            return        
+        
+            
         return
 
     def keyPressEvent(self, e):
@@ -219,20 +290,25 @@ class MainWindow(QtWidgets.QMainWindow):
         if e.key() == Qt.Key_Escape:
             self.close()
 
-    def reload(self, local_filename_choose):
+    def preload(self, local_filename_choose):
+        # Загрузим первый протокол, выведем список.
+        self.increment_pro = 0
+        self.increment_pro1 = 0
 
         filename_grp = local_filename_choose.rsplit('.', 1)[0] + '.grp'
 
-        dPars.grp_zag, dPars.grp, dPars.increment_grp= Parser.read_grp(
+        # Считаем файл групп
+        self.grp_zag, self.grp1, self.increment_grp1 = Parser.read_grp(
             dPars, filename_grp)
 
-        dPars.pro1, dPars.increment_pro1, dPars.increment = Parser.read_pro(
+        # Считаем файл протоколов. Возвращает блоки по 282 байт и число обработанных записей
+        self.pro1, self.increment_pro1 = Parser.read_pro(
             dPars, local_filename_choose)
         
-        self.lfr_grp1 = Parser.repack_grp(
-            dPars, dPars.grp)
-        self.lfr_pro1 = Parser.repack_pro(
-            dPars, self.lfr_grp1, dPars.pro1, w.group_rule, w.sorted_rule)
+        # Распакуем список групп и сами протоколы 
+        self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
+        self.lfr_pro1, self.increment_pro = Parser.repack_pro(
+            dPars, self.lfr_grp1, self.pro1, self.group_rule, self.sorted_rule, self.view_rule)
         
         QListWidget.clear(self.list_widget)
 
@@ -248,9 +324,9 @@ class MainWindow(QtWidgets.QMainWindow):
             combo_index = 0
         self.combo.setCurrentIndex(combo_index)
         self.statusBar().showMessage(str("Число участников - ") +
-                                     str(dPars.increment) +
+                                     str(self.increment_pro) +
                                      str(" Записей в протоколе - ") +
-                                     str(dPars.increment_pro1))
+                                     str(self.increment_pro1))
 
 
 
