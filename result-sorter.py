@@ -19,9 +19,9 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def __init__(self):
         self.lfr = ""
-        self.sorted_rule = 0
-        self.view_rule = 0
-        self.group_rule = 0
+        self.sorted_rule = 0 # 3 - по имени, 7 - по результату, 2 - по группе. По умолчанию 0 - по стартовому номеру
+        self.view_rule = 0 # 0 - все подряд, 1 - с номерами
+        self.group_rule = 0 # Сортировка по номеру группы. 0 - все
         self.all_tabs = []
 
         self.grp1 = []
@@ -48,7 +48,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("Генератор итоговых результатов для Марафон-Электро.")
         self.cwd = os.getcwd() # Получить текущее местоположение файла программы
         #self.resize(1500, 1300)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        #self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)
@@ -180,63 +180,63 @@ class MainWindow(QtWidgets.QMainWindow):
         #centralWidget.addWidget(tempFrame)
         
         centralWidget.setLayout(grid)
-        self.setGeometry(500, 300, 980, 500)
-        self.oldPos = self.pos()
+        self.setGeometry(500, 300, 1100, 500)
+        #self.oldPos = self.pos()
         self.show()
  
 
     def clicked(self, item):
         QMessageBox.information(self, "Подробнее", "Участник номер: " + item.text(),QMessageBox.Ok)
     
-    def mousePressEvent(self, event):
-        self.oldPos = event.globalPos()
+    #def mousePressEvent(self, event):
+    #    self.oldPos = event.globalPos()
 
-    def mouseMoveEvent(self, event):
-        delta = QPoint (event.globalPos() - self.oldPos)
-        self.move(self.x() + delta.x(), self.y() + delta.y())
-        self.oldPos = event.globalPos()
+    #def mouseMoveEvent(self, event):
+        #delta = QPoint (event.globalPos() - self.oldPos)
+        #self.move(self.x() + delta.x(), self.y() + delta.y())
+        #self.oldPos = event.globalPos()
 
     def onComboSelected(self, index_val):
         self.group_rule=index_val    
-        self.preload(self.local_filename_choose1)
+        self.reload()
     
-    def slot_btn_choose1(self):
+    def slot_btn_choose1(self): # 3 - по имени, 7 - по результату, 2 - по группе. По умолчанию 0 - по стартовому номеру
         #self.btn_choose1.setChecked(True)
         self.btn_choose2.setChecked(False)
         self.btn_choose3.setChecked(False)
         self.sorted_rule = 0
-        self.preload(self.local_filename_choose1)
+        self.reload()
 
-    def slot_btn_choose2(self):
+    def slot_btn_choose2(self): # 3 - по имени, 7 - по результату, 2 - по группе. По умолчанию 0 - по стартовому номеру
         self.btn_choose1.setChecked(False)
         #self.btn_choose2.setChecked(True)
         self.btn_choose3.setChecked(False)
-        self.sorted_rule = 1
-        self.preload(self.local_filename_choose1)
+        self.sorted_rule = 3
+        self.reload()
         
-    def slot_btn_choose3(self):    
+    def slot_btn_choose3(self): # 3 - по имени, 7 - по результату, 2 - по группе. По умолчанию 0 - по стартовому номеру   
         self.btn_choose1.setChecked(False)
         self.btn_choose2.setChecked(False)
         #self.btn_choose3.setChecked(True)
-        self.sorted_rule = 2
-        self.preload(self.local_filename_choose1)
+        self.sorted_rule = 7
+        self.reload()
 
-    def slot_btn_choose4(self):    
+    def slot_btn_choose4(self): # 3 - по имени, 7 - по результату, 2 - по группе. По умолчанию 0 - по стартовому номеру   
         #self.btn_choose1.setChecked(False)
         #self.btn_choose2.setChecked(False)
         #self.btn_choose3.setChecked(True)
         if self.btn_choose4.isChecked():
             self.view_rule = 0
-            self.preload(self.local_filename_choose1)  
+            self.reload()  
         else:
             self.view_rule = 1
-            self.preload(self.local_filename_choose1)        
+            self.reload()        
          
     
     def slot_btn_chooseFile1(self):
         
         self.local_filename_choose1, filetype = QFileDialog.getOpenFileName(self,
-                                   "Выбрать протокол",  
+                                   "Выбрать протокол 1",  
                                     self.cwd, # Начальный путь 
                                     "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой        
         
@@ -255,7 +255,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def slot_btn_chooseFile2(self):
         
         self.local_filename_choose2, filetype = QFileDialog.getOpenFileName(self,
-                                   "Выбрать протокол",  
+                                   "Выбрать протокол 2",  
                                     self.cwd, # Начальный путь 
                                     "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой        
         
@@ -263,9 +263,79 @@ class MainWindow(QtWidgets.QMainWindow):
             
             QMessageBox.warning(self, "Ошибка", "Выберете другой протокол",QMessageBox.Ok)
             return
+
+        # Считаем файл протоколов. Возвращает блоки по 282 байт и число обработанных записей
+        self.pro2, increment_pro_all2 = Parser.read_pro(
+            dPars, self.local_filename_choose2)
         
+        # Распакуем список групп и сами протоколы. Вернет списки и число годных записей. Список групп берет из первого протокола
+        #self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
+        self.lfr_pro2, self.increment_pro2 = Parser.repack_pro(
+            dPars, self.lfr_grp1, self.pro2, self.group_rule, 0)
+
+        # Считаем файл протоколов. Возвращает блоки по 282 байт и число обработанных записей
+        self.pro1, self.increment_pro = Parser.read_pro(
+            dPars, self.local_filename_choose1)
+        self.lfr_pro1, self.increment_pro1 = Parser.repack_pro(
+            dPars, self.lfr_grp1, self.pro1, self.group_rule, 0)
+        
+        if self.increment_pro1 != self.increment_pro2:  # or self.increment_pro != increment_pro_all2
+            QMessageBox.warning(
+                self, "Ошибка", "Не совпадает число участников в протоколе", QMessageBox.Ok)
+            self.local_filename_choose2 = ""
+            self.pro2 = []
+            self.lfr_pro2 = []
+            return
+
         self.btn_chooseFile4.setEnabled(True)
-        return
+        self.btn_chooseFile3.setEnabled(True)
+
+
+        self.btn_choose2.setChecked(True)
+        self.btn_choose2.setChecked(False)
+        self.btn_choose3.setChecked(False)
+        self.sorted_rule = 0
+
+        # Теперь подготовим протоколы к сравнению и переносу результатов. Потом вынесем в отдельную функцию
+        # Сортировка участников по нулевому столбцу
+        #self.lfr_pro2 = Parser.sort(self, self.lfr_pro2)
+        
+        # Сортируем списки по нулевому полю
+        lfr_pro1 = sorted(self.lfr_pro1)
+
+        # Удаляем значения для сортировки
+        # [(lfr_pro1[i].pop(0)) for i in range(len(lfr_pro1))]
+
+        # Сортировка участников по нулевому столбцу
+        #self.lfr_pro1 = Parser.sort(self, self.lfr_pro1)  
+        # Сортируем списки по нулевому полю
+        lfr_pro2 = sorted(self.lfr_pro2)
+
+        # Удаляем значения для сортировки
+        #[(lfr_pro2[i].pop(0)) for i in range(len(lfr_pro2))]
+
+        for i in range(self.increment_pro1):
+            if lfr_pro1[i][0] == lfr_pro2[i][0] or lfr_pro1[i][1] == lfr_pro2[i][1]:
+                lfr_pro1[i].append(lfr_pro2[i][7])
+                lfr_pro1[i].append(lfr_pro2[i][8])
+
+        self.lfr_pro1 = [e.copy() for e in lfr_pro1]
+        lfr_pro1 = sorted(lfr_pro1, key=lambda x: x[self.sorted_rule])
+
+        [(lfr_pro1[i].pop(0)) for i in range(len(lfr_pro1))]
+        [(lfr_pro1[i].pop(1)) for i in range(len(lfr_pro1))]
+        [(lfr_pro1[i].pop(5)) for i in range(len(lfr_pro1))]
+        [(lfr_pro1[i].pop(6)) for i in range(len(lfr_pro1))]
+
+        # Преобразуем списки участников в чистый текст.
+        lfr_pro1 = [''.join(lfr_pro1[i])
+                   for i in range(len(lfr_pro1))]
+
+        QListWidget.clear(self.list_widget)
+        self.list_widget.addItems(lfr_pro1)
+        self.combo.clear()
+        self.combo.addItems(self.lfr_grp1)     
+
 
     def slot_btn_chooseFile3(self):        
         return
@@ -273,18 +343,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def slot_btn_chooseFile4(self):    
 
         self.local_filename_choose4, filetype = QFileDialog.getSaveFileName(self,
-                                   "Выбрать протокол",  
+                                   "Сохранить итоговый протокол",  
                                     self.cwd, # Начальный путь 
                                     "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой  
 
         if self.local_filename_choose4 == "" or self.local_filename_choose4==self.local_filename_choose1 or self.local_filename_choose4==self.local_filename_choose2 or self.local_filename_choose4==self.local_filename_choose3:
             
             QMessageBox.warning(self, "Ошибка", "Нельзя заменить входной протокол",QMessageBox.Ok)
-            return        
-        
-            
-        return
 
+                
+        
     def keyPressEvent(self, e):
 
         if e.key() == Qt.Key_Escape:
@@ -302,20 +370,31 @@ class MainWindow(QtWidgets.QMainWindow):
             dPars, filename_grp)
 
         # Считаем файл протоколов. Возвращает блоки по 282 байт и число обработанных записей
-        self.pro1, self.increment_pro1 = Parser.read_pro(
+        self.pro1, self.increment_pro = Parser.read_pro(
             dPars, local_filename_choose)
         
-        # Распакуем список групп и сами протоколы 
+        # Распакуем список групп и сами протоколы. Вернет списки и число годных записей.
         self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
-        self.lfr_pro1, self.increment_pro = Parser.repack_pro(
-            dPars, self.lfr_grp1, self.pro1, self.group_rule, self.sorted_rule, self.view_rule)
+        self.lfr_pro1, self.increment_pro1 = Parser.repack_pro(
+            dPars, self.lfr_grp1, self.pro1, self.group_rule, self.view_rule)
         
-        QListWidget.clear(self.list_widget)
+        # Сортировка участников по нулевому столбцу
+        #lfr_pro = Parser.sort(self, self.lfr_pro1)
+        # Сортируем списки по нулевому полю, в зависимости от правила сортировки
+        lfr_pro = [e.copy() for e in self.lfr_pro1]
+        lfr_pro = sorted(lfr_pro, key=lambda x: x[self.sorted_rule])
+
+        # Удаляем значения для сортировки
+        [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
+        [(lfr_pro[i].pop(1)) for i in range(len(lfr_pro))]
+        [(lfr_pro[i].pop(5)) for i in range(len(lfr_pro))]
 
         # Преобразуем списки участников в чистый текст.
-        self.lfr_pro1 = [''.join(self.lfr_pro1[i]) for i in range(len(self.lfr_pro1))]
+        lfr_pro = [''.join(lfr_pro[i])
+                         for i in range(len(lfr_pro))]
 
-        self.list_widget.addItems(self.lfr_pro1)
+        QListWidget.clear(self.list_widget)
+        self.list_widget.addItems(lfr_pro)
 
         combo_index = self.combo.currentIndex()
         self.combo.clear()
@@ -324,10 +403,46 @@ class MainWindow(QtWidgets.QMainWindow):
             combo_index = 0
         self.combo.setCurrentIndex(combo_index)
         self.statusBar().showMessage(str("Число участников - ") +
-                                     str(self.increment_pro) +
+                                     str(self.increment_pro1) +
                                      str(" Записей в протоколе - ") +
-                                     str(self.increment_pro1))
+                                     str(self.increment_pro))
 
+    def reload(self):
+
+        # Распакуем список групп и сами протоколы. Вернет списки и число годных записей.
+        self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
+        #self.lfr_pro1, self.increment_pro1 = Parser.repack_pro(
+        #    dPars, self.lfr_grp1, self.pro1, self.group_rule, self.sorted_rule, self.view_rule)
+
+        # Сортировка участников по нулевому столбцу
+        #lfr_pro = Parser.sort(self, self.lfr_pro1)
+        # Сортируем списки по нулевому полю, в зависимости от правила сортировки
+        lfr_pro = [e.copy() for e in self.lfr_pro1]
+        
+        lfr_pro = sorted(lfr_pro, key=lambda x: x[self.sorted_rule])
+
+        # Удаляем значения для сортировки
+        [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
+        [(lfr_pro[i].pop(1)) for i in range(len(lfr_pro))]
+        [(lfr_pro[i].pop(5)) for i in range(len(lfr_pro))]
+
+        # Преобразуем списки участников в чистый текст.
+        lfr_pro = [''.join(lfr_pro[i])
+                         for i in range(len(lfr_pro))]
+
+        QListWidget.clear(self.list_widget)
+        self.list_widget.addItems(lfr_pro)
+
+        combo_index = self.combo.currentIndex()
+        self.combo.clear()
+        self.combo.addItems(self.lfr_grp1)
+        if combo_index == -1:
+            combo_index = 0
+        self.combo.setCurrentIndex(combo_index)
+        self.statusBar().showMessage(str("Число участников - ") +
+                                     str(self.increment_pro1) +
+                                     str(" Записей в протоколе - ") +
+                                     str(self.increment_pro))
 
 
 if __name__ == '__main__':

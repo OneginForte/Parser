@@ -16,6 +16,20 @@ class Parser:
         self.increment_grp = 0
         self.increment_pro = 0
 
+    def save_grp(self, file, grp_zag, grp):
+
+        self.increment_grp = 0
+
+        # Создадим файл групп
+        file_open = open(file, 'x+b')
+
+        grp=grp_zag+grp
+
+        file_open.writelines(grp)
+
+        # Закроем уже не нужный файл
+        file_open.close()
+
     def read_grp(self, file):
 
         self.increment_grp = 0
@@ -90,7 +104,7 @@ class Parser:
         tf.append(s)
         return tf
 
-    def parse_pro(self, grp_d, data_byte, group_rule, sorted_rule, view_rule):
+    def parse_pro(self, grp_d, data_byte, group_rule, view_rule):
 
         M = 0
         rez = [0, 0, 0, 0]
@@ -112,11 +126,11 @@ class Parser:
             s = ''.join([str(element) for element in M])
             M = int(s)
                         
-            # Игнорируем участника без стартового номера
-            if C == (-1,):
-                s = "   "
-                if view_rule != 1: 
+            # Игнорируем участника без стартового номера, если нам они не нужны
+            if C == (-1,):                
+                if view_rule != 1:  
                     return 0
+                s = "   "                   
             else:
                 if M < 100:
                     s = s + " "
@@ -131,13 +145,12 @@ class Parser:
             # Выделяем группу
             grpr = data_byte[62]
 
-            # Игнорируем участника, если выборка не по его группе
-            if ((group_rule != grpr) and (group_rule != 0)):
+            # Игнорируем участника, если выборка не всем и это запись из группы "ошибки"
+            if (group_rule == 0) and (grpr == 1):
                 return 0
 
-            # Если сортировка по группе, то добавляем в нулевой индекс номер группы
-            if sorted_rule == 3:
-                tf[0] = S
+            # Добавляем номер группы, для последующей сортировки
+            tf.append(grpr)
 
             # Выделяем data_byte[10] байт имени участника из записи 24 байт
             L = [data_byte[11+i] for i in range(data_byte[10])]
@@ -145,10 +158,6 @@ class Parser:
             M = [bytes([x]) for x in L if x > 0]
             s = [x.decode('cp1251', 'replace') for x in M]
             s = ''.join([str(element) for element in s])
-
-            # Если сортировка по имени, то добавляем в нулевой индекс имя
-            if sorted_rule == 1:
-                tf[0] = s
             s = s + "\t"
             if data_byte[10]<16:
                 s = s + "\t"  
@@ -189,9 +198,8 @@ class Parser:
             msec = int(s)
 
                 
-            # Если сортировка по результату, то добавляем в нулевой индекс абсолютный результат
-            if sorted_rule == 2:
-                tf[0] = msec  
+            # Для сортировки по результату добавим результат в абсолютном значении
+            tf.append(msec)  
                 
             if msec!=4294967295:
                 rez[0] = msec // 360000
@@ -255,21 +263,18 @@ class Parser:
 
         return lf
 
-    def repack_pro(self, grp, pro_buffer, group_rule, sorted_rule, view_rule):
+    def repack_pro(self, grp, pro_buffer, group_rule, view_rule):
         
         lf = []
         self.increment = 0
 
         # Разберем список участников.
         for i in range(len(pro_buffer)):
-            tf = Parser.parse_pro(self, grp, pro_buffer[i], group_rule, sorted_rule, view_rule)
+            tf = Parser.parse_pro(self, grp, pro_buffer[i], group_rule, view_rule)
             if tf == 0:
                 continue
             self.increment += 1
             lf.append(tf)
-
-        # Сортировка участников по нулевому столбцу
-        lf = Parser.sort(self, lf)
 
         return lf, self.increment
 
