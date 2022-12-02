@@ -18,14 +18,26 @@ class Parser:
 
     def save_grp(self, file, grp_zag, grp):
 
-        self.increment_grp = 0
+        file_grp = file.rsplit('.', 1)[0] + '.grp'
 
         # Создадим файл групп
-        file_open = open(file, 'x+b')
+        file_open = open(file_grp, 'x+b')
 
         grp=grp_zag+grp
 
         file_open.writelines(grp)
+
+        # Закроем уже не нужный файл
+        file_open.close()
+
+    def save_pro(self, file, pro):
+
+        # Создадим файл протокола
+        file_open = open(file, 'x+b')
+
+        #pro = grp_zag+grp
+
+        file_open.writelines(pro)
 
         # Закроем уже не нужный файл
         file_open.close()
@@ -56,7 +68,7 @@ class Parser:
 
     def read_pro(self, file):
 
-        self.increment_pro = 0
+        increment_pro = 0
         
         pro = []
 
@@ -70,13 +82,13 @@ class Parser:
             #Не забудем проверить, запись это или нет
             if data_bytes[0] == 0:
                 pro.append(data_bytes)
-                self.increment_pro += 1
+                increment_pro += 1
             data_bytes = file_open.read(282)
 
         #Закроем уже не нужный файл
         file_open.close()
 
-        return pro, self.increment_pro
+        return pro, increment_pro
 
     def parse_grp(self, data_byte):
         M = 0
@@ -146,7 +158,9 @@ class Parser:
             grpr = data_byte[62]
 
             # Игнорируем участника, если выборка не всем и это запись из группы "ошибки"
-            if (group_rule == 0) and (grpr == 1):
+            if (group_rule != 1) and (grpr == 1):
+                return 0
+            if (group_rule == 1) and (grpr != 1):
                 return 0
 
             # Добавляем номер группы, для последующей сортировки
@@ -266,17 +280,20 @@ class Parser:
     def repack_pro(self, grp, pro_buffer, group_rule, view_rule):
         
         lf = []
-        self.increment = 0
+        tf = []
+        increment = 0
 
         # Разберем список участников.
         for i in range(len(pro_buffer)):
-            tf = Parser.parse_pro(self, grp, pro_buffer[i], group_rule, view_rule)
+            tf = []
+            tf=Parser.parse_pro(self, grp, pro_buffer[i], group_rule, view_rule)
             if tf == 0:
                 continue
-            self.increment += 1
+            tf.insert (0, i)
+            increment += 1
             lf.append(tf)
 
-        return lf, self.increment
+        return lf, increment
 
     def sort(self, sorted_list):
 
