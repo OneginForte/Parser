@@ -76,14 +76,19 @@ class Parser:
         file_open = open(file, 'rb')
 
         data_bytes = []
+        prol = []
 
         data_bytes = file_open.read(282)
         while data_bytes:
             #Не забудем проверить, запись это или нет
             if data_bytes[0] == 0:
-                pro.append(data_bytes)
-                increment_pro += 1
+                prol.append(increment_pro)
+                prol.append(data_bytes)
+                pro.append(prol) 
+                prol=[]
+            increment_pro += 1   
             data_bytes = file_open.read(282)
+            
 
         #Закроем уже не нужный файл
         file_open.close()
@@ -95,6 +100,7 @@ class Parser:
         tf = []
         L = []
         s = []
+        W = b''
 
         # data_byte[74] число участников в группе
         # data_byte[17] пол групп "м" или "ж", "ю" или "д"
@@ -114,6 +120,22 @@ class Parser:
                 s = s+" "
         #s = s+"\t"
         tf.append(s)
+        W = data_byte[74]
+        tf.append(W)
+        W = data_byte[17]
+        if W > 33:
+            #L= str (W)
+            #M = L.encode()
+            W = W.to_bytes()
+            s = W.decode('cp1251', 'replace')
+            #s = ''.join([str(element) for element in s])
+        else:
+            M = str (W)
+            #M = struct.unpack('<h', M)
+            s = ''.join([str(element) for element in M])
+            
+        tf.append(s)
+
         return tf
 
     def parse_pro(self, grp_d, data_byte, group_rule, view_rule):
@@ -132,6 +154,7 @@ class Parser:
 
             # Выделяем стартовый номер
             S = [data_byte[8+i] for i in range(2)]
+            
             M = bytes(S)
             M = struct.unpack('<h', M)
             C = M
@@ -198,7 +221,7 @@ class Parser:
             M = 0
 
             # Добавим группу после года рождения
-            s = grp_d[grpr]
+            s = grp_d[grpr][0]
             s = ''.join(map(str, s))
             #s = str(S)
             s = s + " "
@@ -264,7 +287,10 @@ class Parser:
 
         lf = []
         # Нулевая группа все вместе.
-        tf = 'Все'
+        tf = []
+        tf.append('Все')
+        tf.append(0)
+        tf.append('0')
         lf.append(tf)
         
         # Разберем список групп по названиям. Еще не разбирается в консолидирующих группах
@@ -272,7 +298,7 @@ class Parser:
             tf = Parser.parse_grp(self, grp_buffer[i])
             if tf == 0:
                 continue
-            tf = ''.join(map(str, tf))
+            #tf = ''.join(map(str, tf))
             lf.append(tf)
 
         return lf
@@ -284,12 +310,13 @@ class Parser:
         increment = 0
 
         # Разберем список участников.
-        for i in range(len(pro_buffer)):
+        for i in pro_buffer: #x[0] for x in my_tuples
             tf = []
-            tf=Parser.parse_pro(self, grp, pro_buffer[i], group_rule, view_rule)
+            pro_buffer=i[1]
+            tf=Parser.parse_pro(self, grp, pro_buffer, group_rule, view_rule)
             if tf == 0:
                 continue
-            tf.insert (0, i)
+            tf.insert(0,i[0])
             increment += 1
             lf.append(tf)
 
