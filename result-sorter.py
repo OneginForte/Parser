@@ -180,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #centralWidget.addWidget(tempFrame)
         
         centralWidget.setLayout(grid)
-        self.setGeometry(500, 300, 1100, 500)
+        self.setGeometry(500, 300, 1300, 500)
         #self.oldPos = self.pos()
         self.show()
  
@@ -334,7 +334,12 @@ class MainWindow(QtWidgets.QMainWindow):
         QListWidget.clear(self.list_widget)
         self.list_widget.addItems(lfr_pro1)
         self.combo.clear()
-        self.combo.addItems(self.lfr_grp1)  
+        lfr_grp = [e.copy() for e in self.lfr_grp1]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        lfr_grp = [''.join(lfr_grp[i])
+                   for i in range(len(lfr_grp))]
+        self.combo.addItems(lfr_grp)
         self.statusBar().showMessage(str("Число участников - ") +
                                      str(self.increment_pro1) +
                                      str(" Записей в протоколе - ") +
@@ -409,7 +414,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         combo_index = self.combo.currentIndex()
         self.combo.clear()
-        self.combo.addItems(self.lfr_grp1)
+        
+        lfr_grp = [e.copy() for e in self.lfr_grp1]
+        
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        lfr_grp = [''.join(lfr_grp[i])
+                   for i in range(len(lfr_grp))]
+
+        self.combo.addItems(lfr_grp)
         if combo_index == -1:
             combo_index = 0
         self.combo.setCurrentIndex(combo_index)
@@ -485,7 +498,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         combo_index = self.combo.currentIndex()
         self.combo.clear()
-        self.combo.addItems(self.lfr_grp1)
+        lfr_grp = [e.copy() for e in self.lfr_grp1]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        lfr_grp = [''.join(lfr_grp[i])
+                   for i in range(len(lfr_grp))]
+        self.combo.addItems(lfr_grp)
         if combo_index == -1:
             combo_index = 0
         self.combo.setCurrentIndex(combo_index)
