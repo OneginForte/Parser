@@ -321,22 +321,35 @@ class MainWindow(QtWidgets.QMainWindow):
         lfr_pro1 = sorted(lfr_pro1, key=lambda x: x[self.sorted_rule])
 
         # Удаляем значения для сортировки перед выводом.
-        [(lfr_pro1[i].pop(0)) for i in range(len(lfr_pro1))]
-        [(lfr_pro1[i].pop(0)) for i in range(len(lfr_pro1))]
-        [(lfr_pro1[i].pop(1)) for i in range(len(lfr_pro1))]
-        [(lfr_pro1[i].pop(5)) for i in range(len(lfr_pro1))]
-        [(lfr_pro1[i].pop(6)) for i in range(len(lfr_pro1))]
+        if len(lfr_pro) > 0:
+            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
+            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
+            [(lfr_pro[i].pop(1)) for i in range(len(lfr_pro))]
+            [(lfr_pro[i].pop(5)) for i in range(len(lfr_pro))]
+            if len(lfr_pro[0]) > 6 and self.group_rule != 1:
+                [(lfr_pro[i].pop(6)) for i in range(len(lfr_pro))]
 
-        # Преобразуем списки участников в чистый текст.
-        lfr_pro1 = [''.join(lfr_pro1[i])
-                   for i in range(len(lfr_pro1))]
-
+            # Преобразуем списки участников в чистый текст.
+            lfr_pro = [''.join(lfr_pro[i])
+                       for i in range(len(lfr_pro))]
+        
+        
         QListWidget.clear(self.list_widget)
-        self.list_widget.addItems(lfr_pro1)
+        self.list_widget.addItems(lfr_pro)
+
         self.combo.clear()
+        #['Все', 1, '0', 0, 255, '0']
         lfr_grp = [e.copy() for e in self.lfr_grp1]
+
+        for i in range(2, len(lfr_grp)):
+            lfr_grp[i][0] = lfr_grp[i][0]+lfr_grp[i][2]
+
         [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
         [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+
         lfr_grp = [''.join(lfr_grp[i])
                    for i in range(len(lfr_grp))]
         self.combo.addItems(lfr_grp)
@@ -398,16 +411,18 @@ class MainWindow(QtWidgets.QMainWindow):
         # Сортируем списки в зависимости от правила сортировки.
         lfr_pro = sorted(lfr_pro, key=lambda x: x[self.sorted_rule])
 
-        # Удаляем значения для сортировки.
-        [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
-        [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
-        [(lfr_pro[i].pop(1)) for i in range(len(lfr_pro))]
-        [(lfr_pro[i].pop(5)) for i in range(len(lfr_pro))]
+        if len(lfr_pro) > 0:
+            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
+            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
+            [(lfr_pro[i].pop(1)) for i in range(len(lfr_pro))]
+            [(lfr_pro[i].pop(5)) for i in range(len(lfr_pro))]
+            if len(lfr_pro[0]) > 6 and self.group_rule != 1:
+                [(lfr_pro[i].pop(6)) for i in range(len(lfr_pro))]
 
-
-        # Преобразуем списки участников в чистый текст.
-        lfr_pro = [''.join(lfr_pro[i])
-                         for i in range(len(lfr_pro))]
+            # Преобразуем списки участников в чистый текст.
+            lfr_pro = [''.join(lfr_pro[i])
+                       for i in range(len(lfr_pro))]
+            
 
         QListWidget.clear(self.list_widget)
         self.list_widget.addItems(lfr_pro)
@@ -417,8 +432,16 @@ class MainWindow(QtWidgets.QMainWindow):
         
         lfr_grp = [e.copy() for e in self.lfr_grp1]
         
+        #['Все', 1, '0', 0, 255, '0']
+        for i in range(2,len(lfr_grp)):
+            lfr_grp[i][0] = lfr_grp[i][0]+lfr_grp[i][2]
+
         [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
         [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+
         lfr_grp = [''.join(lfr_grp[i])
                    for i in range(len(lfr_grp))]
 
@@ -466,41 +489,71 @@ class MainWindow(QtWidgets.QMainWindow):
         
         lfr_pro = [e.copy() for e in self.lfr_pro1]
 
+
+        lfr_pro_t = []
         if self.group_rule>0:
-                        # Сортируем списки по нулевому полю, в зависимости от правила сортировки
-                        lfr_pro = sorted(lfr_pro, key=lambda x: x[3])
-                        lenlfr=len(lfr_pro)
-                        for i in reversed(lfr_pro):
+            # Сортируем списки по третьему полю
+            lfr_pro = sorted(lfr_pro, key=lambda x: x[3])
+            if self.lfr_grp1[self.group_rule][4]==255: # Проверим на результирующую группу
+                
+                for i in range(2, len(self.lfr_grp1)):
+                    # Выборка на соотвествие групп
+                    
+                    lenlfr=len(lfr_pro)
+                    for k in reversed(lfr_pro):
                             lenlfr=lenlfr-1
-                            if i[3] != self.group_rule:
-                                del lfr_pro[lenlfr]
-                        lfr_pro = sorted(
-                            lfr_pro, key=lambda x: x[self.sorted_rule])
+                            if k[3] == i and self.lfr_grp1[i][4] == self.group_rule:
+                                 lfr_pro_t.append(lfr_pro[lenlfr])
+                                 del lfr_pro[lenlfr]
+                
+            
+            else:
+                lenlfr = len(lfr_pro)
+                for k in reversed(lfr_pro):
+                    lenlfr = lenlfr-1
+                    if k[3] == self.group_rule:
+                        lfr_pro_t.append(lfr_pro[lenlfr])
+                        del lfr_pro[lenlfr]
+            
+            lfr_pro_t = sorted(
+                  lfr_pro_t, key=lambda x: x[self.sorted_rule])
                         
         else:        
             # Сортируем списки по нулевому полю, в зависимости от правила сортировки
-                        lfr_pro = sorted(lfr_pro, key=lambda x: x[self.sorted_rule])
+            lfr_pro_t = sorted(
+                            lfr_pro, key=lambda x: x[self.sorted_rule])
 
         QListWidget.clear(self.list_widget)
         
         # Удаляем значения для сортировки при условии, что список не пустой.
-        if len(lfr_pro)>0:
-            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
-            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
-            [(lfr_pro[i].pop(1)) for i in range(len(lfr_pro))]
-            [(lfr_pro[i].pop(5)) for i in range(len(lfr_pro))]
-            if len(lfr_pro[0])>6 and self.group_rule!=1: [(lfr_pro[i].pop(6)) for i in range(len(lfr_pro))]
+        if len(lfr_pro_t) > 0:
+            [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
+            [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
+            [(lfr_pro_t[i].pop(1)) for i in range(len(lfr_pro_t))]
+            [(lfr_pro_t[i].pop(5)) for i in range(len(lfr_pro_t))]
+            if len(lfr_pro_t[0]) > 6 and self.group_rule != 1:
+                [(lfr_pro_t[i].pop(6)) for i in range(len(lfr_pro_t))]
 
             # Преобразуем списки участников в чистый текст.
-            lfr_pro = [''.join(lfr_pro[i])
-                         for i in range(len(lfr_pro))]
-            self.list_widget.addItems(lfr_pro)
+            lfr_pro_t = [''.join(lfr_pro_t[i])
+                         for i in range(len(lfr_pro_t))]
+            self.list_widget.addItems(lfr_pro_t)
 
         combo_index = self.combo.currentIndex()
         self.combo.clear()
+
         lfr_grp = [e.copy() for e in self.lfr_grp1]
+
+        #['Все', 1, '0', 0, 255, '0']
+        for i in range(2, len(lfr_grp)):
+            lfr_grp[i][0] = lfr_grp[i][0]+lfr_grp[i][2]
+
         [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
         [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+
         lfr_grp = [''.join(lfr_grp[i])
                    for i in range(len(lfr_grp))]
         self.combo.addItems(lfr_grp)
@@ -508,7 +561,7 @@ class MainWindow(QtWidgets.QMainWindow):
             combo_index = 0
         self.combo.setCurrentIndex(combo_index)
         self.statusBar().showMessage(str("Число участников - ") +
-                                     str(len(lfr_pro)) +
+                                     str(len(lfr_pro_t)) +
                                      str(" Записей в протоколе - ") +
                                      str(self.increment_pro))
 
