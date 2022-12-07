@@ -102,10 +102,12 @@ class Parser:
         s = []
         W = b''
 
-        # data_byte[74] число участников в группе
+        # data_byte[20] число участников в группе
         # data_byte[17] пол групп "м" или "ж", "ю" или "д"
         # data_byte[76] год рождения от
         # data_byte[78] год рождения до
+        # data_byte[18] результрующая группа #01
+        # data_byte[27] номер результирующей группы
 
         # Выделяем i байт имени группы из записи 15 байт
         L = [data_byte[1+i] for i in range(data_byte[0])]
@@ -120,9 +122,22 @@ class Parser:
                 s = s+" "
         #s = s+"\t"
         tf.append(s)
-        W = data_byte[74]
+        # 01 признак результирующей записи, как и data_byte[27] = 255
+        W = data_byte[18] 
         tf.append(W)
-        W = data_byte[17]
+        #W = data_byte[20] # Число участников в группе 2 байта
+        
+        S = [data_byte[20+i] for i in range(2)]
+        W = bytes(S)
+        W = struct.unpack('<H', W)
+        s = ''.join([str(element) for element in W])
+        tf.append(s)
+        W = int(s)
+        tf.append(W)
+
+        W = data_byte[27] # Номер группы к оторой относится как результирующей
+        tf.append(W)
+        W = data_byte[17] # пол: м, ж, ю, д
         if W > 33:
             #L= str (W)
             #M = L.encode()
@@ -289,7 +304,10 @@ class Parser:
         # Нулевая группа все вместе.
         tf = []
         tf.append('Все')
+        tf.append(1)
+        tf.append('0')
         tf.append(0)
+        tf.append(255)
         tf.append('0')
         lf.append(tf)
         
@@ -300,6 +318,7 @@ class Parser:
                 continue
             #tf = ''.join(map(str, tf))
             lf.append(tf)
+        
 
         return lf
 
