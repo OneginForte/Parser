@@ -301,62 +301,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lfr_pro2 = []
             return
 
-        # Теперь подготовим протоколы к сравнению и переносу результатов. Потом вынесем в отдельную функцию.
+        # Теперь подготовим протоколы к сравнению и объединению результатов. Вывод текстом в виджет.
         
-        # Сортируем списки по нулевому полю, т.е. стартовому номеру
-        lfr_pro1 = sorted(self.lfr_pro1)
-        # Сортируем списки по нулевому полю
-        lfr_pro2 = sorted(self.lfr_pro2)
-
-        # Добавим результаты второго протокола в общий список
-        for i, val in enumerate(lfr_pro1):
-            if lfr_pro1[i][0] == lfr_pro2[i][0] or lfr_pro1[i][1] == lfr_pro2[i][1]:
-                lfr_pro1[i].append(lfr_pro2[i][8])
-                lfr_pro1[i].append(lfr_pro2[i][9])
-
-        # Обновим глобальный список. Не знаю зачем, мы его все равно генерируем заново каждый раз
-        self.lfr_pro1 = [e.copy() for e in lfr_pro1]
-        
-        # Пересортировка участников по установленному правилу сортировки
-        lfr_pro1 = sorted(lfr_pro1, key=lambda x: x[self.sorted_rule])
-
-        # Удаляем значения для сортировки перед выводом.
-        if len(lfr_pro) > 0:
-            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
-            [(lfr_pro[i].pop(0)) for i in range(len(lfr_pro))]
-            [(lfr_pro[i].pop(1)) for i in range(len(lfr_pro))]
-            [(lfr_pro[i].pop(5)) for i in range(len(lfr_pro))]
-            if len(lfr_pro[0]) > 6 and self.group_rule != 1:
-                [(lfr_pro[i].pop(6)) for i in range(len(lfr_pro))]
-
-            # Преобразуем списки участников в чистый текст.
-            lfr_pro = [''.join(lfr_pro[i])
-                       for i in range(len(lfr_pro))]
-        
-        
-        QListWidget.clear(self.list_widget)
-        self.list_widget.addItems(lfr_pro)
-
-        self.combo.clear()
-        #['Все', 1, '0', 0, 255, '0']
-        lfr_grp = [e.copy() for e in self.lfr_grp1]
-
-        for i in range(2, len(lfr_grp)):
-            lfr_grp[i][0] = lfr_grp[i][0]+lfr_grp[i][2]
-
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-
-        lfr_grp = [''.join(lfr_grp[i])
-                   for i in range(len(lfr_grp))]
-        self.combo.addItems(lfr_grp)
-        self.statusBar().showMessage(str("Число участников - ") +
-                                     str(self.increment_pro1) +
-                                     str(" Записей в протоколе - ") +
-                                     str(self.increment_pro))
+        self.reload()
         
         self.btn_chooseFile4.setEnabled(True)
         self.btn_chooseFile3.setEnabled(False)
@@ -422,7 +369,10 @@ class MainWindow(QtWidgets.QMainWindow):
             # Преобразуем списки участников в чистый текст.
             lfr_pro = [''.join(lfr_pro[i])
                        for i in range(len(lfr_pro))]
-            
+
+        #                '1   Мантурова Кристина\tЦЛК\t\t1989\t500ж 18-34       00:02:54,39'
+        lfr_pro.insert(
+            0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2    Итоговый')
 
         QListWidget.clear(self.list_widget)
         self.list_widget.addItems(lfr_pro)
@@ -497,8 +447,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.lfr_grp1[self.group_rule][4]==255: # Проверим на результирующую группу
                 
                 for i in range(2, len(self.lfr_grp1)):
-                    # Выборка на соотвествие групп
-                    
+                    # Выборка между группами                    
                     lenlfr=len(lfr_pro)
                     for k in reversed(lfr_pro):
                             lenlfr=lenlfr-1
@@ -537,7 +486,12 @@ class MainWindow(QtWidgets.QMainWindow):
             # Преобразуем списки участников в чистый текст.
             lfr_pro_t = [''.join(lfr_pro_t[i])
                          for i in range(len(lfr_pro_t))]
-            self.list_widget.addItems(lfr_pro_t)
+            
+
+        lfr_pro_t.insert(
+            0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2    Итоговый')
+
+        self.list_widget.addItems(lfr_pro_t)
 
         combo_index = self.combo.currentIndex()
         self.combo.clear()
