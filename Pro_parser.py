@@ -47,9 +47,10 @@ class Parser:
         self.increment_grp = 0
         self.grp_zag = []
         self.grp = []
-
+        
+        file_open = file.rsplit('.', 1)[0] + '.grp'
         #Откроем файл групп
-        file_open = open(file, 'rb')
+        file_open = open(file_open, 'rb')
 
         self.grp_zag.append(file_open.read(1833))
 
@@ -80,7 +81,7 @@ class Parser:
 
         data_bytes = file_open.read(282)
         while data_bytes:
-            #Не забудем проверить, запись это или нет
+            #Не забудем проверить запись участника. 0 - участник, все остальное технические записи и удаленные.
             if data_bytes[0] == 0:
                 prol.append(increment_pro)
                 prol.append(data_bytes)
@@ -104,9 +105,9 @@ class Parser:
 
         # data_byte[20] число участников в группе
         # data_byte[17] пол групп "м" или "ж", "ю" или "д"
-        # data_byte[76] год рождения от
-        # data_byte[78] год рождения до
-        # data_byte[18] результрующая группа #01
+        # data_byte[76] год рождения от DWORD
+        # data_byte[78] год рождения до DWORD
+        # data_byte[18] признак результрующей группы #01 #F1
         # data_byte[27] номер результирующей группы
 
         # Выделяем i байт имени группы из записи 15 байт
@@ -164,20 +165,19 @@ class Parser:
         grpr = 0
         s = ''
 
-        # Разберем список участников из протокола. Не забудем проверить, запись это или нет
+        # Разберем список участников из протокола. 
+        # Не забудем еще раз проверить, запись участника это или нет
         if data_byte[0] == 0:
 
             # Выделяем стартовый номер
             S = [data_byte[8+i] for i in range(2)]
-            
             M = bytes(S)
             M = struct.unpack('<h', M)
-            C = M
             s = ''.join([str(element) for element in M])
             M = int(s)
                         
             # Игнорируем участника без стартового номера, если нам они не нужны
-            if C == (-1,):                
+            if M == -1:                
                 if view_rule != 1:  
                     return 0
                 s = "   "                   
@@ -188,14 +188,14 @@ class Parser:
                     s = s + " "       
                     
             # В нулевой индекс закинем стартовый номер числом. По умолчанию сортировка по нему.                    
-            tf.append(C)  # tf = tf+s
+            tf.append(M)  # tf = tf+s
             s = s + " "
             tf.append(s)
 
             # Выделяем группу
             grpr = data_byte[62]
 
-            # Игнорируем участника, если выборка не всем и это запись из группы "ошибки"
+            # Игнорируем участника, если выборка не по всем и это запись из группы "ошибки"
             if (group_rule != 1) and (grpr == 1):
                 return 0
             if (group_rule == 1) and (grpr != 1):
