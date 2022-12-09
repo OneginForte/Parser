@@ -1,7 +1,7 @@
 import os
 #import struct
 import sys
-
+from threading import Timer, Thread, Event
 from Pro_parser import Parser
 
 #from time import gmtime, strftime
@@ -12,10 +12,22 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout, QListWidget,
                               QMessageBox, QPushButton, QVBoxLayout, QWidget, QCheckBox, QSpinBox)
 
+class PT():
+
+    def __init__(self, t, hFunction):
+        self.t = t
+        self.hFunction = hFunction
+        self.thread = Timer(self.t, self.handle_function)
+
+    def handle_function(self):
+        self.hFunction()
+        self.thread = Timer(self.t, self.handle_function)
+        self.thread.start()
+
+    def start(self):
+        self.thread.start()
 
 class MainWindow(QtWidgets.QMainWindow):
-    
-    
     
     def __init__(self):
         self.lfr = ""
@@ -205,6 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
         centralWidget.setLayout(grid)
         self.setGeometry(500, 300, 1300, 500)
         #self.oldPos = self.pos()
+        
         self.show()
  
     def reload(self):
@@ -258,8 +271,17 @@ class MainWindow(QtWidgets.QMainWindow):
                             lfr_pro1[i].append(lfr_pro1[i][10])
                             lfr_pro1[i].append(lfr_pro1[i][11])
                     else:
-                        lfr_pro1[i].append(4294967295)
-                        lfr_pro1[i].append(' 00:00:00,00')
+                        if lfr_pro1[i][8] != 4294967295 and lfr_pro1[i][10] != 4294967295:
+                            if lfr_pro1[i][8] < lfr_pro1[i][10]:
+                                lfr_pro1[i].append(lfr_pro1[i][8])
+                                lfr_pro1[i].append(lfr_pro1[i][9])
+                            else: 
+                                lfr_pro1[i].append(lfr_pro1[i][10])
+                                lfr_pro1[i].append(lfr_pro1[i][11])
+                        else:
+                            if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
+                                lfr_pro1[i].append(4294967295)
+                                lfr_pro1[i].append(' 00:00:00,00')
                         
                         #if lfr_pro1[i][8] < lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295:
                         #    lfr_pro1[i].append(lfr_pro1[i][8])
@@ -271,6 +293,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         #    else: 
                         #        lfr_pro1[i].append(4294967295)
                         #        lfr_pro1[i].append(' 00:00:00,00')
+        
         
         lfr_pro = [e.copy() for e in self.lfr_pro1]
 
@@ -352,7 +375,15 @@ class MainWindow(QtWidgets.QMainWindow):
                                      str(self.increment_pro1) +
                                      str(" Записей в протоколе - ") +
                                      str(self.increment_pro))
-
+   
+    
+    def saveprot(self):
+        result_pro = b''
+        for i in range(len(self.pro1)):
+            result_pro = result_pro + self.pro1[i][1] 
+        if self.local_filename_choose4 != "":
+            dPars.save_pro(self.local_filename_choose4, result_pro)
+ 
     @pyqtSlot()
     def clicked(self, item):
         QMessageBox.information(
@@ -360,9 +391,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def checkBox_1(self, state):
        if state == Qt.Checked:
-           self.autoreload = 1
+            self.autoreload = 1            
+            t.start()
        else:
-           self.autoreload = 0
+            self.autoreload = 0
+            t.stop()
 
     def spinBox_1(self):
         self.reload_timer = self.spinbox1.value()
@@ -420,12 +453,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self, "Внимание!", "Вы точно уверены?", QMessageBox.No | QMessageBox.Ok)
         if mess == QMessageBox.Ok:
             self.append_rule = 1
-            self.btn_chooseFile4.setEnabled(True)
             self.reload()
      
         if mess == QMessageBox.No: 
             self.append_rule = 0
-            self.btn_chooseFile4.setEnabled(False)
             self.reload()
             
         
@@ -505,6 +536,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.reload()
         
         self.btn_chooseFile3.setEnabled(False)
+        self.btn_chooseFile4.setEnabled(True)
         self.btn_choose1.setChecked(True)
         self.btn_choose2.setChecked(False)
         self.btn_choose3.setChecked(False)
@@ -526,6 +558,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.local_filename_choose4 == "":
             return
+        
+        self.saveprot()
 
     def keyPressEvent(self, e):
 
@@ -536,11 +570,12 @@ class MainWindow(QtWidgets.QMainWindow):
 if __name__ == '__main__':
 
     dPars = Parser()
+    
 
     app = QApplication(sys.argv)
 
     w = MainWindow()
-
+    t = PT(w.reload_timer, w.reload)
     sys.exit(app.exec())
 
         #M=[bytes([x]) for x in S]

@@ -1,6 +1,6 @@
-import os
+#import os
 import struct
-import sys
+#import sys
 
 
 class Parser:
@@ -33,11 +33,11 @@ class Parser:
     def save_pro(self, file, pro):
 
         # Создадим файл протокола
-        file_open = open(file, 'x+b')
+        file_open = open(file, 'w+b')
 
         #pro = grp_zag+grp
 
-        file_open.writelines(pro)
+        file_open.write(pro) # writelines
 
         # Закроем уже не нужный файл
         file_open.close()
@@ -142,7 +142,8 @@ class Parser:
         if W > 33:
             #L= str (W)
             #M = L.encode()
-            W = W.to_bytes()
+            #W = W.to_bytes(1)
+            W = struct.pack('B', W)
             s = W.decode('cp1251', 'replace')
             #s = ''.join([str(element) for element in s])
         else:
