@@ -1,6 +1,10 @@
 /build
 /dist
 /test
+/__pycahe__
+/.pytest_cache
+/.vscode
+/Uploader
 *.grp
 *.krg
 *.pro
