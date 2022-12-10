@@ -12,6 +12,21 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout, QListWidget,
                               QMessageBox, QPushButton, QVBoxLayout, QWidget, QCheckBox, QSpinBox)
 
+
+class SecondWindow(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        # Передаём ссылку на родительский элемент и чтобы виджет
+        # отображался как самостоятельное окно указываем тип окна
+        super().__init__(parent, QtCore.Qt.Window)
+        self.mainLayout = QVBoxLayout()
+        self.secondWin1()
+ 
+    def secondWin1(self):
+        check = QCheckBox('some text')
+        self.mainLayout.addWidget(check)
+        self.setLayout(self.mainLayout)
+
+
 class PT():
 
     def __init__(self, t, hFunction):
@@ -25,11 +40,16 @@ class PT():
         self.thread.start()
 
     def start(self):
+        self.thread = Timer(self.t, self.handle_function)
         self.thread.start()
+        
+    def stop(self):
+        self.thread.cancel()
 
 class MainWindow(QtWidgets.QMainWindow):
     
-    def __init__(self):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
         self.lfr = ""
         self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
         self.view_rule = 0 # 1 - все подряд, 0 - с номерами
@@ -44,7 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grp3 = []
         self.pro1 = []
         self.pro2 = []
-        self.pro3 = []
+        self.pro3 = b''
         self.grp_zag = []
         self.increment_grp1 = 0
         self.increment_grp2 = 0
@@ -57,8 +77,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.local_filename_choose1 = ''
         self.local_filename_choose2 = ''
         self.local_filename_choose3 = ''
+        self.local_filename_choose4 = ''
+        
+        self.mainWin1 ()
 
-        super(MainWindow, self).__init__()
+    def mainWin1 (self):
+        
         self.setWindowIcon(QtGui.QIcon('Ski.ico'))
         self.setWindowTitle("Генератор итоговых результатов для Марафон-Электро.")
         self.cwd = os.getcwd() # Получить текущее местоположение файла программы
@@ -257,7 +281,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # Сортируем списки по нулевому полю
             lfr_pro2 = sorted(self.lfr_pro2)
-
+            self.pro3 = b''
+            
             # Обьединим результаты. Проверка по стартовому номеру и имени.
             for i in range(len(lfr_pro1)):
                 if lfr_pro1[i][0] == lfr_pro2[i][0] or lfr_pro1[i][1] == lfr_pro2[i][1]:
@@ -267,22 +292,38 @@ class MainWindow(QtWidgets.QMainWindow):
                         if lfr_pro1[i][8] < lfr_pro1[i][10]:
                             lfr_pro1[i].append(lfr_pro1[i][8])
                             lfr_pro1[i].append(lfr_pro1[i][9])
+                            if self.local_filename_choose4 != "":
+                                self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
                         else: 
                             lfr_pro1[i].append(lfr_pro1[i][10])
                             lfr_pro1[i].append(lfr_pro1[i][11])
+                            if self.local_filename_choose4 != "":                                
+                                self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
                     else:
                         if lfr_pro1[i][8] != 4294967295 and lfr_pro1[i][10] != 4294967295:
                             if lfr_pro1[i][8] < lfr_pro1[i][10]:
                                 lfr_pro1[i].append(lfr_pro1[i][8])
                                 lfr_pro1[i].append(lfr_pro1[i][9])
+                                if self.local_filename_choose4 != "":
+                                    self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
                             else: 
                                 lfr_pro1[i].append(lfr_pro1[i][10])
                                 lfr_pro1[i].append(lfr_pro1[i][11])
+                                if self.local_filename_choose4 != "":
+                                    self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
                         else:
                             if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
                                 lfr_pro1[i].append(4294967295)
                                 lfr_pro1[i].append(' 00:00:00,00')
+                                if lfr_pro1[i][8] == 4294967295:
+                                    if self.local_filename_choose4 != "":
+                                        self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
+                                else: 
+                                    if lfr_pro1[i][10] == 4294967295:
+                                        if self.local_filename_choose4 != "":
+                                            self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
                         
+            self.saveprot (self.pro3)
                         #if lfr_pro1[i][8] < lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295:
                         #    lfr_pro1[i].append(lfr_pro1[i][8])
                         #    lfr_pro1[i].append(lfr_pro1[i][9])
@@ -377,14 +418,11 @@ class MainWindow(QtWidgets.QMainWindow):
                                      str(self.increment_pro))
    
     
-    def saveprot(self):
-        result_pro = b''
-        for i in range(len(self.pro1)):
-            result_pro = result_pro + self.pro1[i][1] 
-        if self.local_filename_choose4 != "":
-            dPars.save_pro(self.local_filename_choose4, result_pro)
+    def saveprot(self, prot):
+        if self.local_filename_choose4 != "" and len(prot)>0:
+            dPars.save_pro(self.local_filename_choose4, prot)
  
-    @pyqtSlot()
+    #@pyqtSlot()
     def clicked(self, item):
         QMessageBox.information(
             self, "Подробнее", "Участник номер: " + item.text(), QMessageBox.Ok)
@@ -473,6 +511,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self, "Ошибка", "Не выбран протокол!", QMessageBox.Ok)
             return
 
+        self.local_filename_choose2 =""
+        self.append_rule = 0
         self.reload()
 
         self.btn_choose1.setEnabled(True)
@@ -555,11 +595,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.local_filename_choose4 == self.local_filename_choose1 or self.local_filename_choose4 == self.local_filename_choose2:
             QMessageBox.warning(
                 self, "Ошибка", "Нельзя заменить входной протокол", QMessageBox.Ok)
+            
+            return
 
         if self.local_filename_choose4 == "":
             return
         
-        self.saveprot()
+        self.reload()
+        #self.saveprot()
 
     def keyPressEvent(self, e):
 

@@ -327,17 +327,18 @@ class Parser:
         
         lf = []
         tf = []
+        
         increment = 0
 
-        # Разберем список участников.
-        for i in pro_buffer: #x[0] for x in my_tuples
+        # Разберем список участников. В начало всегда складывается байт индекса записи, берется из бинарной записи.
+        for i in range (len(pro_buffer)): #x[0] for x in my_tuples
             tf = []
-            pro_buffer=i[1]
-            tf=Parser.parse_pro(self, grp, pro_buffer, group_rule, view_rule)
+            buffer=pro_buffer[i][1]
+            tf=Parser.parse_pro(self, grp, buffer, group_rule, view_rule)
             if tf == 0:
                 continue
-            tf.insert(0,i[0])
             increment += 1
+            tf.insert(0,i)
             lf.append(tf)
 
         return lf, increment
