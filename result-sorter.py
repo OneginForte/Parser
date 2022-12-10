@@ -1,7 +1,7 @@
 import os
 #import struct
 import sys
-from threading import Timer, Thread, Event
+from threading import Timer
 from Pro_parser import Parser
 
 #from time import gmtime, strftime
