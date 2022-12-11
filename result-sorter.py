@@ -254,7 +254,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pro1, self.increment_pro = Parser.read_pro(
             dPars, self.local_filename_choose1)
 
-        # Распакуем список групп и сами протоколы. Вернет списки и число годных записей.
+        # Распакуем список групп и сами протоколы. Вернет списки и число годных записей. 
+        # Зависимость от group_rule - сортировка по номеру группы, 0 - все, и view_rule - 1 - все подряд, 0 - с номерами.
         self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
         self.lfr_pro1, self.increment_pro1 = Parser.repack_pro(
             dPars, self.lfr_grp1, self.pro1, self.group_rule, self.view_rule)
@@ -262,6 +263,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Сортируем списки по нулевому полю
         lfr_pro1 = sorted(self.lfr_pro1)
 
+        # Если у нас открыт второй протокол, то объединям результаты в один общий.
         if self.local_filename_choose2!= "":
             
             # Считаем файл групп.
@@ -274,6 +276,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 dPars, self.local_filename_choose2)
 
             # Распакуем список групп и сами протоколы. Вернет списки и число годных записей. Список групп берем из первого протокола, как основного.
+            # Зависимость от group_rule - сортировка по номеру группы, 0 - все, и view_rule - 1 - все подряд, 0 - с номерами.
+            # Важно, чтобы возвращаемые self.increment_pro1 и self.increment_pro2 совпадали, иначе не сработает объединение.
             #self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
             self.lfr_pro2, self.increment_pro2 = Parser.repack_pro(
                 dPars, self.lfr_grp1, self.pro2, self.group_rule, self.view_rule)
@@ -286,44 +290,48 @@ class MainWindow(QtWidgets.QMainWindow):
             # Обьединим результаты. Проверка по стартовому номеру и имени.
             for i in range(len(lfr_pro1)):
                 if lfr_pro1[i][0] == lfr_pro2[i][0] or lfr_pro1[i][1] == lfr_pro2[i][1]:
+                    # Загрузка финишей второго протокола в общий
                     lfr_pro1[i].append(lfr_pro2[i][8])
                     lfr_pro1[i].append(lfr_pro2[i][9])
+                    # Сравнение результатов первого протокола и второго.
+                    # Принудительный вывод результата
                     if self.append_rule == 1:
                         if lfr_pro1[i][8] < lfr_pro1[i][10]:
                             lfr_pro1[i].append(lfr_pro1[i][8])
                             lfr_pro1[i].append(lfr_pro1[i][9])
-                            if self.local_filename_choose4 != "":
-                                self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
+                            self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
                         else: 
                             lfr_pro1[i].append(lfr_pro1[i][10])
                             lfr_pro1[i].append(lfr_pro1[i][11])
-                            if self.local_filename_choose4 != "":                                
-                                self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
+                            self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
                     else:
+                        # Вывод результата, какой меньше.
                         if lfr_pro1[i][8] != 4294967295 and lfr_pro1[i][10] != 4294967295:
                             if lfr_pro1[i][8] < lfr_pro1[i][10]:
                                 lfr_pro1[i].append(lfr_pro1[i][8])
                                 lfr_pro1[i].append(lfr_pro1[i][9])
-                                if self.local_filename_choose4 != "":
-                                    self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
+                                self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
                             else: 
                                 lfr_pro1[i].append(lfr_pro1[i][10])
                                 lfr_pro1[i].append(lfr_pro1[i][11])
-                                if self.local_filename_choose4 != "":
-                                    self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
+                                self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
                         else:
-                            if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
-                                lfr_pro1[i].append(4294967295)
-                                lfr_pro1[i].append(' 00:00:00,00')
+                            # Вывод результата, в зависимости в каком поле нулевой.
+                            #if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
+                                # Если в первом протоколе результат нулевой, принимаем результат второго протокола как финишный
                                 if lfr_pro1[i][8] == 4294967295:
-                                    if self.local_filename_choose4 != "":
-                                        self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
+                                    lfr_pro1[i].append(lfr_pro1[i][10])
+                                    lfr_pro1[i].append(lfr_pro1[i][11])
+                                    self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
                                 else: 
+                                    # Если нулевой результат во втором протоколе, то вероятно второй протокол еще не заполнился
                                     if lfr_pro1[i][10] == 4294967295:
-                                        if self.local_filename_choose4 != "":
-                                            self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
-                        
-            self.saveprot (self.pro3)
+                                        lfr_pro1[i].append(4294967295)
+                                        lfr_pro1[i].append(' 00:00:00,00')
+                                        self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
+            # Запишем получившийся binary протокол.
+            if self.local_filename_choose4 != "":            
+                self.saveprot (self.pro3)
                         #if lfr_pro1[i][8] < lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295:
                         #    lfr_pro1[i].append(lfr_pro1[i][8])
                         #    lfr_pro1[i].append(lfr_pro1[i][9])
@@ -340,6 +348,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
         lfr_pro_t = []
+        # Выборка участников по группам
         if self.group_rule>0:
             # Сортируем списки по третьему полю
             lfr_pro = sorted(lfr_pro, key=lambda x: x[3])
@@ -360,11 +369,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     if k[3] == self.group_rule:
                         lfr_pro_t.append(lfr_pro[lenlfr])
                         del lfr_pro[lenlfr]
-            # Сортируем списки по нулевому полю, в зависимости от правила сортировки
+            # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
             lfr_pro_t = sorted(
                 lfr_pro_t, key=lambda x: x[self.sorted_rule])
         else:        
-            # Сортируем списки по нулевому полю, в зависимости от правила сортировки
+            # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
             lfr_pro_t = sorted(
                 lfr_pro, key=lambda x: x[self.sorted_rule])
 
