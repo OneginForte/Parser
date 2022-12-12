@@ -292,53 +292,123 @@ class MainWindow(QtWidgets.QMainWindow):
             lfr_pro2 = sorted(self.lfr_pro2)
             self.pro3 = b''
             
-            # Обьединим результаты. Проверка по стартовому номеру и имени.
-            for i in range(len(lfr_pro1)):
-                if lfr_pro1[i][0] == lfr_pro2[i][0] \
-                    or lfr_pro1[i][1] == lfr_pro2[i][1]:
-                    # Загрузка финишей второго протокола в общий
-                    lfr_pro1[i].append(lfr_pro2[i][8])
-                    lfr_pro1[i].append(lfr_pro2[i][9])
-                    # Сравнение результатов первого протокола и второго.
-                    # Вывод результата, в зависимости в каком поле нулевой.
-                    # Если в первом протоколе результат нулевой, принимаем результат второго протокола как финишный
-                    # Если нулевой результат во втором протоколе, то вероятно второй протокол еще не заполнился.
-                    # Принудительная фиксация результатов по флагу self.append_rule
-
-                    if lfr_pro1[i][8] > lfr_pro1[i][10]:
-                        lfr_pro1[i].append(lfr_pro1[i][10])
-                        lfr_pro1[i].append(lfr_pro1[i][11])
-                        self.pro3 = self.pro3 + \
-                            self.pro2[(lfr_pro2[i][0])][1]
-                    elif (lfr_pro1[i][8] < lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or self.append_rule == 1:
-                        lfr_pro1[i].append(lfr_pro1[i][8])
-                        lfr_pro1[i].append(lfr_pro1[i][9])
-                        self.pro3 = self.pro3 + \
-                            self.pro1[(lfr_pro1[i][0])][1]     
-                    else:
-                        lfr_pro1[i].append(4294967295)
-                        lfr_pro1[i].append(' 00:00:00,00')
-                        self.pro3 = self.pro3 + \
-                            self.pro2[(lfr_pro2[i][0])][1]
-
-                            # if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
-                            #lfr_pro1[i].append(lfr_pro1[i][10])
-                            # lfr_pro1[i].append(lfr_pro1[i][11])
-                            # self.pro3 = self.pro3 + \
-                            # self.pro2[(lfr_pro2[i][0])][1]
-
-                                #lfr_pro1[i].append(lfr_pro1[i][8])
-                                #lfr_pro1[i].append(lfr_pro1[i][9])
-                                #self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
+            lfr_pro1 = self.append_pro_result (lfr_pro1, lfr_pro2)
 
             # Запишем получившийся binary протокол.
             if self.local_filename_choose4 != "" and self.autosave == 1:
                 self.saveprot (self.pro3)
         
-        
         lfr_pro = [e.copy() for e in self.lfr_pro1]
 
+        lfr_pro_t = self.pro_grp_sort(lfr_pro)
 
+        QListWidget.clear(self.list_widget)
+        
+        lfr_pro_t = self.pro_preapare (lfr_pro_t)
+            
+
+        lfr_pro_t.insert(
+            0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2   Итоговый')
+
+        self.list_widget.addItems(lfr_pro_t)
+
+        combo_index = self.combobox1.currentIndex()
+        self.combobox1.clear()
+
+        lfr_grp = [e.copy() for e in self.lfr_grp1]
+
+        lfr_grp = self.group_prepare (lfr_grp)
+        
+        self.combobox1.addItems(lfr_grp)
+        if combo_index == -1:
+            combo_index = 0
+        self.combobox1.setCurrentIndex(combo_index)
+        self.statusBar().showMessage(str("Число участников - ") +
+                                     str(self.increment_pro1) +
+                                     str(" Записей в протоколе - ") +
+                                     str(self.increment_pro))
+   
+    
+    def saveprot(self, prot):
+        if self.local_filename_choose4 != "" and len(prot)>0:
+            dPars.save_pro(self.local_filename_choose4, prot)
+ 
+    def append_pro_result (self, lfr_pro1, lfr_pro2):
+        # Обьединим результаты. Проверка по стартовому номеру и имени.
+        for i in range(len(lfr_pro1)):
+            if lfr_pro1[i][0] == lfr_pro2[i][0] \
+                or lfr_pro1[i][1] == lfr_pro2[i][1]:
+                # Загрузка финишей второго протокола в общий
+                lfr_pro1[i].append(lfr_pro2[i][8])
+                lfr_pro1[i].append(lfr_pro2[i][9])
+                   # Сравнение результатов первого протокола и второго.
+                   # Вывод результата, в зависимости в каком поле нулевой.
+                   # Если в первом протоколе результат нулевой, принимаем результат второго протокола как финишный
+                   # Если нулевой результат во втором протоколе, то вероятно второй протокол еще не заполнился.
+                   # Принудительная фиксация результатов по флагу self.append_rule
+
+                if lfr_pro1[i][8] >= lfr_pro1[i][10]:
+                        lfr_pro1[i].append(lfr_pro1[i][10])
+                        lfr_pro1[i].append(lfr_pro1[i][11])
+                        self.pro3 = self.pro3 + \
+                            self.pro2[(lfr_pro2[i][0])][1]
+                elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or self.append_rule == 1:
+                        lfr_pro1[i].append(lfr_pro1[i][8])
+                        lfr_pro1[i].append(lfr_pro1[i][9])
+                        self.pro3 = self.pro3 + \
+                            self.pro1[(lfr_pro1[i][0])][1]
+                else:
+                        lfr_pro1[i].append(4294967295)
+                        lfr_pro1[i].append(' 00:00:00,00')
+                        self.pro3 = self.pro3 + \
+                            self.pro2[(lfr_pro2[i][0])][1]
+
+                        # if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
+                        # lfr_pro1[i].append(lfr_pro1[i][10])
+                        # lfr_pro1[i].append(lfr_pro1[i][11])
+                        # self.pro3 = self.pro3 + \
+                        # self.pro2[(lfr_pro2[i][0])][1]
+
+                           #lfr_pro1[i].append(lfr_pro1[i][8])
+                           #lfr_pro1[i].append(lfr_pro1[i][9])
+                           #self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
+
+        return lfr_pro1
+    
+    def group_prepare(self, lfr_grp):
+     # ['Все', 1, '0', 0, 255, '0']
+        for i in range(2, len(lfr_grp)):
+            lfr_grp[i][0] = lfr_grp[i][0]+lfr_grp[i][2]
+
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
+
+        lfr_grp = [''.join(lfr_grp[i])
+                   for i in range(len(lfr_grp))]
+        return lfr_grp
+
+    def pro_preapare(self, lfr_pro_t):
+        # Удаляем лишние поля перед сортировкой, при условии, что список не пустой.
+        if len(lfr_pro_t) > 0:
+            [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
+            [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
+            [(lfr_pro_t[i].pop(1)) for i in range(len(lfr_pro_t))]
+            [(lfr_pro_t[i].pop(5)) for i in range(len(lfr_pro_t))]
+            if len(lfr_pro_t[0]) > 6 and self.group_rule != 1:
+                [(lfr_pro_t[i].pop(6)) for i in range(len(lfr_pro_t))]
+                if len(lfr_pro_t[0]) > 7 and self.group_rule != 1:
+                    [(lfr_pro_t[i].pop(7)) for i in range(len(lfr_pro_t))]
+
+            # Преобразуем списки участников в чистый текст.
+            lfr_pro_t = [''.join(lfr_pro_t[i])
+                         for i in range(len(lfr_pro_t))]
+        return lfr_pro_t
+
+    def pro_grp_sort(self, lfr_pro):
+        
         lfr_pro_t = []
         # Выборка участников по группам
         if self.group_rule>0:
@@ -361,6 +431,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if k[3] == self.group_rule:
                         lfr_pro_t.append(lfr_pro[lenlfr])
                         del lfr_pro[lenlfr]
+            
             # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
             lfr_pro_t = sorted(
                 lfr_pro_t, key=lambda x: x[self.sorted_rule])
@@ -368,61 +439,10 @@ class MainWindow(QtWidgets.QMainWindow):
             # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
             lfr_pro_t = sorted(
                 lfr_pro, key=lambda x: x[self.sorted_rule])
-
-        QListWidget.clear(self.list_widget)
         
-        # Удаляем лишние поля перед сортировкой, при условии, что список не пустой.
-        if len(lfr_pro_t) > 0:
-            [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
-            [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
-            [(lfr_pro_t[i].pop(1)) for i in range(len(lfr_pro_t))]
-            [(lfr_pro_t[i].pop(5)) for i in range(len(lfr_pro_t))]
-            if len(lfr_pro_t[0]) > 6 and self.group_rule != 1:
-                [(lfr_pro_t[i].pop(6)) for i in range(len(lfr_pro_t))]
-                if len(lfr_pro_t[0]) > 7 and self.group_rule != 1:
-                    [(lfr_pro_t[i].pop(7)) for i in range(len(lfr_pro_t))]
+        return lfr_pro_t
 
-            # Преобразуем списки участников в чистый текст.
-            lfr_pro_t = [''.join(lfr_pro_t[i])
-                         for i in range(len(lfr_pro_t))]
-            
 
-        lfr_pro_t.insert(
-            0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2   Итоговый')
-
-        self.list_widget.addItems(lfr_pro_t)
-
-        combo_index = self.combobox1.currentIndex()
-        self.combobox1.clear()
-
-        lfr_grp = [e.copy() for e in self.lfr_grp1]
-
-        #['Все', 1, '0', 0, 255, '0']
-        for i in range(2, len(lfr_grp)):
-            lfr_grp[i][0] = lfr_grp[i][0]+lfr_grp[i][2]
-
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-        [(lfr_grp[i].pop(1)) for i in range(len(lfr_grp))]
-
-        lfr_grp = [''.join(lfr_grp[i])
-                   for i in range(len(lfr_grp))]
-        self.combobox1.addItems(lfr_grp)
-        if combo_index == -1:
-            combo_index = 0
-        self.combobox1.setCurrentIndex(combo_index)
-        self.statusBar().showMessage(str("Число участников - ") +
-                                     str(self.increment_pro1) +
-                                     str(" Записей в протоколе - ") +
-                                     str(self.increment_pro))
-   
-    
-    def saveprot(self, prot):
-        if self.local_filename_choose4 != "" and len(prot)>0:
-            dPars.save_pro(self.local_filename_choose4, prot)
- 
     #@pyqtSlot()
     def clicked(self, item):
         QMessageBox.information(
@@ -510,6 +530,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def slot_btn_chooseFile1(self):
 
+        old_file = ""
+
+        if self.local_filename_choose1 != "":
+            old_file = self.local_filename_choose1
         self.local_filename_choose1, filetype = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 1",
                                                                             self.cwd,  # Начальный путь
@@ -518,12 +542,13 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.local_filename_choose1 == "":
             QMessageBox.warning(
                 self, "Ошибка", "Не выбран протокол!", QMessageBox.Ok)
+            if old_file != "":
+               self.local_filename_choose1 = old_file
             return
 
-        self.local_filename_choose2 =""
+        self.local_filename_choose2 = ""
         self.append_rule = 0
-        self.reload()
-
+        
         self.btn_choose1.setEnabled(True)
         self.btn_choose2.setEnabled(True)
         self.btn_choose3.setEnabled(True)
@@ -533,8 +558,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_chooseFile2.setEnabled(True)
         self.btn_chooseFile4.setEnabled(False)
 
+        self.reload()
+
     def slot_btn_chooseFile2(self):
 
+        old_file = ""
+
+        if self.local_filename_choose1 != "":
+            old_file = self.local_filename_choose1
         self.local_filename_choose2, filetype = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 2",
                                                                             self.cwd,  # Начальный путь
@@ -543,6 +574,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.local_filename_choose2 == "" or self.local_filename_choose2 == self.local_filename_choose1:
             QMessageBox.warning(
                 self, "Ошибка", "Выберете другой протокол!", QMessageBox.Ok)
+            if old_file != "":
+               self.local_filename_choose1 = old_file
             return
 
         filename_grp = self.local_filename_choose2.rsplit('.', 1)[0] + '.grp'
@@ -582,15 +615,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lfr_pro2 = []
             return
 
-        # Теперь подготовим протоколы к сравнению и объединению результатов. Обновим виджеты в окне.
-        self.reload()
-        
         self.btn_chooseFile3.setEnabled(False)
         self.btn_chooseFile4.setEnabled(True)
         self.btn_choose1.setChecked(True)
         self.btn_choose2.setChecked(False)
         self.btn_choose3.setChecked(False)
         self.btn_choose5.setEnabled(True)
+        # Теперь подготовим протоколы к сравнению и объединению результатов. Обновим виджеты в окне.
+        self.reload()
+        
+        
 
     def slot_btn_chooseFile3(self):
         return
@@ -612,7 +646,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self.checkbox2.setEnabled(True)
         self.reload()
-        if self.pro3 != 0:
+        if len(self.pro3) != 0 and self.autosave != 1:
             self.saveprot(self.pro3)
 
     def keyPressEvent(self, e):
