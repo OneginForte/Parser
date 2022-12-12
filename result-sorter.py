@@ -56,6 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.group_rule = 0 # Сортировка по номеру группы. 0 - все
         self.append_rule = 0 # Триггер для объединения результатов.
         self.autoreload = 0 # Триггер автообновления
+        self.autosave = 0 # Триггер автоматического сохранения
         self.reload_timer = 10
         self.all_tabs = []
 
@@ -162,6 +163,8 @@ class MainWindow(QtWidgets.QMainWindow):
                                     alignment=QtCore.Qt.AlignCenter)
 
         self.checkbox1 = QCheckBox('Обновлять автоматически', self)
+        self.checkbox2 = QCheckBox('Сохранять автоматически', self)
+        self.checkbox2.setEnabled(False)
         #self.checkbox1.toggle()
 
         self.spinbox1 = QSpinBox(self)
@@ -194,6 +197,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.list_widget.itemClicked.connect(self.clicked)
         self.combobox1.activated[int].connect(self.onCombo1Selected)
         self.checkbox1.stateChanged.connect(self.checkBox_1)
+        self.checkbox2.stateChanged.connect(self.checkbox_2)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
        
         grid = QGridLayout()
@@ -220,7 +224,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.checkbox1)
         self.left_layout.addWidget(self.spinbox1)
         self.left_layout.addWidget(self.btn_choose5)
-        self.left_layout.addWidget(self.btn_chooseFile4) 
+        self.left_layout.addWidget(self.btn_chooseFile4)
+        self.left_layout.addWidget(self.checkbox2)
         self.left_layout.insertSpacing(10, 20)
         self.left_layout.addWidget(self.text3)
         self.left_layout.addWidget(self.combobox1)
@@ -289,59 +294,46 @@ class MainWindow(QtWidgets.QMainWindow):
             
             # Обьединим результаты. Проверка по стартовому номеру и имени.
             for i in range(len(lfr_pro1)):
-                if lfr_pro1[i][0] == lfr_pro2[i][0] or lfr_pro1[i][1] == lfr_pro2[i][1]:
+                if lfr_pro1[i][0] == lfr_pro2[i][0] \
+                    or lfr_pro1[i][1] == lfr_pro2[i][1]:
                     # Загрузка финишей второго протокола в общий
                     lfr_pro1[i].append(lfr_pro2[i][8])
                     lfr_pro1[i].append(lfr_pro2[i][9])
                     # Сравнение результатов первого протокола и второго.
-                    # Принудительный вывод результата
-                    if self.append_rule == 1:
-                        if lfr_pro1[i][8] < lfr_pro1[i][10]:
-                            lfr_pro1[i].append(lfr_pro1[i][8])
-                            lfr_pro1[i].append(lfr_pro1[i][9])
-                            self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
-                        else: 
-                            lfr_pro1[i].append(lfr_pro1[i][10])
-                            lfr_pro1[i].append(lfr_pro1[i][11])
-                            self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
+                    # Вывод результата, в зависимости в каком поле нулевой.
+                    # Если в первом протоколе результат нулевой, принимаем результат второго протокола как финишный
+                    # Если нулевой результат во втором протоколе, то вероятно второй протокол еще не заполнился.
+                    # Принудительная фиксация результатов по флагу self.append_rule
+
+                    if lfr_pro1[i][8] > lfr_pro1[i][10]:
+                        lfr_pro1[i].append(lfr_pro1[i][10])
+                        lfr_pro1[i].append(lfr_pro1[i][11])
+                        self.pro3 = self.pro3 + \
+                            self.pro2[(lfr_pro2[i][0])][1]
+                    elif (lfr_pro1[i][8] < lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or self.append_rule == 1:
+                        lfr_pro1[i].append(lfr_pro1[i][8])
+                        lfr_pro1[i].append(lfr_pro1[i][9])
+                        self.pro3 = self.pro3 + \
+                            self.pro1[(lfr_pro1[i][0])][1]     
                     else:
-                        # Вывод результата, какой меньше.
-                        if lfr_pro1[i][8] != 4294967295 and lfr_pro1[i][10] != 4294967295:
-                            if lfr_pro1[i][8] < lfr_pro1[i][10]:
-                                lfr_pro1[i].append(lfr_pro1[i][8])
-                                lfr_pro1[i].append(lfr_pro1[i][9])
-                                self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
-                            else: 
-                                lfr_pro1[i].append(lfr_pro1[i][10])
-                                lfr_pro1[i].append(lfr_pro1[i][11])
-                                self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
-                        else:
-                            # Вывод результата, в зависимости в каком поле нулевой.
-                            #if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
-                                # Если в первом протоколе результат нулевой, принимаем результат второго протокола как финишный
-                                if lfr_pro1[i][8] == 4294967295:
-                                    lfr_pro1[i].append(lfr_pro1[i][10])
-                                    lfr_pro1[i].append(lfr_pro1[i][11])
-                                    self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
-                                else: 
-                                    # Если нулевой результат во втором протоколе, то вероятно второй протокол еще не заполнился
-                                    if lfr_pro1[i][10] == 4294967295:
-                                        lfr_pro1[i].append(4294967295)
-                                        lfr_pro1[i].append(' 00:00:00,00')
-                                        self.pro3 = self.pro3 + self.pro2[(lfr_pro2[i][0])][1]
+                        lfr_pro1[i].append(4294967295)
+                        lfr_pro1[i].append(' 00:00:00,00')
+                        self.pro3 = self.pro3 + \
+                            self.pro2[(lfr_pro2[i][0])][1]
+
+                            # if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
+                            #lfr_pro1[i].append(lfr_pro1[i][10])
+                            # lfr_pro1[i].append(lfr_pro1[i][11])
+                            # self.pro3 = self.pro3 + \
+                            # self.pro2[(lfr_pro2[i][0])][1]
+
+                                #lfr_pro1[i].append(lfr_pro1[i][8])
+                                #lfr_pro1[i].append(lfr_pro1[i][9])
+                                #self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
+
             # Запишем получившийся binary протокол.
-            if self.local_filename_choose4 != "":            
+            if self.local_filename_choose4 != "" and self.autosave == 1:
                 self.saveprot (self.pro3)
-                        #if lfr_pro1[i][8] < lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295:
-                        #    lfr_pro1[i].append(lfr_pro1[i][8])
-                        #    lfr_pro1[i].append(lfr_pro1[i][9])
-                        #else: 
-                        #    if lfr_pro1[i][10] != 4294967295:
-                        #        lfr_pro1[i].append(lfr_pro1[i][10])
-                        #        lfr_pro1[i].append(lfr_pro1[i][11])
-                        #    else: 
-                        #        lfr_pro1[i].append(4294967295)
-                        #        lfr_pro1[i].append(' 00:00:00,00')
         
         
         lfr_pro = [e.copy() for e in self.lfr_pro1]
@@ -444,6 +436,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.autoreload = 0
             t.stop()
 
+    def checkbox_2(self, state):
+        if state == Qt.Checked:
+            self.autosave = 1
+            
+        else:
+            self.autosave = 0
+            
+
     def spinBox_1(self):
         self.reload_timer = self.spinbox1.value()
 
@@ -529,6 +529,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose3.setEnabled(True)
         self.btn_choose4.setEnabled(True)
         self.btn_choose5.setEnabled(False)
+        self.checkbox2.setEnabled(False)
         self.btn_chooseFile2.setEnabled(True)
         self.btn_chooseFile4.setEnabled(False)
 
@@ -556,7 +557,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self, "Ошибка", "Не совпадают файлы групп!", QMessageBox.Ok)
             return
 
-        # Есть вероятность, что это идентичные протоколы.
+        # Здесь мы думаем, что есть вероятность, что протоколы идентичны по структуре.
         # Считаем файл протоколов.Возвращает raw binary блоки по 282 байт и число обработанных записей.
         self.pro2, increment_pro_all2 = Parser.read_pro(
             dPars, self.local_filename_choose2)
@@ -609,9 +610,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.local_filename_choose4 == "":
             return
-        
+        self.checkbox2.setEnabled(True)
         self.reload()
-        #self.saveprot()
+        if self.pro3 != 0:
+            self.saveprot(self.pro3)
 
     def keyPressEvent(self, e):
 
