@@ -168,7 +168,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.checkbox1.toggle()
 
         self.spinbox1 = QSpinBox(self)
-        self.spinbox1.setRange(10, 60)
+        self.spinbox1.setRange(1, 60)
+        self.spinbox1.setValue(5)
         self.spinbox1.setSuffix(' сек.')
         self.spinbox1.setFixedWidth(65)
 
