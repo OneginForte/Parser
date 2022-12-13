@@ -44,14 +44,17 @@ class Parser:
 
     def read_grp(self, file):
 
-        self.increment_grp = 0
+        increment_grp = 0
         self.grp_zag = []
         self.grp = []
         
         file_open = file.rsplit('.', 1)[0] + '.grp'
         #Откроем файл групп
-        file_open = open(file_open, 'rb')
-
+        try:
+            file_open = open(file_open, 'rb')
+        except FileNotFoundError:
+            return self.grp_zag, self.grp, increment_grp
+        
         self.grp_zag.append(file_open.read(1833))
 
         data_bytes = file_open.read(136)
@@ -60,12 +63,12 @@ class Parser:
             #Не забудем проверить, запись это или нет
             self.grp.append(data_bytes)
             data_bytes = file_open.read(136)
-            self.increment_grp += 1
+            increment_grp += 1
 
         #Закроем уже не нужный файл
         file_open.close()
 
-        return self.grp_zag, self.grp, self.increment_grp
+        return self.grp_zag, self.grp, increment_grp
 
     def read_pro(self, file):
 
@@ -75,6 +78,9 @@ class Parser:
 
         #Откроем файл протокола
         file_open = open(file, 'rb')
+
+        #if len(file_open) % 282 != 0 :
+        #    return pro, increment_pro
 
         data_bytes = []
         prol = []

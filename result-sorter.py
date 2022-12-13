@@ -255,7 +255,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Считаем файл групп
         self.grp_zag, self.grp1, self.increment_grp1 = Parser.read_grp(
             dPars, self.local_filename_choose1)
-
+        
         # Считаем файл протоколов. Возвращает raw binary блоки по 282 байт и число обработанных записей
         self.pro1, self.increment_pro = Parser.read_pro(
             dPars, self.local_filename_choose1)
@@ -284,7 +284,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # Распакуем список групп и сами протоколы. Вернет списки и число годных записей. Список групп берем из первого протокола, как основного.
             # Зависимость от group_rule - сортировка по номеру группы, 0 - все, и view_rule - 1 - все подряд, 0 - с номерами.
             # Важно, чтобы возвращаемые self.increment_pro1 и self.increment_pro2 совпадали, иначе не сработает объединение.
-            #self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
+            self.lfr_grp2 = Parser.repack_grp(dPars, self.grp2)
             self.lfr_pro2, self.increment_pro2 = Parser.repack_pro(
                 dPars, self.lfr_grp1, self.pro2, self.group_rule, self.view_rule)
 
@@ -301,12 +301,13 @@ class MainWindow(QtWidgets.QMainWindow):
         
         lfr_pro = [e.copy() for e in self.lfr_pro1]
 
-        lfr_pro_t = self.pro_grp_sort(lfr_pro)
+        lfr_pro_t = self.pro_grp_sort(lfr_pro, self.lfr_grp1)
 
         QListWidget.clear(self.list_widget)
         
         lfr_pro_t = self.pro_preapare (lfr_pro_t)
-            
+        
+        len_lfr = len(lfr_pro_t)    
 
         lfr_pro_t.insert(
             0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2   Итоговый')
@@ -325,7 +326,7 @@ class MainWindow(QtWidgets.QMainWindow):
             combo_index = 0
         self.combobox1.setCurrentIndex(combo_index)
         self.statusBar().showMessage(str("Число участников - ") +
-                                     str(self.increment_pro1) +
+                                     str(len_lfr) +  #self.increment_pro1
                                      str(" Записей в протоколе - ") +
                                      str(self.increment_pro))
    
@@ -343,7 +344,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 lfr_pro1[i].append(lfr_pro2[i][8])
                 lfr_pro1[i].append(lfr_pro2[i][9])
                    # Сравнение результатов первого протокола и второго.
-                   # Вывод результата, в зависимости в каком поле нулевой.
+                   # Вывод результата, в зависимости в протоколе нулевой.
                    # Если в первом протоколе результат нулевой, принимаем результат второго протокола как финишный
                    # Если нулевой результат во втором протоколе, то вероятно второй протокол еще не заполнился.
                    # Принудительная фиксация результатов по флагу self.append_rule
@@ -353,7 +354,8 @@ class MainWindow(QtWidgets.QMainWindow):
                         lfr_pro1[i].append(lfr_pro1[i][11])
                         self.pro3 = self.pro3 + \
                             self.pro2[(lfr_pro2[i][0])][1]
-                elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or self.append_rule == 1:
+                elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or \
+                        self.append_rule == 1:
                         lfr_pro1[i].append(lfr_pro1[i][8])
                         lfr_pro1[i].append(lfr_pro1[i][9])
                         self.pro3 = self.pro3 + \
@@ -408,21 +410,21 @@ class MainWindow(QtWidgets.QMainWindow):
                          for i in range(len(lfr_pro_t))]
         return lfr_pro_t
 
-    def pro_grp_sort(self, lfr_pro):
+    def pro_grp_sort(self, lfr_pro, lfr_grp):
         
         lfr_pro_t = []
         # Выборка участников по группам
         if self.group_rule>0:
             # Сортируем списки по третьему полю
             lfr_pro = sorted(lfr_pro, key=lambda x: x[3])
-            if self.lfr_grp1[self.group_rule][4]==255: # Проверим на результирующую группу
+            if lfr_grp[self.group_rule][4]==255: # Проверим на результирующую группу
                 
-                for i in range(2, len(self.lfr_grp1)):
+                for i in range(2, len(lfr_grp)):
                     # Выборка между группами                    
                     lenlfr=len(lfr_pro)
                     for k in reversed(lfr_pro):
-                            lenlfr=lenlfr-1
-                            if k[3] == i and self.lfr_grp1[i][4] == self.group_rule:
+                            lenlfr = lenlfr-1
+                            if k[3] == i and lfr_grp[i][4] == self.group_rule:
                                  lfr_pro_t.append(lfr_pro[lenlfr])
                                  del lfr_pro[lenlfr]
             else:
@@ -531,7 +533,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def slot_btn_chooseFile1(self):
 
-        old_file = ""
+        old_file = self.local_filename_choose1
 
         if self.local_filename_choose1 != "":
             old_file = self.local_filename_choose1
@@ -545,6 +547,23 @@ class MainWindow(QtWidgets.QMainWindow):
                 self, "Ошибка", "Не выбран протокол!", QMessageBox.Ok)
             if old_file != "":
                self.local_filename_choose1 = old_file
+            return
+
+        grp_zag, grp1, increment_grp1 = Parser.read_grp(
+            dPars, self.local_filename_choose1)
+        
+        if increment_grp1 == 0:
+            QMessageBox.warning(
+                self, "Ошибка", "Данный протокол не имеет файла групп!", QMessageBox.Ok)
+            self.local_filename_choose1 = ""
+            return
+        
+        pro1, increment_pro1 = Parser.read_pro(
+            dPars, self.local_filename_choose1)
+        if increment_pro1 == 0:
+            QMessageBox.warning(
+                self, "Ошибка", "Это пустой протокол!", QMessageBox.Ok)
+            self.local_filename_choose1 = ""
             return
 
         self.local_filename_choose2 = ""
@@ -563,7 +582,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def slot_btn_chooseFile2(self):
 
-        old_file = ""
+        old_file = self.local_filename_choose2
 
         if self.local_filename_choose1 != "":
             old_file = self.local_filename_choose1
@@ -576,39 +595,44 @@ class MainWindow(QtWidgets.QMainWindow):
             QMessageBox.warning(
                 self, "Ошибка", "Выберете другой протокол!", QMessageBox.Ok)
             if old_file != "":
-               self.local_filename_choose1 = old_file
+               self.local_filename_choose2 = old_file
             return
 
         filename_grp = self.local_filename_choose2.rsplit('.', 1)[0] + '.grp'
 
         # Считаем файл групп.
-        self.grp_zag2, self.grp2, self.increment_grp2 = Parser.read_grp(
+        grp_zag2, grp2, increment_grp2 = Parser.read_grp(
             dPars, filename_grp)
+        if increment_grp2 == 0:
+            QMessageBox.warning(
+                self, "Ошибка", "Данный протокол не имеет файла групп!", QMessageBox.Ok)
+            self.local_filename_choose1 = ""
+            return
 
         # Проверим по нему, имеет вообще смысл дальше разбирать протокол.
-        if self.increment_grp2 != self.increment_grp1:
+        if increment_grp2 != self.increment_grp1:
             QMessageBox.warning(
                 self, "Ошибка", "Не совпадают файлы групп!", QMessageBox.Ok)
+            self.local_filename_choose2 = ""
             return
 
         # Здесь мы думаем, что есть вероятность, что протоколы идентичны по структуре.
         # Считаем файл протоколов.Возвращает raw binary блоки по 282 байт и число обработанных записей.
-        self.pro2, increment_pro_all2 = Parser.read_pro(
+        pro2, increment_pro_all2 = Parser.read_pro(
             dPars, self.local_filename_choose2)
+        if increment_pro_all2 == 0:
+            QMessageBox.warning(
+                self, "Ошибка", "Это пустой протокол!", QMessageBox.Ok)
+            self.local_filename_choose2 = ""
+            return
 
-        # Распакуем список групп и сами протоколы. Вернет списки и число годных записей. Список групп берем из первого протокола, как основного.
-        #self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
-        self.lfr_pro2, self.increment_pro2 = Parser.repack_pro(
-            dPars, self.lfr_grp1, self.pro2, self.group_rule, 0)
-
-        # Считаем файл протоколов. Возвращает raw binary блоки по 282 байт и число обработанных записей.
-        self.pro1, self.increment_pro = Parser.read_pro(
-            dPars, self.local_filename_choose1)
-        self.lfr_pro1, self.increment_pro1 = Parser.repack_pro(
-            dPars, self.lfr_grp1, self.pro1, self.group_rule, 0)
+        # Распакуем список групп и сами протоколы. Вернет списки и число годных записей.
+        grp2 = Parser.repack_grp(dPars, grp2)
+        lfr_pro2, increment_pro2 = Parser.repack_pro(
+            dPars, grp2, pro2, self.group_rule, 0)
 
         # Проверим число участников. Протоколы не будут обратываться при не совпадении числа участников.
-        if self.increment_pro1 != self.increment_pro2:  # or self.increment_pro != increment_pro_all2
+        if self.increment_pro1 != increment_pro2:  # or self.increment_pro != increment_pro_all2
             QMessageBox.warning(
                 self, "Ошибка", "Не совпадает число участников в протоколе!", QMessageBox.Ok)
             self.local_filename_choose2 = ""
