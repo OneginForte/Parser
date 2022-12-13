@@ -4,6 +4,7 @@
 
   <p align="center">
     Simplify Marathon-Electro complex of electronic timing protocol viewer.
+    "Ski Stadium -21"
     <br/>
     <br/>
   </p>
