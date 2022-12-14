@@ -6,4 +6,6 @@
 /.vscode
 /Uploader
 /src2
-*.*
+*.grp
+*.pro
+*.krg
