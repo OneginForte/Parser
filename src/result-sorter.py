@@ -424,10 +424,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     # Выборка между группами                    
                     lenlfr=len(lfr_pro)
                     for k in reversed(lfr_pro):
-                            lenlfr = lenlfr-1
-                            if k[3] == i and lfr_grp[i][4] == self.group_rule:
-                                 lfr_pro_t.append(lfr_pro[lenlfr])
-                                 del lfr_pro[lenlfr]
+                        lenlfr = lenlfr-1
+                        if k[3] == i and lfr_grp[i][4] == self.group_rule:
+                            lfr_pro_t.append(lfr_pro[lenlfr])
+                            del lfr_pro[lenlfr]
             else:
                 lenlfr = len(lfr_pro)
                 for k in reversed(lfr_pro):
