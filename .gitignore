@@ -5,4 +5,5 @@
 /.pytest_cache
 /.vscode
 /Uploader
+/src2
 *.*
