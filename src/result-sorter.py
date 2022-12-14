@@ -463,7 +463,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def checkbox_2(self, state):
         if state == Qt.Checked:
             self.autosave = 1
-            
         else:
             self.autosave = 0
             
