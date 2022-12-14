@@ -245,7 +245,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #centralWidget.addWidget(tempFrame)
         
         centralWidget.setLayout(grid)
-        self.setGeometry(500, 300, 1300, 500)
+        self.setGeometry(500, 300, 1200, 500)
         #self.oldPos = self.pos()
         
         self.show()
