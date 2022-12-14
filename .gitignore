@@ -5,6 +5,4 @@
 /.pytest_cache
 /.vscode
 /Uploader
-*.grp
-*.krg
-*.pro
+*.*
