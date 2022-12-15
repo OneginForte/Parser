@@ -202,7 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.combobox1.activated[int].connect(self.onCombo1Selected)
         self.checkbox1.stateChanged.connect(self.checkBox_1)
         self.checkbox2.stateChanged.connect(self.checkbox_2)
-        self.checkbox3.stateChanged.connect(self.checkbox_2)
+        self.checkbox3.stateChanged.connect(self.checkbox_3)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
        
         grid = QGridLayout()
@@ -355,23 +355,27 @@ class MainWindow(QtWidgets.QMainWindow):
                    # Принудительная фиксация результатов по флагу self.append_rule
 
                 if lfr_pro1[i][8] >= lfr_pro1[i][10]:
-                        lfr_pro1[i].append(lfr_pro1[i][10])
-                        lfr_pro1[i].append(lfr_pro1[i][11])
                         if self.doublesave == 1:
                             self.pro3 += self.pro1[(lfr_pro1[i][0])][1]
+                        else: 
+                            lfr_pro1[i].append(lfr_pro1[i][10])
+                            lfr_pro1[i].append(lfr_pro1[i][11])
                         self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
                 elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or \
                         self.append_rule == 1:
-                        lfr_pro1[i].append(lfr_pro1[i][8])
-                        lfr_pro1[i].append(lfr_pro1[i][9])
-                        self.pro3+=self.pro1[(lfr_pro1[i][0])][1] 
+                        self.pro3 += self.pro1[(lfr_pro1[i][0])][1] 
                         if self.doublesave == 1:
                             self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
+                        else:
+                            lfr_pro1[i].append(lfr_pro1[i][8])
+                            lfr_pro1[i].append(lfr_pro1[i][9])
+                            
                 else:
-                        lfr_pro1[i].append(4294967295)
-                        lfr_pro1[i].append(' 00:00:00,00')
                         if self.doublesave == 1:
                             self.pro3 += self.pro1[(lfr_pro1[i][0])][1]
+                        else:
+                            lfr_pro1[i].append(4294967295)
+                            lfr_pro1[i].append(' 00:00:00,00')
                         self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
 
                 
@@ -608,6 +612,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose4.setEnabled(True)
         self.btn_choose5.setEnabled(False)
         self.checkbox2.setEnabled(False)
+        self.checkbox3.setCheckState(False)
         self.checkbox3.setEnabled(False)
         self.btn_chooseFile2.setEnabled(True)
         self.btn_chooseFile4.setEnabled(False)
