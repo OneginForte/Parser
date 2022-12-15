@@ -51,12 +51,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.lfr = ""
-        self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
-        self.view_rule = 0 # 1 - все подряд, 0 - с номерами
-        self.group_rule = 0 # Сортировка по номеру группы. 0 - все
+        self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру.
+        self.view_rule = 0 # 1 - все подряд, 0 - с номерами.
+        self.group_rule = 0 # Сортировка по номеру группы. 0 - все.
         self.append_rule = 0 # Триггер для объединения результатов.
-        self.autoreload = 0 # Триггер автообновления
-        self.autosave = 0 # Триггер автоматического сохранения
+        self.autoreload = 0 # Триггер автообновления.
+        self.autosave = 0 # Триггер автоматического сохранения.
+        self.doublesave = 0 # Триггер сохранения двойного результата в один протокол.
         self.reload_timer = 10
         self.all_tabs = []
 
@@ -165,6 +166,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox1 = QCheckBox('Обновлять автоматически', self)
         self.checkbox2 = QCheckBox('Сохранять автоматически', self)
         self.checkbox2.setEnabled(False)
+        self.checkbox3 = QCheckBox('Складывать оба результата', self)
+        self.checkbox3.setEnabled(False)
         #self.checkbox1.toggle()
 
         self.spinbox1 = QSpinBox(self)
@@ -199,6 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.combobox1.activated[int].connect(self.onCombo1Selected)
         self.checkbox1.stateChanged.connect(self.checkBox_1)
         self.checkbox2.stateChanged.connect(self.checkbox_2)
+        self.checkbox3.stateChanged.connect(self.checkbox_2)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
        
         grid = QGridLayout()
@@ -227,6 +231,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.btn_choose5)
         self.left_layout.addWidget(self.btn_chooseFile4)
         self.left_layout.addWidget(self.checkbox2)
+        self.left_layout.addWidget(self.checkbox3)
         self.left_layout.insertSpacing(10, 20)
         self.left_layout.addWidget(self.text3)
         self.left_layout.addWidget(self.combobox1)
@@ -352,21 +357,41 @@ class MainWindow(QtWidgets.QMainWindow):
                 if lfr_pro1[i][8] >= lfr_pro1[i][10]:
                         lfr_pro1[i].append(lfr_pro1[i][10])
                         lfr_pro1[i].append(lfr_pro1[i][11])
-                        self.pro3 = self.pro3 + \
-                            self.pro2[(lfr_pro2[i][0])][1]
+                        if self.doublesave == 1:
+                            self.pro3 += self.pro1[(lfr_pro1[i][0])][1]
+                        self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
                 elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or \
                         self.append_rule == 1:
                         lfr_pro1[i].append(lfr_pro1[i][8])
                         lfr_pro1[i].append(lfr_pro1[i][9])
-                        self.pro3 = self.pro3 + \
-                            self.pro1[(lfr_pro1[i][0])][1]
+                        self.pro3+=self.pro1[(lfr_pro1[i][0])][1] 
+                        if self.doublesave == 1:
+                            self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
                 else:
                         lfr_pro1[i].append(4294967295)
                         lfr_pro1[i].append(' 00:00:00,00')
-                        self.pro3 = self.pro3 + \
-                            self.pro2[(lfr_pro2[i][0])][1]
+                        if self.doublesave == 1:
+                            self.pro3 += self.pro1[(lfr_pro1[i][0])][1]
+                        self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
 
-                        # if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
+                
+                #if lfr_pro1[i][8] >= lfr_pro1[i][10]:
+                #    lfr_pro1[i].append(lfr_pro1[i][10])
+                #    lfr_pro1[i].append(lfr_pro1[i][11])
+                #    self.pro3 = self.pro3 + \
+                #        self.pro2[(lfr_pro2[i][0])][1]
+                #elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or \
+                #        self.append_rule == 1:
+                #    lfr_pro1[i].append(lfr_pro1[i][8])
+                #    lfr_pro1[i].append(lfr_pro1[i][9])
+                #    self.pro3 = self.pro3 + \
+                #        self.pro1[(lfr_pro1[i][0])][1]
+                #else:
+                #    lfr_pro1[i].append(4294967295)
+                #    lfr_pro1[i].append(' 00:00:00,00')
+                #    self.pro3 = self.pro3 + \
+                #        self.pro2[(lfr_pro2[i][0])][1]
+                    # if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
                         # lfr_pro1[i].append(lfr_pro1[i][10])
                         # lfr_pro1[i].append(lfr_pro1[i][11])
                         # self.pro3 = self.pro3 + \
@@ -467,6 +492,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.autosave = 1
         else:
             self.autosave = 0
+
+    def checkbox_3(self, state):
+        if state == Qt.Checked:
+            self.doublesave = 1
+        else:
+            self.doublesave = 0
             
 
     def spinBox_1(self):
@@ -577,6 +608,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose4.setEnabled(True)
         self.btn_choose5.setEnabled(False)
         self.checkbox2.setEnabled(False)
+        self.checkbox3.setEnabled(False)
         self.btn_chooseFile2.setEnabled(True)
         self.btn_chooseFile4.setEnabled(False)
 
@@ -648,6 +680,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose2.setChecked(False)
         self.btn_choose3.setChecked(False)
         self.btn_choose5.setEnabled(True)
+        self.checkbox3.setEnabled(True)
         # Теперь подготовим протоколы к сравнению и объединению результатов. Обновим виджеты в окне.
         self.reload()
         
