@@ -338,7 +338,7 @@ class Parser:
         increment = 0
 
         # Разберем список участников. В начало всегда складывается байт индекса записи, берется из бинарной записи.
-        for i in range (len(pro_buffer)): #x[0] for x in my_tuples
+        for i in range (len(pro_buffer)): 
             tf = []
             buffer=pro_buffer[i][1]
             tf=Parser.parse_pro(self, grp, buffer, group_rule, view_rule)

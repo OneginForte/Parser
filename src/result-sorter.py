@@ -394,6 +394,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return lfr_grp
 
     def pro_preapare(self, lfr_pro_t):
+        
         # Удаляем лишние поля перед сортировкой, при условии, что список не пустой.
         if len(lfr_pro_t) > 0:
             [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
@@ -412,29 +413,30 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def pro_grp_sort(self, lfr_pro, lfr_grp):
         
-        lfr_pro_t = []
+        lfr_pro_t = ()
         # Выборка участников по группам
         if self.group_rule>0:
             # Сортируем списки по третьему полю
             lfr_pro = sorted(lfr_pro, key=lambda x: x[3])
             # Проверим на результирующую группу
+
             if lfr_grp[self.group_rule][4]==255: 
                 
-                for i in range(2, len(lfr_grp)):
+                for i in range(1, len(lfr_grp)):
                     # Выборка между группами                    
                     lenlfr=len(lfr_pro)
                     for k in reversed(lfr_pro):
                         lenlfr = lenlfr-1
                         if k[3] == i and lfr_grp[i][4] == self.group_rule:
-                            lfr_pro_t.append(lfr_pro[lenlfr])
-                            del lfr_pro[lenlfr]
+                            lfr_pro_t+=(k,)
+                            
             else:
                 lenlfr = len(lfr_pro)
                 for k in reversed(lfr_pro):
                     lenlfr = lenlfr-1
                     if k[3] == self.group_rule:
-                        lfr_pro_t.append(lfr_pro[lenlfr])
-                        del lfr_pro[lenlfr]
+                        lfr_pro_t+=(k,)
+                        
             
             # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
             lfr_pro_t = sorted(
