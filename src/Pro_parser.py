@@ -87,13 +87,13 @@ class Parser:
 
         data_bytes = file_open.read(282)
         while data_bytes:
+            increment_pro += 1
             #Не забудем проверить запись участника. 0 - участник, все остальное технические записи и удаленные.
             if data_bytes[0] == 0:
                 prol.append(increment_pro)
                 prol.append(data_bytes)
                 pro.append(prol) 
                 prol=[]
-            increment_pro += 1   
             data_bytes = file_open.read(282)
             
 
@@ -182,12 +182,12 @@ class Parser:
             # Выделяем стартовый номер
             S = [data_byte[8+i] for i in range(2)]
             M = bytes(S)
-            M = struct.unpack('<h', M)
+            M = struct.unpack('<H', M)
             s = ''.join([str(element) for element in M])
             M = int(s)
                         
             # Игнорируем участника без стартового номера, если нам они не нужны
-            if M == -1:                
+            if M == 65535:                
                 if view_rule != 1:  
                     return 0
                 s = "   "                   

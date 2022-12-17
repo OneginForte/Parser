@@ -156,7 +156,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_chooseFile4.setText("Сохранить итоговый протокол")
         self.btn_chooseFile4.setEnabled(False)
 
-        self.text1 = QtWidgets.QLabel("  №                            Участник                                                                         Цех                                    г.р.                             Группа                                    Резульат1     Результат2     Итоговый")
+        self.text1 = QtWidgets.QLabel("  №                            Участник                                                     Цех                                    г.р.                             Группа                                    Резульат1     Результат2     Итоговый")
         self.text2 = QtWidgets.QLabel("Сортировка",
                                     alignment=QtCore.Qt.AlignCenter)
         self.text3 = QtWidgets.QLabel("Группы",
@@ -330,7 +330,7 @@ class MainWindow(QtWidgets.QMainWindow):
             combo_index = 0
         self.combobox1.setCurrentIndex(combo_index)
         self.statusBar().showMessage(str("Число участников - ") +
-                                     str(len_lfr) +  #self.increment_pro1
+                                     str(len_lfr) +  #self.increment_pro1 len_lfr
                                      str(" Записей в протоколе - ") +
                                      str(self.increment_pro))
    
@@ -340,7 +340,8 @@ class MainWindow(QtWidgets.QMainWindow):
             dPars.save_pro(self.local_filename_choose4, prot)
  
     def append_pro_result (self, lfr_pro1, lfr_pro2):
-        # Обьединим результаты. Проверка по стартовому номеру и имени.
+        # Обьединим результаты. 
+        # Проверка по стартовому номеру и имени.
         for i in range(len(lfr_pro1)):
             if lfr_pro1[i][0] == lfr_pro2[i][0] \
                 or lfr_pro1[i][1] == lfr_pro2[i][1]:
@@ -443,7 +444,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         lfr_pro_t = ()
         # Выборка участников по группам
-        if self.group_rule>0:
+        if self.group_rule>1:
             # Сортируем списки по третьему полю
             lfr_pro = sorted(lfr_pro, key=lambda x: x[3])
             # Проверим на результирующую группу
