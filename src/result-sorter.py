@@ -156,8 +156,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_chooseFile4.setText("Сохранить итоговый протокол")
         self.btn_chooseFile4.setEnabled(False)
 
-        self.text1 = QtWidgets.QLabel("Список участников, имеющие стартовый номер",
-                                    alignment=QtCore.Qt.AlignCenter)
+        self.text1 = QtWidgets.QLabel("  №                            Участник                                                                         Цех                                    г.р.                             Группа                                    Резульат1     Результат2     Итоговый")
         self.text2 = QtWidgets.QLabel("Сортировка",
                                     alignment=QtCore.Qt.AlignCenter)
         self.text3 = QtWidgets.QLabel("Группы",
@@ -314,8 +313,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         len_lfr = len(lfr_pro_t)    
 
-        lfr_pro_t.insert(
-            0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2   Итоговый')
+        #lfr_pro_t.insert(
+        #    0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2   Итоговый')
 
         self.list_widget.addItems(lfr_pro_t)
 
@@ -602,7 +601,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self, "Ошибка", "Это пустой протокол!", QMessageBox.Ok)
             self.local_filename_choose1 = ""
             return
-
+        
+        self.cwd =  self.local_filename_choose1.rsplit('.', 1)[0] 
         self.local_filename_choose2 = ""
         self.append_rule = 0
         
