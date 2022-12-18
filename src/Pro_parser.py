@@ -164,7 +164,7 @@ class Parser:
 
         return tf
 
-    def parse_pro(self, grp_d, data_byte, group_rule, view_rule):
+    def parse_pro(self, grp_d, data_byte, group_rule, view_rule, time_rule):
 
         M = 0
         rez = [0, 0, 0, 0]
@@ -262,15 +262,29 @@ class Parser:
                 
             # Для сортировки по результату добавим результат в абсолютном значении
             tf.append(msec)  
+            
                 
             if msec!=4294967295:
-                rez[0] = msec // 360000
-                msec = msec % 360000
-                rez[1] = msec // 6000
-                msec = msec % 6000
-                rez[2] = msec // 100
-                msec = msec % 100
-                rez[3] = msec
+                
+                if time_rule !=1:
+                    rez[0] = msec // 360000
+                    msec = msec % 360000
+                    rez[1] = msec // 6000
+                    msec = msec % 6000
+                    rez[2] = msec // 100
+                    msec = msec % 100
+                    rez[3] = msec
+                else:
+                    rez[0] = 0
+                    rez[1] = 0
+                    rez[2] = msec // 100
+                    msec = msec % 100
+                    rez[3] = msec
+                    #rez[2] = rez[2]-msec
+                    
+                #msec = rez[0]*3600
+                #msec += rez[1]*60
+                #msec += rez
             else:
                 rez[0] = 0
                 rez[1] = 0
@@ -332,7 +346,7 @@ class Parser:
 
         return lf
 
-    def repack_pro(self, grp, pro_buffer, group_rule, view_rule):
+    def repack_pro(self, grp, pro_buffer, group_rule, view_rule, time_rule):
         
         lf = []
         tf = []
@@ -343,7 +357,7 @@ class Parser:
         for i in range (len(pro_buffer)): 
             tf = []
             buffer=pro_buffer[i][1]
-            tf=Parser.parse_pro(self, grp, buffer, group_rule, view_rule)
+            tf=Parser.parse_pro(self, grp, buffer, group_rule, view_rule, time_rule)
             if tf == 0:
                 continue
             increment += 1

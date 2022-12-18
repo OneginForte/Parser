@@ -58,6 +58,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.autoreload = 0 # Триггер автообновления.
         self.autosave = 0 # Триггер автоматического сохранения.
         self.doublesave = 0 # Триггер сохранения двойного результата в один протокол.
+        self.fullmsec = 0 # Триггер для отображения времени в абсолюте, в мсек.
         self.reload_timer = 10
         self.all_tabs = []
 
@@ -106,24 +107,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                
         self.statusBar()
         
-        self.btn_choose1 = QPushButton(self)  
-        self.btn_choose1.setObjectName("Стартовый номер")  
-        self.btn_choose1.setText("Стартовый номер")
-        self.btn_choose1.setCheckable(True)
-        self.btn_choose1.setChecked(True)
-        self.btn_choose1.setEnabled(False)
-        
-        self.btn_choose2 = QPushButton(self)  
-        self.btn_choose2.setObjectName("Фамилия")
-        self.btn_choose2.setText("Фамилия")
-        self.btn_choose2.setCheckable(True)
-        self.btn_choose2.setEnabled(False)
-
-        self.btn_choose3 = QPushButton(self)  
-        self.btn_choose3.setObjectName("Результат")
-        self.btn_choose3.setText("Результат")        
-        self.btn_choose3.setCheckable(True)
-        self.btn_choose3.setEnabled(False)
         
         self.btn_choose4 = QPushButton(self)  
         self.btn_choose4.setObjectName("Пустые")
@@ -156,7 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_chooseFile4.setText("Сохранить итоговый протокол")
         self.btn_chooseFile4.setEnabled(False)
 
-        self.text1 = QtWidgets.QLabel("  №                            Участник                                                     Цех                                    г.р.                             Группа                                    Резульат1     Результат2     Итоговый")
+        self.text1 = QtWidgets.QLabel("  №                            Участник                                            Цех                                    г.р.                             Группа                                  Резульат1     Результат2     Итоговый")
         self.text2 = QtWidgets.QLabel("Сортировка",
                                     alignment=QtCore.Qt.AlignCenter)
         self.text3 = QtWidgets.QLabel("Группы",
@@ -165,9 +148,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox1 = QCheckBox('Обновлять автоматически', self)
         self.checkbox2 = QCheckBox('Сохранять автоматически', self)
         self.checkbox2.setEnabled(False)
+        
         self.checkbox3 = QCheckBox('Складывать оба результата', self)
         self.checkbox3.setEnabled(False)
         #self.checkbox1.toggle()
+
+        self.checkbox4 = QCheckBox("Стартовый номер", self)  
+        self.checkbox4.setText("Стартовый номер")
+        self.checkbox4.setChecked(True)
+        self.checkbox4.setEnabled(False)
+        
+        self.checkbox5 = QCheckBox("Фамилия", self)  
+        self.checkbox5.setText("Фамилия")
+        self.checkbox5.setEnabled(False)
+
+        self.checkbox6 = QCheckBox("Результат", self) 
+        self.checkbox6.setText("Результат")        
+        self.checkbox6.setEnabled(False)
+
+        self.checkbox7 = QCheckBox('Время абсолютное в мсек', self)
+        self.checkbox7.setEnabled(False)
 
         self.spinbox1 = QSpinBox(self)
         self.spinbox1.setRange(1, 60)
@@ -188,9 +188,9 @@ class MainWindow(QtWidgets.QMainWindow):
    
         #self.setLayout(self.left_layout)
         
-        self.btn_choose1.pressed.connect(self.slot_btn_choose1) 
-        self.btn_choose2.pressed.connect(self.slot_btn_choose2) 
-        self.btn_choose3.pressed.connect(self.slot_btn_choose3)
+        self.checkbox4.pressed.connect(self.slot_btn_choose1) 
+        self.checkbox5.pressed.connect(self.slot_btn_choose2) 
+        self.checkbox6.pressed.connect(self.slot_btn_choose3)
         self.btn_choose4.pressed.connect(self.slot_btn_choose4)
         self.btn_choose5.pressed.connect(self.slot_btn_choose5)
         self.btn_chooseFile1.clicked.connect(self.slot_btn_chooseFile1)
@@ -202,6 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox1.stateChanged.connect(self.checkBox_1)
         self.checkbox2.stateChanged.connect(self.checkbox_2)
         self.checkbox3.stateChanged.connect(self.checkbox_3)
+        self.checkbox7.stateChanged.connect(self.checkbox_7)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
        
         grid = QGridLayout()
@@ -216,10 +217,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.right_layout.addWidget(self.list_widget, 1)
         #self.right_layout.addStretch(1) 
         self.left_layout.addWidget(self.text2)
-        self.left_layout.addWidget(self.btn_choose1) 
-        self.left_layout.addWidget(self.btn_choose2) 
-        self.left_layout.addWidget(self.btn_choose3)
-        self.left_layout.addWidget(self.btn_choose4)   
+        self.left_layout.addWidget(self.checkbox4) 
+        self.left_layout.addWidget(self.checkbox5) 
+        self.left_layout.addWidget(self.checkbox6)
+        self.left_layout.addWidget(self.btn_choose4)
+        self.left_layout.addWidget(self.checkbox7)   
         self.left_layout.insertSpacing(10, 20)
         self.left_layout.addWidget(self.btn_chooseFile1) #,alignment=QtCore.Qt.AlignTop
         self.left_layout.addWidget(self.btn_chooseFile2) 
@@ -268,7 +270,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Зависимость от group_rule - сортировка по номеру группы, 0 - все, и view_rule - 1 - все подряд, 0 - с номерами.
         self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
         self.lfr_pro1, self.increment_pro1 = Parser.repack_pro(
-            dPars, self.lfr_grp1, self.pro1, self.group_rule, self.view_rule)
+            dPars, self.lfr_grp1, self.pro1, self.group_rule, self.view_rule, self.fullmsec)
         
         # Сортируем списки по нулевому полю
         lfr_pro1 = sorted(self.lfr_pro1)
@@ -290,7 +292,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # Важно, чтобы возвращаемые self.increment_pro1 и self.increment_pro2 совпадали, иначе не сработает объединение.
             self.lfr_grp2 = Parser.repack_grp(dPars, self.grp2)
             self.lfr_pro2, self.increment_pro2 = Parser.repack_pro(
-                dPars, self.lfr_grp1, self.pro2, self.group_rule, self.view_rule)
+                dPars, self.lfr_grp1, self.pro2, self.group_rule, self.view_rule, self.fullmsec)
 
 
             # Сортируем списки по нулевому полю
@@ -496,13 +498,21 @@ class MainWindow(QtWidgets.QMainWindow):
             self.autosave = 1
         else:
             self.autosave = 0
+        self.reload()
 
     def checkbox_3(self, state):
         if state == Qt.Checked:
             self.doublesave = 1
         else:
             self.doublesave = 0
-            
+        self.reload()
+
+    def checkbox_7(self, state):
+        if state == Qt.Checked:
+            self.fullmsec = 1
+        else:
+            self.fullmsec = 0
+        self.reload()            
 
     def spinBox_1(self):
         self.reload_timer = self.spinbox1.value()
@@ -522,23 +532,23 @@ class MainWindow(QtWidgets.QMainWindow):
     # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
     def slot_btn_choose1(self):
         # self.btn_choose1.setChecked(True)
-        self.btn_choose2.setChecked(False)
-        self.btn_choose3.setChecked(False)
+        self.checkbox5.setChecked(False)
+        self.checkbox6.setChecked(False)
         self.sorted_rule = 1
         self.reload()
 
     # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
     def slot_btn_choose2(self):
-        self.btn_choose1.setChecked(False)
+        self.checkbox4.setChecked(False)
         # self.btn_choose2.setChecked(True)
-        self.btn_choose3.setChecked(False)
+        self.checkbox6.setChecked(False)
         self.sorted_rule = 4
         self.reload()
 
     # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
     def slot_btn_choose3(self):
-        self.btn_choose1.setChecked(False)
-        self.btn_choose2.setChecked(False)
+        self.checkbox4.setChecked(False)
+        self.checkbox5.setChecked(False)
         # self.btn_choose3.setChecked(True)
         self.sorted_rule = 8
         self.reload()
@@ -607,14 +617,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.local_filename_choose2 = ""
         self.append_rule = 0
         
-        self.btn_choose1.setEnabled(True)
-        self.btn_choose2.setEnabled(True)
-        self.btn_choose3.setEnabled(True)
+        self.checkbox4.setEnabled(True)
+        self.checkbox5.setEnabled(True)
+        self.checkbox6.setEnabled(True)
         self.btn_choose4.setEnabled(True)
         self.btn_choose5.setEnabled(False)
         self.checkbox2.setEnabled(False)
         self.checkbox3.setCheckState(False)
         self.checkbox3.setEnabled(False)
+        self.checkbox7.setEnabled(True)
         self.btn_chooseFile2.setEnabled(True)
         self.btn_chooseFile4.setEnabled(False)
 
@@ -669,7 +680,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Распакуем список групп и сами протоколы. Вернет списки и число годных записей.
         grp2 = Parser.repack_grp(dPars, grp2)
         lfr_pro2, increment_pro2 = Parser.repack_pro(
-            dPars, grp2, pro2, self.group_rule, 0)
+            dPars, grp2, pro2, self.group_rule, 0, self.fullmsec)
 
         # Проверим число участников. Протоколы не будут обратываться при не совпадении числа участников.
         if self.increment_pro1 != increment_pro2:  # or self.increment_pro != increment_pro_all2
@@ -682,9 +693,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.btn_chooseFile3.setEnabled(False)
         self.btn_chooseFile4.setEnabled(True)
-        self.btn_choose1.setChecked(True)
-        self.btn_choose2.setChecked(False)
-        self.btn_choose3.setChecked(False)
+        self.checkbox4.setChecked(True)
+        self.checkbox5.setChecked(False)
+        self.checkbox6.setChecked(False)
         self.btn_choose5.setEnabled(True)
         self.checkbox3.setEnabled(True)
         # Теперь подготовим протоколы к сравнению и объединению результатов. Обновим виджеты в окне.
