@@ -303,17 +303,17 @@ class Parser:
                 if rez[1] > 9:
                     s = s + ':' + str(rez[1])
                 else:
-                    s = s+':0' + str(rez[1])
+                    s = s+':0' + str(rez[1]) + ':'
 
             if rez[2] > 9:
-                s = s + ':' + str(rez[2])
+                s = s  + str(rez[2])
             else:
-                s = s+':0' + str(rez[2])
+                s = s + ':0' + str(rez[2])
 
             if rez[3] > 9:
-                s = s+',' + str(rez[3])
+                s = s + ',' + str(rez[3])
             else:
-                s = s+',0' + str(rez[3])
+                s = s + ',0' + str(rez[3])
 
             #s=s#+"\n"
             tf.append(s)
