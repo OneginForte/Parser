@@ -294,15 +294,16 @@ class Parser:
 
             s = " "
 
-            if rez[0] > 9:
-                s = s + str(rez[0])
-            else:
-                s = s + '0' + str(rez[0])
+            if time_rule !=1:
+                if rez[0] > 9:
+                    s = s + str(rez[0])
+                else:
+                    s = s + '0' + str(rez[0])
 
-            if rez[1] > 9:
-                s = s + ':' + str(rez[1])
-            else:
-                s = s+':0' + str(rez[1])
+                if rez[1] > 9:
+                    s = s + ':' + str(rez[1])
+                else:
+                    s = s+':0' + str(rez[1])
 
             if rez[2] > 9:
                 s = s + ':' + str(rez[2])
