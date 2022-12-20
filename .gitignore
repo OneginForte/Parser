@@ -5,7 +5,6 @@
 /.pytest_cache
 /.vscode
 /Uploader
-/src/__pycache__
 /src2
 *.grp
 *.pro

@@ -334,7 +334,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusBar().showMessage(str("Число участников - ") +
                                      str(len_lfr) +  #self.increment_pro1 len_lfr
                                      str(" Записей в протоколе - ") +
-                                     str(self.increment_pro))
+                                     str(self.increment_pro)+
+                                     str("  ")+
+                                     str(self.local_filename_choose1))
+        
    
     
     def saveprot(self, prot):
