@@ -301,7 +301,7 @@ class Parser:
                     s = s + '0' + str(rez[0])
 
                 if rez[1] > 9:
-                    s = s + ':' + str(rez[1])
+                    s = s + ':' + str(rez[1]) + ':'
                 else:
                     s = s+':0' + str(rez[1]) + ':'
 
