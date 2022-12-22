@@ -631,6 +631,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cwd1 =  self.local_filename_choose1.rsplit('.', 1)[0] 
         self.cwd = self.cwd1
         self.local_filename_choose2 = ""
+        self.local_filename_choose4 = ""
         self.append_rule = 0
         
         self.checkbox4.setEnabled(True)
@@ -729,8 +730,6 @@ class MainWindow(QtWidgets.QMainWindow):
         return
 
     def slot_btn_chooseFile4(self):
-        
-        old_file = self.local_filename_choose4
 
         if self.local_filename_choose4 != "":
             old_file = self.local_filename_choose4
@@ -743,16 +742,16 @@ class MainWindow(QtWidgets.QMainWindow):
                                                                             self.cwd4,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
 
-        if self.local_filename_choose4 == self.local_filename_choose1 or self.local_filename_choose4 == self.local_filename_choose2:
-            QMessageBox.warning(
-                self, "Ошибка", "Нельзя заменить входной протокол", QMessageBox.Ok)
-            
-            return
-
         if self.local_filename_choose4 == "":
             return
         
-        self.cwd4 = self.local_filename_choose2.rsplit('.', 1)[0]
+        if self.local_filename_choose4 == self.local_filename_choose1 or self.local_filename_choose4 == self.local_filename_choose2:
+            QMessageBox.warning(
+                self, "Ошибка", "Нельзя сохранить во входной протокол", QMessageBox.Ok)
+            
+            return
+
+        self.cwd4 = self.local_filename_choose4.rsplit('.', 1)[0]
         
         self.checkbox2.setEnabled(True)
         self.reload()
