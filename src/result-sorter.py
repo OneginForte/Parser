@@ -336,7 +336,11 @@ class MainWindow(QtWidgets.QMainWindow):
                                      str(" Записей в протоколе - ") +
                                      str(self.increment_pro)+
                                      str("  ")+
-                                     str(self.local_filename_choose1))
+                                     str(self.local_filename_choose1)+
+                                     str("  ") +
+                                     str(self.local_filename_choose2)+
+                                     str("  ") +
+                                     str(self.local_filename_choose4))
         
    
     
@@ -726,7 +730,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self.checkbox2.setEnabled(True)
         self.reload()
-        if len(self.pro3) != 0 and self.autosave != 1:
+        if len(self.pro3) != 0:  # and self.autosave != 1
             self.saveprot(self.pro3)
 
     def keyPressEvent(self, e):
