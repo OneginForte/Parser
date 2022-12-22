@@ -51,6 +51,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.lfr = ""
+        self.cwd = "" # Папка с программой
+        self.cwd1 = "" # Папка по умолчанию, после первого открытия файла
+        self.cwd2 = ""
+        self.cwd4 = ""
         self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру.
         self.view_rule = 0 # 1 - все подряд, 0 - с номерами.
         self.group_rule = 0 # Сортировка по номеру группы. 0 - все.
@@ -129,17 +133,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_chooseFile2.setText("Открыть протокол 2")
         self.btn_chooseFile2.setEnabled(False)
         
-        self.btn_chooseFile3 = QPushButton(self)  
-        self.btn_chooseFile3.setObjectName("Выбрать")
-        self.btn_chooseFile3.setText("Открыть протокол 3")
-        self.btn_chooseFile3.setEnabled(False)        
+        #self.btn_chooseFile3 = QPushButton(self)  
+        #self.btn_chooseFile3.setObjectName("Выбрать")
+        #self.btn_chooseFile3.setText("Открыть протокол 3")
+        #self.btn_chooseFile3.setEnabled(False)        
 
         self.btn_chooseFile4 = QPushButton(self)  
         self.btn_chooseFile4.setObjectName("Выбрать")
         self.btn_chooseFile4.setText("Сохранить итоговый протокол")
         self.btn_chooseFile4.setEnabled(False)
 
-        self.text1 = QtWidgets.QLabel("  №                            Участник                                            Цех                                    г.р.                             Группа                                  Резульат1     Результат2     Итоговый")
+        self.text1 = QtWidgets.QLabel("  №                            Участник                                            Цех                                    г.р.                             Группа                            Резульат1       Результат2       Итоговый")
         self.text2 = QtWidgets.QLabel("Сортировка",
                                     alignment=QtCore.Qt.AlignCenter)
         self.text3 = QtWidgets.QLabel("Группы",
@@ -195,7 +199,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose5.pressed.connect(self.slot_btn_choose5)
         self.btn_chooseFile1.clicked.connect(self.slot_btn_chooseFile1)
         self.btn_chooseFile2.clicked.connect(self.slot_btn_chooseFile2)
-        self.btn_chooseFile3.clicked.connect(self.slot_btn_chooseFile3) 
+        #self.btn_chooseFile3.clicked.connect(self.slot_btn_chooseFile3) 
         self.btn_chooseFile4.clicked.connect(self.slot_btn_chooseFile4)              
         self.list_widget.itemClicked.connect(self.clicked)
         self.combobox1.activated[int].connect(self.onCombo1Selected)
@@ -225,7 +229,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.insertSpacing(10, 20)
         self.left_layout.addWidget(self.btn_chooseFile1) #,alignment=QtCore.Qt.AlignTop
         self.left_layout.addWidget(self.btn_chooseFile2) 
-        self.left_layout.addWidget(self.btn_chooseFile3)
+        #self.left_layout.addWidget(self.btn_chooseFile3)
         self.left_layout.insertSpacing(10, 10)
         self.left_layout.addWidget(self.checkbox1)
         self.left_layout.addWidget(self.spinbox1)
@@ -591,9 +595,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.local_filename_choose1 != "":
             old_file = self.local_filename_choose1
+        
+        if self.cwd1 == "":
+            self.cwd1 = self.cwd
+        
         self.local_filename_choose1, filetype = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 1",
-                                                                            self.cwd,  # Начальный путь
+                                                                            self.cwd1,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
 
         if self.local_filename_choose1 == "":
@@ -620,7 +628,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.local_filename_choose1 = ""
             return
         
-        self.cwd =  self.local_filename_choose1.rsplit('.', 1)[0] 
+        self.cwd1 =  self.local_filename_choose1.rsplit('.', 1)[0] 
+        self.cwd = self.cwd1
         self.local_filename_choose2 = ""
         self.append_rule = 0
         
@@ -642,11 +651,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         old_file = self.local_filename_choose2
 
-        if self.local_filename_choose1 != "":
-            old_file = self.local_filename_choose1
+        if self.local_filename_choose2 != "":
+            old_file = self.local_filename_choose2
+            
+        if self.cwd2 == "":
+            self.cwd2 = self.cwd
+        
         self.local_filename_choose2, filetype = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 2",
-                                                                            self.cwd,  # Начальный путь
+                                                                            self.cwd2,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
 
         if self.local_filename_choose2 == "" or self.local_filename_choose2 == self.local_filename_choose1:
@@ -655,7 +668,9 @@ class MainWindow(QtWidgets.QMainWindow):
             if old_file != "":
                self.local_filename_choose2 = old_file
             return
-
+        
+        self.cwd2 = self.local_filename_choose2.rsplit('.', 1)[0]
+        
         filename_grp = self.local_filename_choose2.rsplit('.', 1)[0] + '.grp'
 
         # Считаем файл групп.
@@ -698,7 +713,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lfr_pro2 = []
             return
 
-        self.btn_chooseFile3.setEnabled(False)
+        #self.btn_chooseFile3.setEnabled(False)
         self.btn_chooseFile4.setEnabled(True)
         self.checkbox4.setChecked(True)
         self.checkbox5.setChecked(False)
@@ -714,10 +729,18 @@ class MainWindow(QtWidgets.QMainWindow):
         return
 
     def slot_btn_chooseFile4(self):
+        
+        old_file = self.local_filename_choose4
+
+        if self.local_filename_choose4 != "":
+            old_file = self.local_filename_choose4
+            
+        if self.cwd4 == "":
+            self.cwd4 = self.cwd
 
         self.local_filename_choose4, filetype = QFileDialog.getSaveFileName(self,
                                                                             "Выбрать файл итогового протокола",
-                                                                            self.cwd,  # Начальный путь
+                                                                            self.cwd4,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
 
         if self.local_filename_choose4 == self.local_filename_choose1 or self.local_filename_choose4 == self.local_filename_choose2:
@@ -728,6 +751,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.local_filename_choose4 == "":
             return
+        
+        self.cwd4 = self.local_filename_choose2.rsplit('.', 1)[0]
+        
         self.checkbox2.setEnabled(True)
         self.reload()
         if len(self.pro3) != 0:  # and self.autosave != 1
