@@ -335,6 +335,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if combo_index == -1:
             combo_index = 0
         self.combobox1.setCurrentIndex(combo_index)
+        self.statusBar().setFixedSize(1200, 60)
         self.statusBar().showMessage(str("Число участников - ") +
                                      str(len_lfr) +  #self.increment_pro1 len_lfr
                                      str(" Записей в протоколе - ") +
