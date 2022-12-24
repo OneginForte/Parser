@@ -438,7 +438,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def pro_preapare(self, lfr_pro_t):
         
-        # Удаляем лишние поля перед сортировкой, при условии, что список не пустой.
+        # Удаляем лишние поля, при условии, что список не пустой.
         if len(lfr_pro_t) > 0:
             [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
             [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
