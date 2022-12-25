@@ -486,8 +486,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 lfr_pro_t, key=lambda x: x[self.sorted_rule])
         else:        
             # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
-            lfr_pro_t = sorted(
-                lfr_pro, key=lambda x: x[self.sorted_rule])
+            if self.sorted_rule == 8 and len(lfr_pro[0])>9:
+                lfr_pro_t = sorted(
+                    lfr_pro, key=lambda x: x[12])
+            else:    
+                lfr_pro_t = sorted(
+                    lfr_pro, key=lambda x: x[self.sorted_rule])
         
         return lfr_pro_t
 
