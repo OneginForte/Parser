@@ -16,15 +16,19 @@ from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout,
 class SecondWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         # Передаём ссылку на родительский элемент и чтобы виджет
-        # отображался как самостоятельное окно указываем тип окна
-        super().__init__(parent, QtCore.Qt.Window)
+        # отображался как самостоятельное окно указываем тип окно
+        
+        super().__init__(parent)
         self.mainLayout = QVBoxLayout()
         self.secondWin1()
  
     def secondWin1(self):
-        check = QCheckBox('some text')
-        self.mainLayout.addWidget(check)
+        self.lwi = QListWidget()
+        self.lwi.setStyleSheet("QListWidget::item { border: 0px solid red }")
+        self.mainLayout.addWidget(self.lwi)
         self.setLayout(self.mainLayout)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint |
+                            Qt.WindowStaysOnTopHint)
 
 
 class PT():
@@ -48,13 +52,11 @@ class PT():
 
 class MainWindow(QtWidgets.QMainWindow):
     
-    def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+    def __init__(self):
+        super(MainWindow, self).__init__()
         self.lfr = ""
         self.cwd = "" # Папка с программой
         self.cwd1 = "" # Папка по умолчанию, после первого открытия файла
-        self.cwd2 = ""
-        self.cwd4 = ""
         self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру.
         self.view_rule = 0 # 1 - все подряд, 0 - с номерами.
         self.group_rule = 0 # Сортировка по номеру группы. 0 - все.
@@ -67,26 +69,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.all_tabs = []
 
         self.grp1 = []
-        self.grp2 = []
-        self.grp3 = []
+
         self.pro1 = []
-        self.pro2 = []
-        self.pro3 = b''
+
         self.grp_zag = []
         self.increment_grp1 = 0
-        self.increment_grp2 = 0
-        self.increment_grp3 = 0
+
         self.increment_pro = 0
         self.increment_pro1 = 0
-        self.increment_pro2 = 0
-        self.increment_pro3 = 0
+
 
         self.local_filename_choose1 = ''
-        self.local_filename_choose2 = ''
-        self.local_filename_choose3 = ''
-        self.local_filename_choose4 = ''
+
         
         self.mainWin1 ()
+        self.w2 = SecondWindow()
+        self.w2.show()
 
     def mainWin1 (self):
         
@@ -101,6 +99,7 @@ class MainWindow(QtWidgets.QMainWindow):
   
   
         self.list_widget = QListWidget()
+        self.list_widget ("QListWidget::item { border: 0px solid red }")
 
         self.list_widget.setStyleSheet("QListWidget"
                                   "{"
@@ -169,6 +168,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox6 = QCheckBox("Результат", self) 
         self.checkbox6.setText("Результат")        
         self.checkbox6.setEnabled(False)
+        
+        self.checkbox7 = QCheckBox("Команда", self)
+        self.checkbox7.setText("Команда")
+        self.checkbox7.setEnabled(False)
 
         #self.checkbox7 = QCheckBox('Время абсолютное в мсек', self)
         #self.checkbox7.setEnabled(False)
@@ -258,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setGeometry(500, 300, 1200, 500)
         #self.oldPos = self.pos()
         
-        self.show()
+        #self.show()
  
     def reload(self):
            
@@ -730,8 +733,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.reload()
         
 
-
-
+    def closeEvent(self, event):              # +++
+        self.w2.close()
 
     def keyPressEvent(self, e):
 
@@ -745,8 +748,9 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    w = MainWindow()
-    w2 = SecondWindow()
+    w = MainWindow() 
+    
+    w.show ()   
 
     t = PT(w.reload_timer, w.reload)
 
