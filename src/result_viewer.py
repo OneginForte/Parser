@@ -8,27 +8,83 @@ from Pro_parser import Parser
 #from tkinter import CENTER
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QPainter, QFont, QColor, QPalette, QPixmap
 from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout, QListWidget,
                               QMessageBox, QPushButton, QVBoxLayout, QWidget, QCheckBox, QSpinBox)
 
 
 class SecondWindow(QtWidgets.QWidget):
+    viewText = pyqtSignal(list)
+    
     def __init__(self, parent=None):
         # Передаём ссылку на родительский элемент и чтобы виджет
         # отображался как самостоятельное окно указываем тип окно
         
         super().__init__(parent)
-        self.mainLayout = QVBoxLayout()
+        
+        self.top = -1024
+        self.left = 200
+        self.width = 200
+        self.height = 100
+        self.firststart = 0
+        self._viewText = []
         self.secondWin1()
- 
+    
+    @QtCore.pyqtProperty(list, notify=viewText)
+    def updateSecondWin (self):
+        return self._viewText
+    
+    @updateSecondWin.setter
+    def updateSecondWin (self, text):
+        self._viewText = text
+        self.viewText.emit(text)
+        self.update()
+
+    
     def secondWin1(self):
-        self.lwi = QListWidget()
-        self.lwi.setStyleSheet("QListWidget::item { border: 0px solid red }")
-        self.mainLayout.addWidget(self.lwi)
-        self.setLayout(self.mainLayout)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint |
+        self.text1 = 'Открытие лыжного сезона. Эстафета.'
+        self.text2 = 'Стартовый писок участников:'
+        self.setGeometry(self.top, self.left, self.width ,self.height )
+        self.setWindowTitle('Draw text')
+        self.setWindowFlags(Qt.FramelessWindowHint |
                             Qt.WindowStaysOnTopHint)
+        self.image = QPixmap(r"evraz30.bmp")
+        #self.resize(self.image.width(), self.image.height())
+        
+        self.show()
+
+
+    def paintEvent(self, param):
+        self.qp = QPainter()
+        self.qp.begin(self)
+        
+        if self.firststart == 0:
+            self.qp.drawPixmap(self.rect(), self.image)
+            self.firststart = 1
+        else:
+            self.drawText(self.qp, param)
+        
+        pal = self.palette()
+        pal.setColor(QPalette.Background, Qt.black)
+        self.setAutoFillBackground(True)
+        self.setPalette(pal)
+        self.qp.end()
+
+
+    def drawText(self, qp, param):
+
+        qp.setPen(QColor('white'))
+        qp.setFont(QFont('Decorative', 8))
+        qp.drawText(1, 9, self.text1)
+        qp.drawText(1, 18, self.text2)
+        if len(self._viewText) != 0:
+            qp.setPen(QColor('green'))
+            for i in range(len(self._viewText)): 
+                qp.drawText(1, (i*9)+27, self._viewText[i]) #lfr_grp[i].pop(1)
+            
+      
+        
 
 
 class PT():
@@ -54,7 +110,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.lfr = ""
+        self.lfr = list
         self.cwd = "" # Папка с программой
         self.cwd1 = "" # Папка по умолчанию, после первого открытия файла
         self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру.
@@ -84,7 +140,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.mainWin1 ()
         self.w2 = SecondWindow()
-        self.w2.show()
+        #self.w2.show()
 
     def mainWin1 (self):
         
@@ -99,7 +155,6 @@ class MainWindow(QtWidgets.QMainWindow):
   
   
         self.list_widget = QListWidget()
-        self.list_widget ("QListWidget::item { border: 0px solid red }")
 
         self.list_widget.setStyleSheet("QListWidget"
                                   "{"
@@ -227,6 +282,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.checkbox4) 
         self.left_layout.addWidget(self.checkbox5) 
         self.left_layout.addWidget(self.checkbox6)
+        self.left_layout.addWidget(self.checkbox7)
         self.left_layout.addWidget(self.btn_choose4)
         #self.left_layout.addWidget(self.checkbox7)   
         self.left_layout.insertSpacing(10, 20)
@@ -317,10 +373,27 @@ class MainWindow(QtWidgets.QMainWindow):
         lfr_pro_t = self.pro_grp_sort(lfr_pro, self.lfr_grp1)
 
         QListWidget.clear(self.list_widget)
+
+        lfr_pro_t = self.pro_preapare(lfr_pro_t)
         
-        lfr_pro_t = self.pro_preapare (lfr_pro_t)
+        len_lfr = len(lfr_pro_t) 
         
-        len_lfr = len(lfr_pro_t)    
+        text_v = []
+        inc = 0
+        for i in range(9):  #self.increment_pro
+            if inc>=len_lfr:
+                break
+            inc += 1
+            text_temp = ''.join(lfr_pro_t[i])
+            text_v.append(text_temp)
+            
+        self.w2.updateSecondWin = text_v     
+    
+        # Преобразуем списки участников в чистый текст.
+        lfr_pro_t = [''.join(lfr_pro_t[i])
+                         for i in range(len(lfr_pro_t))]
+        
+           
 
         #lfr_pro_t.insert(
         #    0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2   Итоговый')
@@ -451,10 +524,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 [(lfr_pro_t[i].pop(6)) for i in range(len(lfr_pro_t))]
                 if len(lfr_pro_t[0]) > 7 and self.group_rule != 1:
                     [(lfr_pro_t[i].pop(7)) for i in range(len(lfr_pro_t))]
-
-            # Преобразуем списки участников в чистый текст.
-            lfr_pro_t = [''.join(lfr_pro_t[i])
-                         for i in range(len(lfr_pro_t))]
+         
         return lfr_pro_t
 
     def pro_grp_sort(self, lfr_pro, lfr_grp):
@@ -489,9 +559,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 lfr_pro_t, key=lambda x: x[self.sorted_rule])
         else:        
             # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
-            if self.sorted_rule == 8 and len(lfr_pro[0])>9:
+            if self.sorted_rule == 8 and len(lfr_pro[0])>10:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[12])
+            elif self.sorted_rule == 8:
+                lfr_pro_t = sorted(
+                    lfr_pro, key=lambda x: x[8])
             else:    
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[self.sorted_rule])
