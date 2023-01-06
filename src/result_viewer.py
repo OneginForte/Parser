@@ -45,7 +45,7 @@ class SecondWindow(QtWidgets.QWidget):
     def secondWin1(self):
         self.text1 = 'Открытие лыжного сезона. Эстафета.'
         self.text2 = 'Стартовый писок участников:'
-        self.setGeometry(self.top, self.left, self.width ,self.height )
+        self.setGeometry( self.top, self.left, self.width ,self.height )
         self.setWindowTitle('Draw text')
         self.setWindowFlags(Qt.FramelessWindowHint |
                             Qt.WindowStaysOnTopHint)
@@ -56,13 +56,13 @@ class SecondWindow(QtWidgets.QWidget):
 
 
     def paintEvent(self, param):
-        self.qp = QPainter()
+        self.qp = QPainter( self )
         self.qp.begin(self)
         
-        if self.firststart == 0:
-            self.qp.drawPixmap(self.rect(), self.image)
-            self.firststart = 1
+        if self.firststart == 0 and len(self._viewText) == 0:
+            self.qp.drawPixmap(self.rect(), self.image)   
         else:
+            self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
             self.drawText(self.qp, param)
         
         pal = self.palette()
@@ -73,15 +73,20 @@ class SecondWindow(QtWidgets.QWidget):
 
 
     def drawText(self, qp, param):
+        
 
         qp.setPen(QColor('white'))
         qp.setFont(QFont('Decorative', 8))
         qp.drawText(1, 9, self.text1)
         qp.drawText(1, 18, self.text2)
         if len(self._viewText) != 0:
+            self.firststart = 1
             qp.setPen(QColor('green'))
             for i in range(len(self._viewText)): 
                 qp.drawText(1, (i*9)+27, self._viewText[i]) #lfr_grp[i].pop(1)
+        else:
+            self.firststart = 0
+            self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
             
       
         
