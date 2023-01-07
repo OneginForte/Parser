@@ -80,6 +80,7 @@ class SecondWindow(QtWidgets.QWidget):
         self.setAutoFillBackground(True)
         self.setPalette(pal)
         self.qp.end()
+        self.update()
 
 
     def drawText(self, qp, param):
@@ -395,7 +396,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateSecond(len_lfr, lfr_pro_t)
         
         # Преобразуем списки участников в чистый текст.
-        lfr_pro_t = ['/t'.join(lfr_pro_t[i])
+        lfr_pro_t = ['\t'.join(lfr_pro_t[i])
                          for i in range(len(lfr_pro_t))]
         
            
