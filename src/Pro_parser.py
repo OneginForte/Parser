@@ -199,7 +199,7 @@ class Parser:
                     
             # В нулевой индекс закинем стартовый номер числом. По умолчанию сортировка по нему.                    
             tf.append(M)  # tf = tf+s
-            s = s + " "
+            #s = s + " "
             tf.append(s)
 
             # Выделяем группу
@@ -220,9 +220,9 @@ class Parser:
             M = [bytes([x]) for x in L if x > 0]
             s = [x.decode('cp1251', 'replace') for x in M]
             s = ''.join([str(element) for element in s])
-            s = s + "\t"
-            if data_byte[10]<16:
-                s = s + "\t"  
+            #s = s + "\t"
+            #if data_byte[10]<16:
+            #    s = s + "\t"  
             tf.append(s)  # tf =   tf+"  \t"+s  #
 
             # Выделяем data_byte[165] (до 41) байт наименования команды из записи
@@ -231,9 +231,9 @@ class Parser:
             M = [bytes([x]) for x in L if x > 0]
             s = [x.decode('cp1251', 'replace') for x in M]
             s = ''.join([str(element) for element in s])
-            if data_byte[165]<10:
-                 s = s + "\t"  
-            s = s + "\t"
+            #if data_byte[165]<10:
+            #     s = s + "\t"  
+            #s = s + "\t"
             tf.append(s)  # tf =  tf+"\t"+'\t'+'\t'+s  #
 
             # Выделяем год рождения
@@ -241,7 +241,7 @@ class Parser:
             M = bytes(S)
             M = struct.unpack('<H', M)
             s = ''.join([str(element) for element in M])
-            s = s+"\t"
+            #s = s+"\t"
             tf.append(s)  # tf+"\t"+s
             M = 0
 
@@ -292,7 +292,7 @@ class Parser:
                 rez[3] = 0
 
 
-            s = " "
+            s = ""
 
             if time_rule !=1:
                 if rez[0] > 9:
@@ -357,8 +357,8 @@ class Parser:
         # Разберем список участников. В начало всегда складывается байт индекса записи, берется из бинарной записи.
         for i in range (len(pro_buffer)): 
             tf = []
-            buffer=pro_buffer[i][1]
-            tf=Parser.parse_pro(self, grp, buffer, group_rule, view_rule, time_rule)
+            p_buffer=pro_buffer[i][1]
+            tf=Parser.parse_pro(self, grp, p_buffer, group_rule, view_rule, time_rule)
             if tf == 0:
                 continue
             increment += 1

@@ -23,7 +23,7 @@ class SecondWindow(QtWidgets.QWidget):
         
         super().__init__(parent)
         
-        self.top = -1024
+        self.top = 100
         self.left = 200
         self.width = 200
         self.height = 100
@@ -41,10 +41,9 @@ class SecondWindow(QtWidgets.QWidget):
         self.viewText.emit(text)
         self.update()
 
-    
     def secondWin1(self):
         self.text1 = 'Открытие лыжного сезона. Эстафета.'
-        self.text2 = 'Стартовый писок участников:'
+        self.text2 = 'Протокол старта:'
         self.setGeometry( self.top, self.left, self.width ,self.height )
         self.setWindowTitle('Draw text')
         self.setWindowFlags(Qt.FramelessWindowHint |
@@ -54,6 +53,17 @@ class SecondWindow(QtWidgets.QWidget):
         
         self.show()
 
+    def secondWin2(self):
+        self.text1 = 'Открытие лыжного сезона. Эстафета.'
+        self.text2 = 'Протокол финиша:'
+        self.setGeometry(self.top, self.left, self.width, self.height)
+        self.setWindowTitle('Draw text')
+        self.setWindowFlags(Qt.FramelessWindowHint |
+                            Qt.WindowStaysOnTopHint)
+        self.image = QPixmap(r"evraz30.bmp")
+        #self.resize(self.image.width(), self.image.height())
+
+        self.show()
 
     def paintEvent(self, param):
         self.qp = QPainter( self )
@@ -73,7 +83,6 @@ class SecondWindow(QtWidgets.QWidget):
 
 
     def drawText(self, qp, param):
-        
 
         qp.setPen(QColor('white'))
         qp.setFont(QFont('Decorative', 8))
@@ -383,19 +392,10 @@ class MainWindow(QtWidgets.QMainWindow):
         
         len_lfr = len(lfr_pro_t) 
         
-        text_v = []
-        inc = 0
-        for i in range(9):  #self.increment_pro
-            if inc>=len_lfr:
-                break
-            inc += 1
-            text_temp = ''.join(lfr_pro_t[i])
-            text_v.append(text_temp)
-            
-        self.w2.updateSecondWin = text_v     
-    
+        self.updateSecond(len_lfr, lfr_pro_t)
+        
         # Преобразуем списки участников в чистый текст.
-        lfr_pro_t = [''.join(lfr_pro_t[i])
+        lfr_pro_t = ['/t'.join(lfr_pro_t[i])
                          for i in range(len(lfr_pro_t))]
         
            
@@ -428,6 +428,25 @@ class MainWindow(QtWidgets.QMainWindow):
                                      str("  ") +
                                      str(self.local_filename_choose4))
         
+    def updateSecond (self, len, lfr_pro_t):
+        # ['6  ', 'Карпачева Оксана', 'НТМК', '1975', 'Ж2 НТМК         ', '00:00:32,18']
+        # Пока выводим стартовый список. Потом будем выводить не стартовый.
+        text_v = []
+        
+        inc = 0
+        for i in range(9):  # self.increment_pro
+            if inc >= len:
+                break
+            text_temp = []
+            inc += 1
+            text_temp.append(lfr_pro_t[i][0])
+            text_temp.append(lfr_pro_t[i][1])
+            text_temp.append(lfr_pro_t[i][2])
+            text_temp = ' '.join(text_temp)
+            text_v.append(text_temp)
+
+        # Обновляем содержимое второго окна
+        self.w2.updateSecondWin = text_v
    
     
     def saveprot(self, prot):
