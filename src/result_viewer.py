@@ -29,6 +29,9 @@ class SecondWindow(QtWidgets.QWidget):
         self.height = 100
         self.firststart = 0
         self._viewText = []
+        self.time = 0
+        self.time_step = 0.025
+        self.timer_id = self.startTimer(1)
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -67,20 +70,23 @@ class SecondWindow(QtWidgets.QWidget):
 
     def paintEvent(self, param):
         self.qp = QPainter( self )
-        self.qp.begin(self)
-        
+        #self.qp.setRenderHints(QPainter.Antialiasing)
+        #self.qp.begin(self)
+
+        pal = self.palette()
+        pal.setColor(QPalette.Background, Qt.black)
+        self.setAutoFillBackground(True)
+        self.setPalette(pal)        
+
         if self.firststart == 0 and len(self._viewText) == 0:
             self.qp.drawPixmap(self.rect(), self.image)   
         else:
             self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
             self.drawText(self.qp, param)
         
-        pal = self.palette()
-        pal.setColor(QPalette.Background, Qt.black)
-        self.setAutoFillBackground(True)
-        self.setPalette(pal)
+        
         self.qp.end()
-        self.update()
+        #self.update()
 
 
     def drawText(self, qp, param):
@@ -98,7 +104,11 @@ class SecondWindow(QtWidgets.QWidget):
             self.firststart = 0
             self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
             
-      
+    def timerEvent(self, event):
+        if self.timer_id == event.timerId():
+            #self.bezAnimation()
+            self.time += self.time_step
+            self.update()         
         
 
 
