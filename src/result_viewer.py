@@ -2,6 +2,7 @@ import os
 #import struct
 import sys
 from threading import Timer
+from time import sleep
 from Pro_parser import Parser
 
 #from time import gmtime, strftime
@@ -23,15 +24,22 @@ class SecondWindow(QtWidgets.QWidget):
         
         super().__init__(parent)
         
-        self.top = 100
-        self.left = 200
-        self.width = 200
-        self.height = 100
-        self.firststart = 0
+        self._top = 100
+        self._left = 200
+        self._width = 200
+        self._height = 100
+        self.start = 0
         self._viewText = []
+        self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
+        self._viewLoop = 0
+        self._viewWindow = [[0],[0]]
+        self._viewWindowHigh = 9
+        self._viewCount1 = 0
+        self._viewCount2 = 0
+        self._viewCount3 = self._viewWindowHigh
         self.time = 0
-        self.time_step = 0.025
-        self.timer_id = self.startTimer(1)
+        self.time_step = 20 #0.025
+        self.timer_id = self.startTimer(200)
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -42,74 +50,145 @@ class SecondWindow(QtWidgets.QWidget):
     def updateSecondWin (self, text):
         self._viewText = text
         self.viewText.emit(text)
+        self._viewLoop = 1
+        self.start = 1
         self.update()
 
     def secondWin1(self):
-        self.text1 = 'Открытие лыжного сезона. Эстафета.'
-        self.text2 = 'Протокол старта:'
-        self.setGeometry( self.top, self.left, self.width ,self.height )
-        self.setWindowTitle('Draw text')
-        self.setWindowFlags(Qt.FramelessWindowHint |
-                            Qt.WindowStaysOnTopHint)
-        self.image = QPixmap(r"evraz30.bmp")
-        #self.resize(self.image.width(), self.image.height())
         
-        self.show()
-
-    def secondWin2(self):
-        self.text1 = 'Открытие лыжного сезона. Эстафета.'
-        self.text2 = 'Протокол финиша:'
-        self.setGeometry(self.top, self.left, self.width, self.height)
+        self.setGeometry( self._top, self._left, self._width ,self._height )
         self.setWindowTitle('Draw text')
         self.setWindowFlags(Qt.FramelessWindowHint |
                             Qt.WindowStaysOnTopHint)
         self.image = QPixmap(r"evraz30.bmp")
-        #self.resize(self.image.width(), self.image.height())
-
-        self.show()
-
-    def paintEvent(self, param):
-        self.qp = QPainter( self )
-        #self.qp.setRenderHints(QPainter.Antialiasing)
-        #self.qp.begin(self)
-
         pal = self.palette()
         pal.setColor(QPalette.Background, Qt.black)
         self.setAutoFillBackground(True)
-        self.setPalette(pal)        
+        self.setPalette(pal)
+        #self.resize(self.image.width(), self.image.height())
+        
+        self.show()
 
-        if self.firststart == 0 and len(self._viewText) == 0:
-            self.qp.drawPixmap(self.rect(), self.image)   
-        else:
-            self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
-            self.drawText(self.qp, param)
+
+    def paintEvent(self, param):
         
+        #self.qp.setRenderHints(QPainter.Antialiasing)
+        if len(self._viewText) == 0:
+            self.qp = QPainter(self)
+            #self.qp.begin(self)
+            self.qp.drawPixmap(self.rect(), self.image)
+            self.qp.end()
+            
+        elif self._viewLoop == 1:
+            
+            
+            #self.qp.begin(self) 
+                               
+            self.drawText(self, param)
+            
         
-        self.qp.end()
         #self.update()
 
 
     def drawText(self, qp, param):
 
-        qp.setPen(QColor('white'))
-        qp.setFont(QFont('Decorative', 8))
-        qp.drawText(1, 9, self.text1)
-        qp.drawText(1, 18, self.text2)
-        if len(self._viewText) != 0:
-            self.firststart = 1
-            qp.setPen(QColor('green'))
-            for i in range(len(self._viewText)): 
-                qp.drawText(1, (i*9)+27, self._viewText[i]) #lfr_grp[i].pop(1)
+        if self._viewText[0]==0 or self._viewText[0]==1:
+            self._viewMode = self._viewText.pop(0)
+        if len(self._viewText) != 0 and self.start == 1:
+            
+           
+
+            if self._viewMode == 0:
+               
+                if self._viewCount1 < (self._viewCount3):
+                    qp = QPainter(self)
+                    self._viewCount1 += 1
+                    qp.begin(self)
+                    #self.qp.eraseRect(self._top, self._left, self._width, self._height)
+                    qp.setFont(QFont('Decorative', 8))
+                    qp.setPen(QColor('white'))
+                    self.text1 = 'Открытие лыжного сезона. Эстафета.'
+                    self.text2 = 'Протокол старта:'
+                    qp.drawText(0, 8, self.text1)
+                    qp.drawText(1, 17, self.text2)
+                    qp.setPen(QColor('green'))
+                
+                    for i in range(self._viewCount1):
+                            # lfr_grp[i].pop(1)
+                            qp.drawText(0, (i*9) + 27,
+                                        self._viewText[i+self._viewCount2][0])
+
+                            txt = [self._viewText[i+self._viewCount2][1][k]
+                                   for k in range(23) if len(self._viewText[i+self._viewCount2][1]) > k]
+                            txt = ''.join([str(element) for element in txt])
+
+                            qp.drawText(19, (i*9) + 27, txt)
+
+                            txt = [self._viewText[i+self._viewCount2][2][k]
+                                   for k in range(15) if len(self._viewText[i+self._viewCount2][2]) > k]
+                            txt = ''.join([str(element) for element in txt])
+
+                            qp.drawText(160, (i*9) + 27, txt)
+                            
+                    self.qp.end()
+                    
+                    if self._viewCount1 == self._viewCount3:
+                        self._viewCount2 += self._viewWindowHigh
+                        self._viewCount3 = self._viewWindowHigh
+                        self._viewCount1 = 0
+                        self.time += self.time_step
+                    elif (self._viewCount2 + self._viewCount1) > (len(self._viewText)):
+                        #self.start = 0
+                        self._viewCount1 = 0
+                        self._viewCount2 = 0  # self._viewWindow[[0],[0]]
+                        self._viewCount3 = self._viewWindowHigh
+                        #self.time += self.time_step
+                elif (self._viewCount2+self._viewWindowHigh) < (len(self._viewText)-self._viewWindowHigh):
+                        self._viewCount2 += self._viewWindowHigh
+                        self._viewCount1 = 0
+                        self._viewCount3 = ((len(self._viewText)) - self._viewCount2)
+                        self.time += self.time_step
+                
+
+            if self._viewMode == 1:
+                self.viewMode2(qp)
+
+                    
         else:
-            self.firststart = 0
-            self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
+            self.start = 0
+            #self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
             
     def timerEvent(self, event):
-        if self.timer_id == event.timerId():
-            #self.bezAnimation()
-            self.time += self.time_step
-            self.update()         
-        
+        if self.timer_id == event.timerId() and self.start == 1:
+            if self.time == 0:
+                self.update() 
+            else: 
+                self.time -= 1
+            
+       
+    def viewMode2(self, qp):
+        qp.setPen(QColor('white'))
+        self.text1 = 'Открытие лыжного сезона. Эстафета.'
+        self.text2 = 'Протокол финиша:'
+        qp.drawText(1, 8, self.text1)
+        qp.drawText(1, 17, self.text2)
+                
+        for i in range(self._viewWindowHigh):
+                    qp.setPen(QColor('yellow'))
+                    # lfr_grp[i].pop(1)
+                    qp.drawText(0, (i*9)+27, self._viewText[i][0])
+                    qp.setPen(QColor('green'))
+                    #txt = self._viewText[i][1]                    
+                    txt = [self._viewText[i][1][k]
+                           for k in range(15) if len(self._viewText[i][1]) > k]
+                    txt = ''.join([str(element) for element in txt])
+                    qp.drawText(19, (i*9)+27, txt)
+                    txt = [self._viewText[i][2][k]
+                           for k in range(5) if len(self._viewText[i][2]) > k]
+                    txt = ''.join([str(element) for element in txt])
+                    qp.drawText(109, (i*9)+27, txt)
+                    qp.setPen(QColor('red'))
+                    qp.drawText(146, (i*9)+27, self._viewText[i][3])  
 
 
 class PT():
@@ -138,7 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lfr = list
         self.cwd = "" # Папка с программой
         self.cwd1 = "" # Папка по умолчанию, после первого открытия файла
-        self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру.
+        self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 5 - по группе. По умолчанию 1 - по стартовому номеру.
         self.view_rule = 0 # 1 - все подряд, 0 - с номерами.
         self.group_rule = 0 # Сортировка по номеру группы. 0 - все.
         self.append_rule = 0 # Триггер для объединения результатов.
@@ -146,6 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.autosave = 0 # Триггер автоматического сохранения.
         self.doublesave = 0 # Триггер сохранения двойного результата в один протокол.
         self.fullmsec = 0 # Триггер для отображения времени в абсолюте, в мсек.
+        self.viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты
         self.reload_timer = 10
         self.all_tabs = []
 
@@ -197,11 +277,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose4.setCheckable(True)
         self.btn_choose4.setEnabled(False)
                 
-        #self.btn_choose5 = QPushButton(self)
-        #self.btn_choose5.setObjectName("Генератор")
-        #self.btn_choose5.setText("Сгенерировать итоговый")
-        #self.btn_choose5.setCheckable(True)
-        #self.btn_choose5.setEnabled(False)
+        self.btn_choose5 = QPushButton(self)
+        self.btn_choose5.setObjectName("Вывод")
+        self.btn_choose5.setText("Вывести")
+        self.btn_choose5.setCheckable(True)
+        self.btn_choose5.setEnabled(False)
         
         self.btn_chooseFile1 = QPushButton(self)  
         self.btn_chooseFile1.setObjectName("Выбрать")
@@ -289,7 +369,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox1.stateChanged.connect(self.checkBox_1)
         #self.checkbox2.stateChanged.connect(self.checkbox_2)
         #self.checkbox3.stateChanged.connect(self.checkbox_3)
-        #self.checkbox7.stateChanged.connect(self.checkbox_7)
+        self.checkbox7.stateChanged.connect(self.checkbox_7)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
        
         grid = QGridLayout()
@@ -309,6 +389,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.checkbox6)
         self.left_layout.addWidget(self.checkbox7)
         self.left_layout.addWidget(self.btn_choose4)
+        self.left_layout.addWidget(self.btn_choose5)
         #self.left_layout.addWidget(self.checkbox7)   
         self.left_layout.insertSpacing(10, 20)
         self.left_layout.addWidget(self.btn_chooseFile1) #,alignment=QtCore.Qt.AlignTop
@@ -317,7 +398,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.insertSpacing(10, 10)
         self.left_layout.addWidget(self.checkbox1)
         self.left_layout.addWidget(self.spinbox1)
-        #self.left_layout.addWidget(self.btn_choose5)
+        
         #self.left_layout.addWidget(self.btn_chooseFile4)
         #self.left_layout.addWidget(self.checkbox2)
         #self.left_layout.addWidget(self.checkbox3)
@@ -362,38 +443,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         # Сортируем списки по нулевому полю
         lfr_pro1 = sorted(self.lfr_pro1)
-
-        # Если у нас открыт второй протокол, то объединям результаты в один общий.
-        if self.local_filename_choose2!= "":
-            
-            # Считаем файл групп.
-            self.grp_zag2, self.grp2, self.increment_grp2 = Parser.read_grp(
-                dPars, self.local_filename_choose2)
-
-            # Есть вероятность, что это идентичные протоколы.
-            # Считаем файл протоколов.Возвращает raw binary блоки по 282 байт и число обработанных записей.
-            self.pro2, increment_pro_all2 = Parser.read_pro(
-                dPars, self.local_filename_choose2)
-
-            # Распакуем список групп и сами протоколы. Вернет списки и число годных записей. Список групп берем из первого протокола, как основного.
-            # Зависимость от group_rule - сортировка по номеру группы, 0 - все, и view_rule - 1 - все подряд, 0 - с номерами.
-            # Важно, чтобы возвращаемые self.increment_pro1 и self.increment_pro2 совпадали, иначе не сработает объединение.
-            self.lfr_grp2 = Parser.repack_grp(dPars, self.grp2)
-            self.lfr_pro2, self.increment_pro2 = Parser.repack_pro(
-                dPars, self.lfr_grp1, self.pro2, self.group_rule, self.view_rule, self.fullmsec)
-
-
-            # Сортируем списки по нулевому полю
-            lfr_pro2 = sorted(self.lfr_pro2)
-            self.pro3 = b''
-            
-            lfr_pro1 = self.append_pro_result (lfr_pro1, lfr_pro2)
-
-            # Запишем получившийся binary протокол.
-            if self.local_filename_choose4 != "" and self.autosave == 1:
-                self.saveprot (self.pro3)
-        
-        lfr_pro = [e.copy() for e in self.lfr_pro1]
+       
+        lfr_pro = [e.copy() for e in lfr_pro1]
 
         lfr_pro_t = self.pro_grp_sort(lfr_pro, self.lfr_grp1)
 
@@ -403,6 +454,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         len_lfr = len(lfr_pro_t) 
         
+        # Вывод на второе окно
         self.updateSecond(len_lfr, lfr_pro_t)
         
         # Преобразуем списки участников в чистый текст.
@@ -445,7 +497,7 @@ class MainWindow(QtWidgets.QMainWindow):
         text_v = []
         
         inc = 0
-        for i in range(9):  # self.increment_pro
+        for i in range(len):  # self.increment_pro
             if inc >= len:
                 break
             text_temp = []
@@ -453,9 +505,11 @@ class MainWindow(QtWidgets.QMainWindow):
             text_temp.append(lfr_pro_t[i][0])
             text_temp.append(lfr_pro_t[i][1])
             text_temp.append(lfr_pro_t[i][2])
-            text_temp = ' '.join(text_temp)
+            text_temp.append(lfr_pro_t[i][5])
+            #text_temp = ' '.join(text_temp)
             text_v.append(text_temp)
 
+        text_v.insert(0, self.viewMode)
         # Обновляем содержимое второго окна
         self.w2.updateSecondWin = text_v
    
@@ -463,74 +517,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def saveprot(self, prot):
         if self.local_filename_choose4 != "" and len(prot)>0:
             dPars.save_pro(self.local_filename_choose4, prot)
- 
-    def append_pro_result (self, lfr_pro1, lfr_pro2):
-        # Обьединим результаты. 
-        # Проверка по стартовому номеру и имени.
-        for i in range(len(lfr_pro1)):
-            if lfr_pro1[i][0] == lfr_pro2[i][0] \
-                or lfr_pro1[i][1] == lfr_pro2[i][1]:
-                # Загрузка финишей второго протокола в общий
-                lfr_pro1[i].append(lfr_pro2[i][8])
-                lfr_pro1[i].append(lfr_pro2[i][9])
-                   # Сравнение результатов первого протокола и второго.
-                   # Вывод результата, в зависимости в протоколе нулевой.
-                   # Если в первом протоколе результат нулевой, принимаем результат второго протокола как финишный
-                   # Если нулевой результат во втором протоколе, то вероятно второй протокол еще не заполнился.
-                   # Принудительная фиксация результатов по флагу self.append_rule
-
-                if lfr_pro1[i][8] >= lfr_pro1[i][10]:
-                        if self.doublesave == 1:
-                            self.pro3 += self.pro1[(lfr_pro1[i][0])][1]
-                        else: 
-                            lfr_pro1[i].append(lfr_pro1[i][10])
-                            lfr_pro1[i].append(lfr_pro1[i][11])
-                        self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
-                elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or \
-                        self.append_rule == 1:
-                        self.pro3 += self.pro1[(lfr_pro1[i][0])][1] 
-                        if self.doublesave == 1:
-                            self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
-                        else:
-                            lfr_pro1[i].append(lfr_pro1[i][8])
-                            lfr_pro1[i].append(lfr_pro1[i][9])
-                            
-                else:
-                        if self.doublesave == 1:
-                            self.pro3 += self.pro1[(lfr_pro1[i][0])][1]
-                        else:
-                            lfr_pro1[i].append(4294967295)
-                            lfr_pro1[i].append(' 00:00:00,00')
-                        self.pro3 += self.pro2[(lfr_pro2[i][0])][1]
-
-                
-                #if lfr_pro1[i][8] >= lfr_pro1[i][10]:
-                #    lfr_pro1[i].append(lfr_pro1[i][10])
-                #    lfr_pro1[i].append(lfr_pro1[i][11])
-                #    self.pro3 = self.pro3 + \
-                #        self.pro2[(lfr_pro2[i][0])][1]
-                #elif (lfr_pro1[i][8] <= lfr_pro1[i][10] and lfr_pro1[i][10] != 4294967295) or \
-                #        self.append_rule == 1:
-                #    lfr_pro1[i].append(lfr_pro1[i][8])
-                #    lfr_pro1[i].append(lfr_pro1[i][9])
-                #    self.pro3 = self.pro3 + \
-                #        self.pro1[(lfr_pro1[i][0])][1]
-                #else:
-                #    lfr_pro1[i].append(4294967295)
-                #    lfr_pro1[i].append(' 00:00:00,00')
-                #    self.pro3 = self.pro3 + \
-                #        self.pro2[(lfr_pro2[i][0])][1]
-                    # if lfr_pro1[i][8] == 4294967295 or lfr_pro1[i][10] == 4294967295:
-                        # lfr_pro1[i].append(lfr_pro1[i][10])
-                        # lfr_pro1[i].append(lfr_pro1[i][11])
-                        # self.pro3 = self.pro3 + \
-                        # self.pro2[(lfr_pro2[i][0])][1]
-
-                           #lfr_pro1[i].append(lfr_pro1[i][8])
-                           #lfr_pro1[i].append(lfr_pro1[i][9])
-                           #self.pro3 = self.pro3 + self.pro1[(lfr_pro1[i][0])][1]
-
-        return lfr_pro1
     
     def group_prepare(self, lfr_grp):
      # ['Все', 1, '0', 0, 255, '0']
@@ -588,12 +574,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     if k[3] == self.group_rule:
                         lfr_pro_t+=(k,)
                         
-            
-            # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
+            #[6, 50, '50 ', 2, 'Намятов Савелий', 'ГСС', '2000', '1000м 18-34     ', 23748, '0:03:57,48']
+            # Сортируем списки. 4 - по имени, 8 - по результату, 5 - по группе. По умолчанию 1 - по стартовому номеру
             lfr_pro_t = sorted(
                 lfr_pro_t, key=lambda x: x[self.sorted_rule])
         else:        
-            # Сортируем списки. 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
+            # Сортируем списки. 4 - по имени, 8 - по результату, 5 - по группе. По умолчанию 1 - по стартовому номеру
             if self.sorted_rule == 8 and len(lfr_pro[0])>10:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[12])
@@ -634,13 +620,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.doublesave = 0
         self.reload()
 
-    def checkbox_7(self, state):
-        if state == Qt.Checked:
-            self.fullmsec = 1
-        else:
-            self.fullmsec = 0
-        self.reload()            
-
     def spinBox_1(self):
         self.reload_timer = self.spinbox1.value()
 
@@ -661,6 +640,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.btn_choose1.setChecked(True)
         self.checkbox5.setChecked(False)
         self.checkbox6.setChecked(False)
+        self.checkbox7.setChecked(False)
         self.sorted_rule = 1
         self.reload()
 
@@ -669,6 +649,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox4.setChecked(False)
         # self.btn_choose2.setChecked(True)
         self.checkbox6.setChecked(False)
+        self.checkbox7.setChecked(False)
         self.sorted_rule = 4
         self.reload()
 
@@ -676,6 +657,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def slot_btn_choose3(self):
         self.checkbox4.setChecked(False)
         self.checkbox5.setChecked(False)
+        self.checkbox7.setChecked(False)
         # self.btn_choose3.setChecked(True)
         self.sorted_rule = 8
         self.reload()
@@ -692,17 +674,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.view_rule = 1
             self.reload()
 
-    def slot_btn_choose5(self):
-        mess = QMessageBox.question(
-            self, "Внимание!", "Вы точно уверены?", QMessageBox.No | QMessageBox.Ok)
-        if mess == QMessageBox.Ok:
-            self.append_rule = 1
-            self.reload()
-     
-        if mess == QMessageBox.No: 
-            self.append_rule = 0
-            self.reload()
-            
+    def checkbox_7(self, state):
+        self.checkbox4.setChecked(False)
+        self.checkbox5.setChecked(False)
+        self.checkbox6.setChecked(False)
+        # self.btn_choose3.setChecked(True)
+        self.sorted_rule = 5
+        self.reload()
         
 
     def slot_btn_chooseFile1(self):
@@ -753,6 +731,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox4.setEnabled(True)
         self.checkbox5.setEnabled(True)
         self.checkbox6.setEnabled(True)
+        self.checkbox7.setEnabled(True)
         self.btn_choose4.setEnabled(True)
         #self.btn_choose5.setEnabled(False)
         #self.checkbox2.setEnabled(False)
