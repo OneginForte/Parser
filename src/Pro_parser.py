@@ -191,11 +191,11 @@ class Parser:
                 if view_rule != 1:  
                     return 0
                 s = "   "                   
-            else:
-                if M < 100:
-                    s = s + " "
-                if M < 10:
-                    s = s + " "       
+            #else:
+            #    if M < 100:
+            #        s = s + " "
+            #    if M < 10:
+            #        s = s + " "       
                     
             # В нулевой индекс закинем стартовый номер числом. По умолчанию сортировка по нему.                    
             tf.append(M)  # tf = tf+s
@@ -292,13 +292,13 @@ class Parser:
                 rez[3] = 0
 
 
-            s = ""
+            s = ''
 
             if time_rule !=1:
                 if rez[0] > 9:
                     s = s + str(rez[0])
                 else:
-                    s = s + '0' + str(rez[0])
+                    s = s + str(rez[0])
 
                 if rez[1] > 9:
                     s = s + ':' + str(rez[1]) + ':'
