@@ -198,18 +198,19 @@ class SecondWindow(QtWidgets.QWidget):
                 
         for i in range(self._viewWindowHigh):
                     qp.setPen(QColor('yellow'))
-                    # lfr_grp[i].pop(1)
                     qp.drawText(0, (i*9)+27, self._viewText[i][0])
-                    qp.setPen(QColor('green'))
-                    #txt = self._viewText[i][1]                    
+                    
+                    qp.setPen(QColor('green'))                 
                     txt = [self._viewText[i][1][k]
                            for k in range(15) if len(self._viewText[i][1]) > k]
                     txt = ''.join([str(element) for element in txt])
                     qp.drawText(19, (i*9)+27, txt)
+                    
                     txt = [self._viewText[i][2][k]
                            for k in range(5) if len(self._viewText[i][2]) > k]
                     txt = ''.join([str(element) for element in txt])
-                    qp.drawText(109, (i*9)+27, txt)
+                    qp.drawText(117, (i*9)+27, txt)
+                    
                     qp.setPen(QColor('red'))
                     qp.drawText(146, (i*9)+27, self._viewText[i][3])  
 
@@ -230,13 +231,13 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('green'))
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
-                   for k in range(15) if len(self._viewText[self._viewCount2+i][1]) > k]
+                   for k in range(16) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
             qp.drawText(19, (i*9)+27, txt)
             txt = [self._viewText[self._viewCount2+i][2][k]
                    for k in range(5) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(109, (i*9)+27, txt)
+            qp.drawText(115, (i*9)+27, txt)
             qp.setPen(QColor('red'))
             qp.drawText(146, (i*9)+27, self._viewText[self._viewCount2+i][3])
             
