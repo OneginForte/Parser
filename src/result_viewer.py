@@ -107,14 +107,16 @@ class SecondWindow(QtWidgets.QWidget):
 
     def _drawText(self, qp, param):
 
-        if self._viewText[0]==0 or self._viewText[0]==1:
+        if self._viewText[0] == 0 or self._viewText[0] == 1 or self._viewText[0] == 2:
             self._viewMode = self._viewText.pop(0)
         if len(self._viewText) != 0 and self.start == 1:
 
             if self._viewMode == 0:
-                 self.viewMode1(qp)
-            else:  # self._viewMode == 1:
+                self.viewMode1(qp)
+            if self._viewMode == 1:  # self._viewMode == 1:
                 self.viewMode2(qp)
+            if self._viewMode == 2:
+                self.viewMode3(qp)
                  
                        #self._viewCount2 += self._viewCount3 
                     
@@ -190,7 +192,7 @@ class SecondWindow(QtWidgets.QWidget):
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
         self.text1 = 'Открытие лыжного сезона. Эстафета.'
-        self.text2 = 'Протокол финиша:'
+        self.text2 = 'Текущие результаты:'
         qp.drawText(1, 8, self.text1)
         qp.drawText(1, 17, self.text2)
                 
@@ -211,6 +213,53 @@ class SecondWindow(QtWidgets.QWidget):
                     qp.setPen(QColor('red'))
                     qp.drawText(146, (i*9)+27, self._viewText[i][3])  
 
+    def viewMode3(self, qp):
+            # self.qp.eraseRect(self._top, self._left, self._width, self._height)
+        qp.setFont(QFont('Decorative', 8))
+        qp.setPen(QColor('white'))
+        self.text1 = 'Открытие лыжного сезона. Эстафета.'
+        self.text2 = 'Протокол финиша:'
+        qp.drawText(1, 8, self.text1)
+        qp.drawText(1, 17, self.text2)
+
+        for i in range(0, self._viewCount1):
+            
+            qp.setPen(QColor('yellow'))
+            # lfr_grp[i].pop(1)
+            qp.drawText(0, (i*9)+27, self._viewText[self._viewCount2+i][0])
+            qp.setPen(QColor('green'))
+            #txt = self._viewText[i][1]
+            txt = [self._viewText[self._viewCount2+i][1][k]
+                   for k in range(15) if len(self._viewText[self._viewCount2+i][1]) > k]
+            txt = ''.join([str(element) for element in txt])
+            qp.drawText(19, (i*9)+27, txt)
+            txt = [self._viewText[self._viewCount2+i][2][k]
+                   for k in range(5) if len(self._viewText[self._viewCount2+i][2]) > k]
+            txt = ''.join([str(element) for element in txt])
+            qp.drawText(109, (i*9)+27, txt)
+            qp.setPen(QColor('red'))
+            qp.drawText(146, (i*9)+27, self._viewText[self._viewCount2+i][3])
+            
+   
+
+        if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
+
+            self._viewCount3 = (
+                (len(self._viewText)) - self._viewCount2)
+
+        if (self._viewCount2+self._viewCount1) == (len(self._viewText)):
+            self._viewCount1 = 1
+            self._viewCount2 = 0
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+
+        elif self._viewCount1 == self._viewCount3:
+            self._viewCount1 = 1
+            self._viewCount2 += self._viewWindowHigh
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+        else:
+            self._viewCount1 += 1
 
 class PT():
 
@@ -246,7 +295,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.autosave = 0 # Триггер автоматического сохранения.
         self.doublesave = 0 # Триггер сохранения двойного результата в один протокол.
         self.fullmsec = 0 # Триггер для отображения времени в абсолюте, в мсек.
-        self.viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты
+        self.viewMode = 2 # Режим вывода. 0 - стартовый протокол. 1 - результаты
         self.reload_timer = 10
         self.all_tabs = []
 
