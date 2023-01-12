@@ -34,7 +34,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
         self._viewWindowHigh = 9
-        self._viewCount1 = 0
+        self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
         self.time = 0
@@ -48,10 +48,16 @@ class SecondWindow(QtWidgets.QWidget):
     
     @updateSecondWin.setter
     def updateSecondWin (self, text):
+        self.killTimer(self.timer_id)
         self._viewText = text
         self.viewText.emit(text)
         self._viewLoop = 1
         self.start = 1
+        self.time_step = 20
+        self._viewCount1 = 1
+        self._viewCount2 = 0
+        self._viewCount3 = self._viewWindowHigh
+        self.timer_id = self.startTimer(200)
         self.update()
 
     def secondWin1(self):
@@ -71,89 +77,60 @@ class SecondWindow(QtWidgets.QWidget):
 
 
     def paintEvent(self, param):
+        qp = QPainter(self)
         
-        #self.qp.setRenderHints(QPainter.Antialiasing)
         if len(self._viewText) == 0:
-            self.qp = QPainter(self)
+            
             #self.qp.begin(self)
-            self.qp.drawPixmap(self.rect(), self.image)
-            self.qp.end()
+            qp.drawPixmap(self.rect(), self.image)
             
-        elif self._viewLoop == 1:
+
+        #self.qp.begin(self)
+        #self.qp.setRenderHints(QPainter.Antialiasing)
+        if len(self._viewText) != 0:
             
-            
-            #self.qp.begin(self) 
-                               
-            self.drawText(self, param)
-            
+            #qp.drawPixmap(self.rect(), self.image)
+
+            if self._viewLoop == 1:
+               
+                qp.save()
+                #self.qp = QPainter(self)
+                #self.qp.begin(self) 
+                self._drawText(qp, param)
+                #self.qp.end()
+                qp.restore()
+
+        qp.end()
         
         #self.update()
 
 
-    def drawText(self, qp, param):
+    def _drawText(self, qp, param):
 
         if self._viewText[0]==0 or self._viewText[0]==1:
             self._viewMode = self._viewText.pop(0)
         if len(self._viewText) != 0 and self.start == 1:
-            
-           
 
             if self._viewMode == 0:
-               
-                if self._viewCount1 < (self._viewCount3):
-                    qp = QPainter(self)
-                    self._viewCount1 += 1
-                    qp.begin(self)
-                    #self.qp.eraseRect(self._top, self._left, self._width, self._height)
-                    qp.setFont(QFont('Decorative', 8))
-                    qp.setPen(QColor('white'))
-                    self.text1 = 'Открытие лыжного сезона. Эстафета.'
-                    self.text2 = 'Протокол старта:'
-                    qp.drawText(0, 8, self.text1)
-                    qp.drawText(1, 17, self.text2)
-                    qp.setPen(QColor('green'))
-                
-                    for i in range(self._viewCount1):
-                            # lfr_grp[i].pop(1)
-                            qp.drawText(0, (i*9) + 27,
-                                        self._viewText[i+self._viewCount2][0])
-
-                            txt = [self._viewText[i+self._viewCount2][1][k]
-                                   for k in range(23) if len(self._viewText[i+self._viewCount2][1]) > k]
-                            txt = ''.join([str(element) for element in txt])
-
-                            qp.drawText(19, (i*9) + 27, txt)
-
-                            txt = [self._viewText[i+self._viewCount2][2][k]
-                                   for k in range(15) if len(self._viewText[i+self._viewCount2][2]) > k]
-                            txt = ''.join([str(element) for element in txt])
-
-                            qp.drawText(160, (i*9) + 27, txt)
-                            
-                    self.qp.end()
-                    
-                    if self._viewCount1 == self._viewCount3:
-                        self._viewCount2 += self._viewWindowHigh
-                        self._viewCount3 = self._viewWindowHigh
-                        self._viewCount1 = 0
-                        self.time += self.time_step
-                    elif (self._viewCount2 + self._viewCount1) > (len(self._viewText)):
-                        #self.start = 0
-                        self._viewCount1 = 0
-                        self._viewCount2 = 0  # self._viewWindow[[0],[0]]
-                        self._viewCount3 = self._viewWindowHigh
-                        #self.time += self.time_step
-                elif (self._viewCount2+self._viewWindowHigh) < (len(self._viewText)-self._viewWindowHigh):
-                        self._viewCount2 += self._viewWindowHigh
-                        self._viewCount1 = 0
-                        self._viewCount3 = ((len(self._viewText)) - self._viewCount2)
-                        self.time += self.time_step
-                
-
-            if self._viewMode == 1:
+                 self.viewMode1(qp)
+            else:  # self._viewMode == 1:
                 self.viewMode2(qp)
-
+                 
+                       #self._viewCount2 += self._viewCount3 
                     
+                    #self.time += self.time_step
+                 
+                
+                #self.time += self.time_step
+                            #self._viewCount2 += self._viewCount3    
+                # self._viewWindow[[0],[0]]
+                    
+             
+                        
+
+                        #self.time += self.time_step
+                        #self.time += self.time_step                    
+                        #self.time += self.time_step
         else:
             self.start = 0
             #self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
@@ -164,7 +141,51 @@ class SecondWindow(QtWidgets.QWidget):
                 self.update() 
             else: 
                 self.time -= 1
-            
+    
+    def viewMode1(self, qp):
+                    # self.qp.eraseRect(self._top, self._left, self._width, self._height)
+        qp.setFont(QFont('Decorative', 8))
+        qp.setPen(QColor('white'))
+        self.text1 = 'Открытие лыжного сезона. Эстафета.'
+        self.text2 = 'Протокол старта:'
+        qp.drawText(0, 8, self.text1)
+        qp.drawText(1, 17, self.text2)
+        qp.setPen(QColor('green'))
+
+        for i in range(0,self._viewCount1):
+                    # lfr_grp[i].pop(1)
+            qp.drawText(0, (i*9) + 27,
+                                self._viewText[self._viewCount2+i][0])
+            txt = [self._viewText[self._viewCount2+i][1][k]
+                           for k in range(22) if len(self._viewText[self._viewCount2+i][1]) > k]
+            txt = ''.join([str(element) for element in txt])
+
+            qp.drawText(19, (i*9) + 27, txt)
+
+            txt = [self._viewText[self._viewCount2+i][2][k]
+                            for k in range(11) if len(self._viewText[self._viewCount2+i][2]) > k]
+            txt = ''.join([str(element) for element in txt])
+
+            qp.drawText(155, (i*9) + 27, txt)
+
+        if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
+
+            self._viewCount3 = (
+                (len(self._viewText)) - self._viewCount2)
+
+        if (self._viewCount2+self._viewCount1) == (len(self._viewText)):
+            self._viewCount1 = 1
+            self._viewCount2 = 0
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+
+        elif self._viewCount1 == self._viewCount3:
+            self._viewCount1 = 1
+            self._viewCount2 += self._viewWindowHigh
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+        else:
+            self._viewCount1 += 1
        
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
