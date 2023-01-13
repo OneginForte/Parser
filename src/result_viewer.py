@@ -24,8 +24,8 @@ class SecondWindow(QtWidgets.QWidget):
         
         super().__init__(parent)
         
-        self._top = 100
-        self._left = 200
+        self._top = -1920
+        self._left = 0
         self._width = 200
         self._height = 100
         self.start = 0
