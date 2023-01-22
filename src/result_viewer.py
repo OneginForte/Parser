@@ -9,7 +9,7 @@ from Pro_parser import Parser
 #from tkinter import CENTER
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QRect, pyqtSlot
 from PyQt5.QtGui import QPainter, QFont, QColor, QPalette, QPixmap
 from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout, QListWidget,
                               QMessageBox, QPushButton, QVBoxLayout, QWidget, QCheckBox, QSpinBox)
@@ -25,7 +25,7 @@ class SecondWindow(QtWidgets.QWidget):
         super().__init__(parent)
         self._parent = parent
         self.start = 0
-        self._viewText = list
+        self._viewText = list()
         self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
@@ -36,6 +36,11 @@ class SecondWindow(QtWidgets.QWidget):
         self.time = 0
         self.time_step = 20 #0.025
         self.timer_id = self.startTimer(200)
+        self._top = 1 #self._parent.w2_top
+        self._left = 1 # self._parent.w2_left
+        self._width = 200
+        self._height = 100
+        self.image = QPixmap(r"evraz30.bmp")
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -57,17 +62,17 @@ class SecondWindow(QtWidgets.QWidget):
         self.update()
 
     def secondWin1(self):
-        
+                      
         self.setGeometry( self._top, self._left, self._width ,self._height )
+        #self.mapToGlobal( QPoint(self._top, self._left))
         self.setWindowTitle('Draw text')
         self.setWindowFlags(Qt.FramelessWindowHint |
                             Qt.WindowStaysOnTopHint)
-        self.image = QPixmap(r"evraz30.bmp")
         pal = self.palette()
         pal.setColor(QPalette.Background, Qt.black)
         self.setAutoFillBackground(True)
         self.setPalette(pal)
-        #self.resize(self.image.width(), self.image.height())
+        #self.resize(self._width ,self._height)
         
         self.show()
 
@@ -75,7 +80,7 @@ class SecondWindow(QtWidgets.QWidget):
     def paintEvent(self, param):
         qp = QPainter(self)
         
-        if len(self._viewText) == 0:
+        if not self._viewText:
             
             #self.qp.begin(self)
             qp.drawPixmap(self.rect(), self.image)
@@ -83,7 +88,7 @@ class SecondWindow(QtWidgets.QWidget):
 
         #self.qp.begin(self)
         #self.qp.setRenderHints(QPainter.Antialiasing)
-        if len(self._viewText) != 0:
+        if self._viewText:
             
             #qp.drawPixmap(self.rect(), self.image)
 
@@ -281,7 +286,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.lfr = list
+        #self.lfr = list()
         self.cwd = "" # Папка с программой
         self.cwd1 = "" # Папка по умолчанию, после первого открытия файла
         self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 5 - по группе. По умолчанию 1 - по стартовому номеру.
@@ -295,6 +300,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.viewMode = 2 # Режим вывода. 0 - стартовый протокол. 1 - результаты
         self.reload_timer = 10
         self.all_tabs = []
+
+        self.w2_top = 1
+        self.w2_left = 1
+        self.w2_width = 200
+        self.w2_height = 100
 
         self.grp1 = []
 
@@ -312,6 +322,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.mainWin1 ()
         self.w2 = SecondWindow()
+        #self.w2.mapToGlobal( QPoint(self.w2_top, self.w2_left))
         #self.w2.show()
 
     def mainWin1 (self):
@@ -374,7 +385,8 @@ class MainWindow(QtWidgets.QMainWindow):
                                     alignment=QtCore.Qt.AlignCenter)
         self.text3 = QtWidgets.QLabel("Группы",
                                     alignment=QtCore.Qt.AlignCenter)
-
+        self.text4 = QtWidgets.QLabel("Координаты",
+                                    alignment=QtCore.Qt.AlignCenter)
         self.checkbox1 = QCheckBox('Обновлять автоматически', self)
         #self.checkbox2 = QCheckBox('Сохранять автоматически', self)
         #self.checkbox2.setEnabled(False)
@@ -408,6 +420,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox1.setValue(5)
         self.spinbox1.setSuffix(' сек.')
         self.spinbox1.setFixedWidth(65)
+        
+               
+        self.spinbox2 = QSpinBox(self)
+        self.spinbox2.setRange(-1920, 1920)
+        self.spinbox2.setValue(self.w2_top)
+        self.spinbox2.setSuffix('px')
+        self.spinbox2.setFixedWidth(100)
+        
+        self.spinbox3 = QSpinBox(self)
+        self.spinbox3.setRange(-1080, 1080)
+        self.spinbox3.setValue(self.w2_left)
+        self.spinbox3.setSuffix('px')
+        self.spinbox3.setFixedWidth(100)
+        
+        
 
         self.combobox1 = QComboBox(self)
         self.combobox1.setFixedWidth(165)
@@ -438,6 +465,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.checkbox3.stateChanged.connect(self.checkbox_3)
         self.checkbox7.stateChanged.connect(self.checkbox_7)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
+        self.spinbox2.valueChanged.connect(self.spinBox_2)
+        self.spinbox3.valueChanged.connect(self.spinBox_3)
        
         grid = QGridLayout()
         grid.setSpacing(5)
@@ -457,8 +486,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.checkbox7)
         self.left_layout.addWidget(self.btn_choose4)
         self.left_layout.addWidget(self.btn_choose5)
+        #self.left_layout.insertSpacing(10, 20)
+        self.left_layout.addWidget(self.text4)
+        self.left_layout.addWidget(self.spinbox2)
+        self.left_layout.addWidget(self.spinbox3)
         #self.left_layout.addWidget(self.checkbox7)   
-        self.left_layout.insertSpacing(10, 20)
+        #self.left_layout.insertSpacing(10, 20)
         self.left_layout.addWidget(self.btn_chooseFile1) #,alignment=QtCore.Qt.AlignTop
         #self.left_layout.addWidget(self.btn_chooseFile2) 
         #self.left_layout.addWidget(self.btn_chooseFile3)
@@ -689,6 +722,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def spinBox_1(self):
         self.reload_timer = self.spinbox1.value()
+        
+    def spinBox_2(self):
+        self.w2_top = self.spinbox2.value()
+        self.w2.move(self.w2_top, self.w2_left)
+        
+    def spinBox_3(self):
+        self.w2_left = self.spinbox3.value()
+        self.w2.move(self.w2_top, self.w2_left)
 
     # def mousePressEvent(self, event):
     #    self.oldPos = event.globalPos()
