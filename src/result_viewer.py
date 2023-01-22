@@ -23,13 +23,9 @@ class SecondWindow(QtWidgets.QWidget):
         # отображался как самостоятельное окно указываем тип окно
         
         super().__init__(parent)
-        
-        self._top = -1920
-        self._left = 0
-        self._width = 200
-        self._height = 100
+        self._parent = parent
         self.start = 0
-        self._viewText = []
+        self._viewText = list
         self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
