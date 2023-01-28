@@ -240,7 +240,7 @@ class SecondWindow(QtWidgets.QWidget):
             txt = ''.join([str(element) for element in txt])
             qp.drawText(115, (i*9)+27, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(146, (i*9)+27, self._viewText[self._viewCount2+i][3])
+            qp.drawText(156, (i*9)+27, self._viewText[self._viewCount2+i][3])
             
    
 
