@@ -29,7 +29,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
-        self._viewWindowHigh = 9
+        self._viewWindowHigh = 51
         self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
@@ -38,8 +38,8 @@ class SecondWindow(QtWidgets.QWidget):
         self.timer_id = self.startTimer(200)
         self._top = 1 #self._parent.w2_top
         self._left = 1 # self._parent.w2_left
-        self._width = 200
-        self._height = 100
+        self._width = 250
+        self._height = 480
         self.image = QPixmap(r"evraz30.bmp")
         self.secondWin1()
     
@@ -151,25 +151,25 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setPen(QColor('white'))
         self.text1 = 'Открытие лыжного сезона. Эстафета.'
         self.text2 = 'Протокол старта:'
-        qp.drawText(0, 8, self.text1)
-        qp.drawText(1, 17, self.text2)
+        qp.drawText(0, 10, self.text1)
+        qp.drawText(1, 20, self.text2)
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
                     # lfr_grp[i].pop(1)
-            qp.drawText(0, (i*9) + 27,
+            qp.drawText(0, (i*9) + 30,
                                 self._viewText[self._viewCount2+i][0])
             txt = [self._viewText[self._viewCount2+i][1][k]
                            for k in range(22) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
 
-            qp.drawText(19, (i*9) + 27, txt)
+            qp.drawText(19, (i*9) + 30, txt)
 
             txt = [self._viewText[self._viewCount2+i][2][k]
                             for k in range(11) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
 
-            qp.drawText(155, (i*9) + 27, txt)
+            qp.drawText(155, (i*9) + 30, txt)
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
@@ -219,7 +219,7 @@ class SecondWindow(QtWidgets.QWidget):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
         qp.setFont(QFont('Decorative', 8))
         qp.setPen(QColor('white'))
-        self.text1 = 'Открытие лыжного сезона. Эстафета.'
+        self.text1 = 'Спортивный забег "Пять Вершин"'
         self.text2 = 'Протокол финиша:'
         qp.drawText(1, 8, self.text1)
         qp.drawText(1, 17, self.text2)
@@ -232,15 +232,15 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('green'))
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
-                   for k in range(16) if len(self._viewText[self._viewCount2+i][1]) > k]
+                   for k in range(20) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
             qp.drawText(19, (i*9)+27, txt)
             txt = [self._viewText[self._viewCount2+i][2][k]
-                   for k in range(5) if len(self._viewText[self._viewCount2+i][2]) > k]
+                   for k in range(11) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(115, (i*9)+27, txt)
+            qp.drawText(140, (i*9)+27, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(156, (i*9)+27, self._viewText[self._viewCount2+i][3])
+            qp.drawText(206, (i*9)+27, self._viewText[self._viewCount2+i][3])
             
    
 
@@ -303,8 +303,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.w2_top = 1
         self.w2_left = 1
-        self.w2_width = 200
-        self.w2_height = 100
+        self.w2_width = 250
+        self.w2_height = 480
 
         self.grp1 = []
 
