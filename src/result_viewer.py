@@ -217,30 +217,33 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Decorative', 8))
+        qp.setFont(QFont('Decorative', 10))
         qp.setPen(QColor('white'))
-        self.text1 = 'Спортивный забег "Пять Вершин"'
-        self.text2 = 'Протокол финиша:'
-        qp.drawText(1, 8, self.text1)
-        qp.drawText(1, 17, self.text2)
-
+        self.text1 = '     Спортивный забег "Пять Вершин"'
+        self.text2 = '              Протокол финиша:'
+        qp.drawText(0, 10, self.text1)
+        qp.drawText(0, 20, self.text2)
+        _text_indent = 30
+        qp.setFont(QFont('Decorative', 8))
         for i in range(0, self._viewCount1):
             
             qp.setPen(QColor('yellow'))
             # lfr_grp[i].pop(1)
-            qp.drawText(0, (i*9)+27, self._viewText[self._viewCount2+i][0])
+            qp.drawText(0, (i*9)+_text_indent,
+                        self._viewText[self._viewCount2+i][0])
             qp.setPen(QColor('green'))
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
                    for k in range(20) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(19, (i*9)+27, txt)
+            qp.drawText(19, (i*9)+_text_indent, txt)
             txt = [self._viewText[self._viewCount2+i][2][k]
-                   for k in range(11) if len(self._viewText[self._viewCount2+i][2]) > k]
+                   for k in range(10) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(140, (i*9)+27, txt)
+            qp.drawText(140, (i*9)+_text_indent, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(206, (i*9)+27, self._viewText[self._viewCount2+i][3])
+            qp.drawText(206, (i*9)+_text_indent,
+                        self._viewText[self._viewCount2+i][3])
             
    
 
