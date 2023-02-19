@@ -92,7 +92,6 @@ class SecondWindow(QtWidgets.QWidget):
             
             #self.qp.begin(self)
             qp.drawPixmap(self.rect(), self.image)
-            
 
         #self.qp.begin(self)
         #self.qp.setRenderHints(QPainter.Antialiasing)
@@ -110,15 +109,12 @@ class SecondWindow(QtWidgets.QWidget):
                 qp.restore()
 
         qp.end()
-        
         #self.update()
-
 
     def _drawText(self, qp, param):
 
         #if self._viewText[0] == 0 or self._viewText[0] == 1 or self._viewText[0] == 2 or self._viewText[0] == 3:
-        
-            
+   
         if len(self._viewText) != 0 and self.start == 1:
 
             if self._viewMode == 1:
@@ -130,18 +126,11 @@ class SecondWindow(QtWidgets.QWidget):
             if self._viewMode == 4:
                 self.viewMode4(qp)
                  
-                       #self._viewCount2 += self._viewCount3 
-                    
-                    #self.time += self.time_step
-                 
-                
-                #self.time += self.time_step
-                            #self._viewCount2 += self._viewCount3    
-                # self._viewWindow[[0],[0]]
-                    
-             
-                        
-
+                        #self._viewCount2 += self._viewCount3 
+                        #self.time += self.time_step
+                        #self.time += self.time_step
+                        #self._viewCount2 += self._viewCount3    
+                        # self._viewWindow[[0],[0]]
                         #self.time += self.time_step
                         #self.time += self.time_step                    
                         #self.time += self.time_step
@@ -157,7 +146,7 @@ class SecondWindow(QtWidgets.QWidget):
                 self.time -= 1
     
     def viewMode1(self, qp):
-                    # self.qp.eraseRect(self._top, self._left, self._width, self._height)
+        # self.qp.eraseRect(self._top, self._left, self._width, self._height)
         qp.setFont(QFont('Decorative', 10))
         qp.setPen(QColor('white'))
         self.text1 = '        Спортивный забег "Пять Вершин"'
@@ -206,35 +195,38 @@ class SecondWindow(QtWidgets.QWidget):
        
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
+        qp.setFont(QFont('Decorative', 10))
         self.text1 = '        Спортивный забег "Пять Вершин"'
-        self.text2 = 'Текущие результаты:'
-        qp.drawText(1, 8, self.text1)
-        qp.drawText(1, 17, self.text2)
+        self.text2 = '                 Текущие результаты:'
+        _text_indent = 33
+        _text_hight = 12
+        qp.drawText(0, 10, self.text1)
+        qp.drawText(0, 20, self.text2)
                 
         for i in range(self._viewWindowHigh):
                     qp.setPen(QColor('yellow'))
-                    qp.drawText(0, (i*9)+27, self._viewText[i][0])
+                    qp.drawText(0, (i*_text_hight)+_text_indent, self._viewText[i][0])
                     
                     qp.setPen(QColor('green'))                 
                     txt = [self._viewText[i][1][k]
                            for k in range(15) if len(self._viewText[i][1]) > k]
                     txt = ''.join([str(element) for element in txt])
-                    qp.drawText(19, (i*9)+27, txt)
+                    qp.drawText(19, (i*_text_hight)+_text_indent, txt)
                     
                     txt = [self._viewText[i][2][k]
                            for k in range(5) if len(self._viewText[i][2]) > k]
                     txt = ''.join([str(element) for element in txt])
-                    qp.drawText(117, (i*9)+27, txt)
+                    qp.drawText(117, (i*_text_hight)+_text_indent, txt)
                     
                     qp.setPen(QColor('red'))
-                    qp.drawText(146, (i*9)+27, self._viewText[i][3])  
+                    qp.drawText(146, (i*_text_hight)+_text_indent, self._viewText[i][3])  
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
         qp.setFont(QFont('Decorative', 10))
         qp.setPen(QColor('white'))
-        self.text1 = '        Спортивный забег "Пять Вершин"'
-        self.text2 = '                  Протокол финиша:'
+        self.text1 = '          Спортивный забег "Пять Вершин"'
+        self.text2 = '                    Протокол финиша:'
         qp.drawText(0, 10, self.text1)
         qp.drawText(0, 20, self.text2)
         _text_indent = 33
@@ -246,8 +238,6 @@ class SecondWindow(QtWidgets.QWidget):
             # lfr_grp[i].pop(1)
             qp.drawText(0, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
-            
-            
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
                    for k in range(25) if len(self._viewText[self._viewCount2+i][1]) > k]
@@ -258,11 +248,9 @@ class SecondWindow(QtWidgets.QWidget):
             txt = ''.join([str(element) for element in txt])
             qp.drawText(211, (i*_text_hight)+_text_indent, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(268, (i*_text_hight)+_text_indent,
+            qp.drawText(267, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
             
-   
-
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
             self._viewCount3 = (
@@ -302,8 +290,6 @@ class SecondWindow(QtWidgets.QWidget):
             M = self._viewCount2+i+1
             M = str(M)
             txt = ''.join([str(element) for element in M])
-            
-            
             qp.drawText(0, (i*_text_hight)+_text_indent,
                         txt)
             qp.setPen(QColor('green'))
@@ -321,8 +307,6 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('red'))
             qp.drawText(268, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
-            
-   
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
