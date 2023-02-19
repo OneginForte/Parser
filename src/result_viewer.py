@@ -3,6 +3,7 @@ import os
 import sys
 from threading import Timer
 from time import sleep
+import struct
 from Pro_parser import Parser
 
 #from time import gmtime, strftime
@@ -29,16 +30,16 @@ class SecondWindow(QtWidgets.QWidget):
         self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
-        self._viewWindowHigh = 51
+        self._viewWindowHigh = 38
         self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
         self.time = 0
         self.time_step = 20 #0.025
         self.timer_id = self.startTimer(200)
-        self._top = 1 #self._parent.w2_top
-        self._left = 1 # self._parent.w2_left
-        self._width = 250
+        self._top = 0
+        self._left = 0
+        self._width = 320
         self._height = 480
         self.image = QPixmap(r"evraz30.bmp")
         self.secondWin1()
@@ -49,23 +50,30 @@ class SecondWindow(QtWidgets.QWidget):
     
     @updateSecondWin.setter
     def updateSecondWin (self, text):
-        self.killTimer(self.timer_id)
+        
         self._viewText = text
         self.viewText.emit(text)
-        self._viewLoop = 1
-        self.start = 1
-        self.time_step = 20
-        self._viewCount1 = 1
-        self._viewCount2 = 0
-        self._viewCount3 = self._viewWindowHigh
-        self.timer_id = self.startTimer(200)
-        self.update()
+        _temp_viewMode = self._viewText.pop(0)
+        self._left = self._viewText.pop(0)
+        self._top = self._viewText.pop(0)
+        if  _temp_viewMode != 0:
+            self._viewMode = _temp_viewMode
+            self.killTimer(self.timer_id)
+            self._viewLoop = 1
+            self.start = 1
+            self.time_step = 20
+            self._viewCount1 = 1
+            self._viewCount2 = 0
+            self._viewCount3 = self._viewWindowHigh
+            self.time = 0
+            self.timer_id = self.startTimer(200)
+            #self.update()
 
     def secondWin1(self):
                       
         self.setGeometry( self._top, self._left, self._width ,self._height )
         #self.mapToGlobal( QPoint(self._top, self._left))
-        self.setWindowTitle('Draw text')
+        #self.setWindowTitle('Draw text')
         self.setWindowFlags(Qt.FramelessWindowHint |
                             Qt.WindowStaysOnTopHint)
         pal = self.palette()
@@ -108,16 +116,19 @@ class SecondWindow(QtWidgets.QWidget):
 
     def _drawText(self, qp, param):
 
-        if self._viewText[0] == 0 or self._viewText[0] == 1 or self._viewText[0] == 2:
-            self._viewMode = self._viewText.pop(0)
+        #if self._viewText[0] == 0 or self._viewText[0] == 1 or self._viewText[0] == 2 or self._viewText[0] == 3:
+        
+            
         if len(self._viewText) != 0 and self.start == 1:
 
-            if self._viewMode == 0:
+            if self._viewMode == 1:
                 self.viewMode1(qp)
-            if self._viewMode == 1:  # self._viewMode == 1:
+            if self._viewMode == 2:  # self._viewMode == 1:
                 self.viewMode2(qp)
-            if self._viewMode == 2:
+            if self._viewMode == 3:
                 self.viewMode3(qp)
+            if self._viewMode == 4:
+                self.viewMode4(qp)
                  
                        #self._viewCount2 += self._viewCount3 
                     
@@ -147,29 +158,32 @@ class SecondWindow(QtWidgets.QWidget):
     
     def viewMode1(self, qp):
                     # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Decorative', 8))
+        qp.setFont(QFont('Decorative', 10))
         qp.setPen(QColor('white'))
-        self.text1 = 'Открытие лыжного сезона. Эстафета.'
-        self.text2 = 'Протокол старта:'
+        self.text1 = '        Спортивный забег "Пять Вершин"'
+        self.text2 = '                     Протокол старта:'
         qp.drawText(0, 10, self.text1)
-        qp.drawText(1, 20, self.text2)
+        qp.drawText(0, 20, self.text2)
+        _text_indent = 33
+        _text_hight = 12
+        qp.setFont(QFont('Decorative', 10))
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
                     # lfr_grp[i].pop(1)
-            qp.drawText(0, (i*9) + 30,
+            qp.drawText(0, (i*_text_hight) + _text_indent,
                                 self._viewText[self._viewCount2+i][0])
             txt = [self._viewText[self._viewCount2+i][1][k]
-                           for k in range(22) if len(self._viewText[self._viewCount2+i][1]) > k]
+                           for k in range(30) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
 
-            qp.drawText(19, (i*9) + 30, txt)
+            qp.drawText(26, (i*_text_hight) + _text_indent, txt)
 
             txt = [self._viewText[self._viewCount2+i][2][k]
-                            for k in range(11) if len(self._viewText[self._viewCount2+i][2]) > k]
+                            for k in range(15) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
 
-            qp.drawText(155, (i*9) + 30, txt)
+            qp.drawText(231, (i*_text_hight) + _text_indent, txt)
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
@@ -192,7 +206,7 @@ class SecondWindow(QtWidgets.QWidget):
        
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
-        self.text1 = 'Открытие лыжного сезона. Эстафета.'
+        self.text1 = '        Спортивный забег "Пять Вершин"'
         self.text2 = 'Текущие результаты:'
         qp.drawText(1, 8, self.text1)
         qp.drawText(1, 17, self.text2)
@@ -219,30 +233,93 @@ class SecondWindow(QtWidgets.QWidget):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
         qp.setFont(QFont('Decorative', 10))
         qp.setPen(QColor('white'))
-        self.text1 = '     Спортивный забег "Пять Вершин"'
-        self.text2 = '              Протокол финиша:'
+        self.text1 = '        Спортивный забег "Пять Вершин"'
+        self.text2 = '                  Протокол финиша:'
         qp.drawText(0, 10, self.text1)
         qp.drawText(0, 20, self.text2)
-        _text_indent = 30
-        qp.setFont(QFont('Decorative', 8))
+        _text_indent = 33
+        _text_hight = 12
+        qp.setFont(QFont('Decorative', 10))
         for i in range(0, self._viewCount1):
+            
+            qp.setPen(QColor('green'))
+            # lfr_grp[i].pop(1)
+            qp.drawText(0, (i*_text_hight)+_text_indent,
+                        self._viewText[self._viewCount2+i][0])
+            
+            
+            #txt = self._viewText[i][1]
+            txt = [self._viewText[self._viewCount2+i][1][k]
+                   for k in range(25) if len(self._viewText[self._viewCount2+i][1]) > k]
+            txt = ''.join([str(element) for element in txt])
+            qp.drawText(22, (i*_text_hight)+_text_indent, txt)
+            txt = [self._viewText[self._viewCount2+i][2][k]
+                   for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
+            txt = ''.join([str(element) for element in txt])
+            qp.drawText(211, (i*_text_hight)+_text_indent, txt)
+            qp.setPen(QColor('red'))
+            qp.drawText(268, (i*_text_hight)+_text_indent,
+                        self._viewText[self._viewCount2+i][3])
+            
+   
+
+        if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
+
+            self._viewCount3 = (
+                (len(self._viewText)) - self._viewCount2)
+
+        if (self._viewCount2+self._viewCount1) == (len(self._viewText)):
+            self._viewCount1 = 1
+            self._viewCount2 = 0
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+
+        elif self._viewCount1 == self._viewCount3:
+            self._viewCount1 = 1
+            self._viewCount2 += self._viewWindowHigh
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+        else:
+            self._viewCount1 += 1
+
+    def viewMode4(self, qp):
+            # self.qp.eraseRect(self._top, self._left, self._width, self._height)
+        qp.setFont(QFont('Decorative', 10))
+        qp.setPen(QColor('white'))
+        self.text1 = '        Спортивный забег "Пять Вершин"'
+        self.text2 = '                  Протокол финиша:'
+        qp.drawText(0, 10, self.text1)
+        qp.drawText(0, 20, self.text2)
+        _text_indent = 33
+        _text_hight = 12
+        qp.setFont(QFont('Decorative', 10))
+        for i in range(0, self._viewCount1):
+            if (self._viewCount2+i) > (len(self._viewText)-1):
+                break
             
             qp.setPen(QColor('yellow'))
             # lfr_grp[i].pop(1)
-            qp.drawText(0, (i*9)+_text_indent,
-                        self._viewText[self._viewCount2+i][0])
+            M = self._viewCount2+i+1
+            M = str(M)
+            txt = ''.join([str(element) for element in M])
+            
+            
+            qp.drawText(0, (i*_text_hight)+_text_indent,
+                        txt)
             qp.setPen(QColor('green'))
+            qp.drawText(22, (i*_text_hight)+_text_indent,
+                        self._viewText[self._viewCount2+i][0])
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
-                   for k in range(20) if len(self._viewText[self._viewCount2+i][1]) > k]
+                   for k in range(25) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(19, (i*9)+_text_indent, txt)
+            qp.drawText(45, (i*_text_hight)+_text_indent, txt)
             txt = [self._viewText[self._viewCount2+i][2][k]
-                   for k in range(10) if len(self._viewText[self._viewCount2+i][2]) > k]
+                   for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(140, (i*9)+_text_indent, txt)
+            qp.drawText(211, (i*_text_hight)+_text_indent, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(206, (i*9)+_text_indent,
+            qp.drawText(268, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
             
    
@@ -300,13 +377,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.autosave = 0 # Триггер автоматического сохранения.
         self.doublesave = 0 # Триггер сохранения двойного результата в один протокол.
         self.fullmsec = 0 # Триггер для отображения времени в абсолюте, в мсек.
-        self.viewMode = 2 # Режим вывода. 0 - стартовый протокол. 1 - результаты
+        self.viewMode = 2 # Режим вывода. 0 - стартовый протокол. 2 - результаты
         self.reload_timer = 10
         self.all_tabs = []
 
-        self.w2_top = 1
-        self.w2_left = 1
-        self.w2_width = 250
+        self.w2_top = 0
+        self.w2_left = 0
+        self.w2_width = 320
         self.w2_height = 480
 
         self.grp1 = []
@@ -523,7 +600,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #centralWidget.addWidget(tempFrame)
         
         centralWidget.setLayout(grid)
-        self.setGeometry(500, 300, 1200, 500)
+        self.setGeometry(500, 300, 1000, 500)
         #self.oldPos = self.pos()
         
         #self.show()
@@ -582,7 +659,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if combo_index == -1:
             combo_index = 0
         self.combobox1.setCurrentIndex(combo_index)
-        self.statusBar().setFixedSize(1200, 60)
+        #self.statusBar().setFixedSize(1000, 60)
         self.statusBar().showMessage(str("Число участников - ") +
                                      str(len_lfr) +  #self.increment_pro1 len_lfr
                                      str(" Записей в протоколе - ") +
@@ -612,7 +689,15 @@ class MainWindow(QtWidgets.QMainWindow):
             #text_temp = ' '.join(text_temp)
             text_v.append(text_temp)
 
-        text_v.insert(0, self.viewMode)
+        text_v.insert(0,self.w2_top)
+        text_v.insert(0,self.w2_left)
+        if self.sorted_rule == 8:      
+            if self.autoreload == 1:
+                text_v.insert(0, 0)
+            else:
+                text_v.insert(0, 4)
+        else:
+            text_v.insert(0, 1)
         # Обновляем содержимое второго окна
         self.w2.updateSecondWin = text_v
    
