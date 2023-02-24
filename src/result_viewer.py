@@ -94,7 +94,7 @@ class SecondWindow(QtWidgets.QWidget):
             qp.drawPixmap(self.rect(), self.image)
 
         #self.qp.begin(self)
-        #self.qp.setRenderHints(QPainter.Antialiasing)
+        #qp.setRenderHints(QPainter.Antialiasing)
         if self._viewText:
             
             #qp.drawPixmap(self.rect(), self.image)
@@ -147,7 +147,7 @@ class SecondWindow(QtWidgets.QWidget):
     
     def viewMode1(self, qp):
         # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Decorative', 10))
+        qp.setFont(QFont('Arial', 10))
         qp.setPen(QColor('white'))
         self.text1 = '        Спортивный забег "Пять Вершин"'
         self.text2 = '                     Протокол старта:'
@@ -155,7 +155,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.drawText(0, 20, self.text2)
         _text_indent = 33
         _text_hight = 12
-        qp.setFont(QFont('Decorative', 10))
+        qp.setFont(QFont('Arial', 10))
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
@@ -195,7 +195,7 @@ class SecondWindow(QtWidgets.QWidget):
        
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
-        qp.setFont(QFont('Decorative', 10))
+        qp.setFont(QFont('Arial', 10))
         self.text1 = '        Спортивный забег "Пять Вершин"'
         self.text2 = '                 Текущие результаты:'
         _text_indent = 33
@@ -223,7 +223,7 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Decorative', 10))
+        qp.setFont(QFont('Arial', 10))
         qp.setPen(QColor('white'))
         self.text1 = '          Спортивный забег "Пять Вершин"'
         self.text2 = '                    Протокол финиша:'
@@ -231,7 +231,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.drawText(0, 20, self.text2)
         _text_indent = 33
         _text_hight = 12
-        qp.setFont(QFont('Decorative', 10))
+        qp.setFont(QFont('Arial', 10))
         for i in range(0, self._viewCount1):
             
             qp.setPen(QColor('green'))
@@ -272,7 +272,7 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode4(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Decorative', 10))
+        qp.setFont(QFont('Arial', 10))
         qp.setPen(QColor('white'))
         self.text1 = '        Спортивный забег "Пять Вершин"'
         self.text2 = '                  Протокол финиша:'
@@ -280,7 +280,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.drawText(0, 20, self.text2)
         _text_indent = 33
         _text_hight = 12
-        qp.setFont(QFont('Decorative', 10))
+        qp.setFont(QFont('Arial', 10))
         for i in range(0, self._viewCount1):
             if (self._viewCount2+i) > (len(self._viewText)-1):
                 break
@@ -292,20 +292,20 @@ class SecondWindow(QtWidgets.QWidget):
             txt = ''.join([str(element) for element in M])
             qp.drawText(0, (i*_text_hight)+_text_indent,
                         txt)
-            qp.setPen(QColor('green'))
+            qp.setPen(QColor('white'))
             qp.drawText(22, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
-                   for k in range(25) if len(self._viewText[self._viewCount2+i][1]) > k]
+                   for k in range(24) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
             qp.drawText(45, (i*_text_hight)+_text_indent, txt)
             txt = [self._viewText[self._viewCount2+i][2][k]
-                   for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
+                   for k in range(7) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(211, (i*_text_hight)+_text_indent, txt)
+            qp.drawText(202, (i*_text_hight)+_text_indent, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(268, (i*_text_hight)+_text_indent,
+            qp.drawText(250, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
