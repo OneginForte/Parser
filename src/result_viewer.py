@@ -303,7 +303,7 @@ class SecondWindow(QtWidgets.QWidget):
             txt = [self._viewText[self._viewCount2+i][2][k]
                    for k in range(7) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(202, (i*_text_hight)+_text_indent, txt)
+            qp.drawText(198, (i*_text_hight)+_text_indent, txt)
             qp.setPen(QColor('red'))
             qp.drawText(250, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
