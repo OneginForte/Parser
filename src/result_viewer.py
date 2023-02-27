@@ -4,6 +4,7 @@ import sys
 from threading import Timer
 from time import sleep
 import struct
+from operator import itemgetter
 from Pro_parser import Parser
 
 #from time import gmtime, strftime
@@ -353,10 +354,10 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.lfr = list()
         self.cwd = "" # Папка с программой
         self.cwd1 = "" # Папка по умолчанию, после первого открытия файла
-        self.sorted_rule = 1 # 4 - по имени, 8 - по результату, 5 - по группе. По умолчанию 1 - по стартовому номеру.
+        self.sorted_rule = 1    # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
         self.view_rule = 0 # 1 - все подряд, 0 - с номерами.
         self.group_rule = 0 # Сортировка по номеру группы. 0 - все.
-        self.append_rule = 0 # Триггер для объединения результатов.
+        self.append_rule = 0 # Триггер для объединения результатов. 1 - эстафета
         self.autoreload = 0 # Триггер автообновления.
         self.autosave = 0 # Триггер автоматического сохранения.
         self.doublesave = 0 # Триггер сохранения двойного результата в один протокол.
@@ -472,9 +473,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox6.setText("Результат")        
         self.checkbox6.setEnabled(False)
         
-        self.checkbox7 = QCheckBox("Команда", self)
-        self.checkbox7.setText("Команда")
+        self.checkbox7 = QCheckBox("Цех", self)
+        self.checkbox7.setText("Цех")
         self.checkbox7.setEnabled(False)
+        
+        self.checkbox8 = QCheckBox("Команда эст.", self)
+        self.checkbox8.setText("Команда эст.")
+        self.checkbox8.setEnabled(False)
 
         #self.checkbox7 = QCheckBox('Время абсолютное в мсек', self)
         #self.checkbox7.setEnabled(False)
@@ -528,6 +533,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.checkbox2.stateChanged.connect(self.checkbox_2)
         #self.checkbox3.stateChanged.connect(self.checkbox_3)
         self.checkbox7.stateChanged.connect(self.checkbox_7)
+        self.checkbox8.stateChanged.connect(self.checkbox_8)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
         self.spinbox2.valueChanged.connect(self.spinBox_2)
         self.spinbox3.valueChanged.connect(self.spinBox_3)
@@ -548,6 +554,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.checkbox5) 
         self.left_layout.addWidget(self.checkbox6)
         self.left_layout.addWidget(self.checkbox7)
+        self.left_layout.addWidget(self.checkbox8)
         self.left_layout.addWidget(self.btn_choose4)
         self.left_layout.addWidget(self.btn_choose5)
         #self.left_layout.insertSpacing(10, 20)
@@ -720,8 +727,11 @@ class MainWindow(QtWidgets.QMainWindow):
          
         return lfr_pro_t
 
+    def funcSort(x):
+        return x%100   
+
     def pro_grp_sort(self, lfr_pro, lfr_grp):
-        
+        # [0, 171, '171', 9, 'Мельник Елена', 'ОТиПБ1', '1988', '3группа Ж       ', 88875, '00:14:48,75']
         lfr_pro_t = ()
         # Выборка участников по группам
         if self.group_rule>1:
@@ -747,23 +757,36 @@ class MainWindow(QtWidgets.QMainWindow):
                         lfr_pro_t+=(k,)
                         
             #[6, 50, '50 ', 2, 'Намятов Савелий', 'ГСС', '2000', '1000м 18-34     ', 23748, '0:03:57,48']
-            # Сортируем списки. 4 - по имени, 8 - по результату, 5 - по группе. По умолчанию 1 - по стартовому номеру
+            # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
             lfr_pro_t = sorted(
                 lfr_pro_t, key=lambda x: x[self.sorted_rule])
         else:        
-            # Сортируем списки. 4 - по имени, 8 - по результату, 5 - по группе. По умолчанию 1 - по стартовому номеру
+            # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
             if self.sorted_rule == 8 and len(lfr_pro[0])>10:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[12])
             elif self.sorted_rule == 8:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[8])
+            elif self.sorted_rule == 5 and self.append_rule == 1:
+                lfr_pro = sorted(
+                    lfr_pro, key=lambda x: x[5])
+                lfr_pro_t = sorted(
+                    lfr_pro, key=itemgetter(5, 1) )
+                lfr_pro_t = sorted(
+                    lfr_pro_t, key=lambda x: (x[1] % 100) )
+            elif self.sorted_rule == 5:
+                #lfr_pro_t = sorted(
+                #    lfr_pro, key=lambda x: x[5]) 
+                lfr_pro_t = sorted(
+                    lfr_pro, key=itemgetter(5, 1) )      
             else:    
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[self.sorted_rule])
         
         return lfr_pro_t
-
+    
+    
 
     #@pyqtSlot()
     def clicked(self, item):
@@ -821,6 +844,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox5.setChecked(False)
         self.checkbox6.setChecked(False)
         self.checkbox7.setChecked(False)
+        
         self.sorted_rule = 1
         self.reload()
 
@@ -830,6 +854,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.btn_choose2.setChecked(True)
         self.checkbox6.setChecked(False)
         self.checkbox7.setChecked(False)
+        
         self.sorted_rule = 4
         self.reload()
 
@@ -838,6 +863,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox4.setChecked(False)
         self.checkbox5.setChecked(False)
         self.checkbox7.setChecked(False)
+        
         # self.btn_choose3.setChecked(True)
         self.sorted_rule = 8
         self.reload()
@@ -858,10 +884,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox4.setChecked(False)
         self.checkbox5.setChecked(False)
         self.checkbox6.setChecked(False)
+       
         # self.btn_choose3.setChecked(True)
         self.sorted_rule = 5
         self.reload()
-        
+ 
+    def checkbox_8(self, state):
+        if state == Qt.Checked:
+            self.append_rule = 1
+            self.reload()
+        else:
+            self.append_rule = 0
+            self.reload()
+    
 
     def slot_btn_chooseFile1(self):
 
@@ -912,6 +947,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox5.setEnabled(True)
         self.checkbox6.setEnabled(True)
         self.checkbox7.setEnabled(True)
+        self.checkbox8.setEnabled(True)
         self.btn_choose4.setEnabled(True)
         #self.btn_choose5.setEnabled(False)
         #self.checkbox2.setEnabled(False)
@@ -994,6 +1030,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox4.setChecked(True)
         self.checkbox5.setChecked(False)
         self.checkbox6.setChecked(False)
+        self.checkbox7.setChecked(False)
+        self.checkbox8.setChecked(False)
         #self.btn_choose5.setEnabled(True)
         #self.checkbox3.setEnabled(True)
         # Теперь подготовим протоколы к сравнению и объединению результатов. Обновим виджеты в окне.
