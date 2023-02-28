@@ -302,11 +302,11 @@ class SecondWindow(QtWidgets.QWidget):
             txt = ''.join([str(element) for element in txt])
             qp.drawText(45, (i*_text_hight)+_text_indent, txt)
             txt = [self._viewText[self._viewCount2+i][2][k]
-                   for k in range(7) if len(self._viewText[self._viewCount2+i][2]) > k]
+                   for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(198, (i*_text_hight)+_text_indent, txt)
+            qp.drawText(193, (i*_text_hight)+_text_indent, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(250, (i*_text_hight)+_text_indent,
+            qp.drawText(268, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
@@ -755,32 +755,33 @@ class MainWindow(QtWidgets.QMainWindow):
                     lenlfr = lenlfr-1
                     if k[3] == self.group_rule:
                         lfr_pro_t+=(k,)
+
+            lfr_pro = [e.copy() for e in lfr_pro_t]
                         
-            #[6, 50, '50 ', 2, 'Намятов Савелий', 'ГСС', '2000', '1000м 18-34     ', 23748, '0:03:57,48']
-            # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
-            lfr_pro_t = sorted(
-                lfr_pro_t, key=lambda x: x[self.sorted_rule])
-        else:        
-            # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
-            if self.sorted_rule == 8 and len(lfr_pro[0])>10:
+     
+        # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
+        if self.sorted_rule == 8 and len(lfr_pro[0])>10:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[12])
-            elif self.sorted_rule == 8:
+        elif self.sorted_rule == 8 and self.append_rule == 1:
+                lfr_pro_t = sorted(
+                    lfr_pro, key=itemgetter(5, 1))
+                lfr_pro_t = sorted(
+                    lfr_pro_t, key=lambda x: (x[1] % 100))
+        elif self.sorted_rule == 8:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[8])
-            elif self.sorted_rule == 5 and self.append_rule == 1:
-                lfr_pro = sorted(
-                    lfr_pro, key=lambda x: x[5])
+        elif self.sorted_rule == 5 and self.append_rule == 1:
                 lfr_pro_t = sorted(
                     lfr_pro, key=itemgetter(5, 1) )
                 lfr_pro_t = sorted(
                     lfr_pro_t, key=lambda x: (x[1] % 100) )
-            elif self.sorted_rule == 5:
+        elif self.sorted_rule == 5:
                 #lfr_pro_t = sorted(
                 #    lfr_pro, key=lambda x: x[5]) 
                 lfr_pro_t = sorted(
                     lfr_pro, key=itemgetter(5, 1) )      
-            else:    
+        else:    
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[self.sorted_rule])
         
