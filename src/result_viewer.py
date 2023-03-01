@@ -82,6 +82,8 @@ class SecondWindow(QtWidgets.QWidget):
         pal.setColor(QPalette.Background, Qt.black)
         self.setAutoFillBackground(True)
         self.setPalette(pal)
+        #QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("plastique"))
+        #self.changePalette()
         #self.resize(self._width ,self._height)
         
         self.show()
@@ -152,8 +154,8 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('white'))
         self._text2 = 'Протокол старта:'
-        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
+        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 52
         _nr_indent = 0
         _name_indent = 30
@@ -213,8 +215,8 @@ class SecondWindow(QtWidgets.QWidget):
         _comand_size = 8
         _result_indent = 257
         _text_hight = 17
-        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
+        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
                 
         for i in range(self._viewWindowHigh):
                     qp.setPen(QColor('yellow'))
@@ -240,8 +242,8 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setPen(QColor('white'))
         #self._text1 = '          Спортивный забег "Пять Вершин"'
         self._text2 = 'Протокол финиша:'
-        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
+        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 52
         _nr_indent = 33
         _name_indent = 68
@@ -295,8 +297,8 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setPen(QColor('white'))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
         self._text2 = 'Протокол финиша:'
-        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
+        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 52
         _nr_indent = 33
         _name_indent = 68
