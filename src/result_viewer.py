@@ -31,7 +31,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
-        self._viewWindowHigh = 38
+        self._viewWindowHigh = 26
         self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
@@ -43,6 +43,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._width = 320
         self._height = 480
         self.image = QPixmap(r"evraz30.bmp")
+        self._text1 = 'Эстафета руководителей'
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -148,32 +149,37 @@ class SecondWindow(QtWidgets.QWidget):
     
     def viewMode1(self, qp):
         # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 10))
+        qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('white'))
-        self.text1 = '        Спортивный забег "Пять Вершин"'
-        self.text2 = '                     Протокол старта:'
-        qp.drawText(0, 10, self.text1)
-        qp.drawText(0, 20, self.text2)
-        _text_indent = 33
-        _text_hight = 12
-        qp.setFont(QFont('Arial', 10))
+        self._text2 = 'Протокол старта:'
+        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
+        _text_indent = 52
+        _nr_indent = 0
+        _name_indent = 30
+        _name_size = 30
+        _comand_indent = 231
+        _comand_size = 12
+        _result_indent = 257
+        _text_hight = 17
+        qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
                     # lfr_grp[i].pop(1)
-            qp.drawText(0, (i*_text_hight) + _text_indent,
+            qp.drawText(_nr_indent, (i*_text_hight) + _text_indent,
                                 self._viewText[self._viewCount2+i][0])
             txt = [self._viewText[self._viewCount2+i][1][k]
-                           for k in range(30) if len(self._viewText[self._viewCount2+i][1]) > k]
+                           for k in range(_name_size) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
 
-            qp.drawText(26, (i*_text_hight) + _text_indent, txt)
+            qp.drawText(_name_indent, (i*_text_hight) + _text_indent, txt)
 
             txt = [self._viewText[self._viewCount2+i][2][k]
-                            for k in range(15) if len(self._viewText[self._viewCount2+i][2]) > k]
+                            for k in range(_comand_size) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
 
-            qp.drawText(231, (i*_text_hight) + _text_indent, txt)
+            qp.drawText(_comand_indent, (i*_text_hight) + _text_indent, txt)
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
@@ -196,43 +202,55 @@ class SecondWindow(QtWidgets.QWidget):
        
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
-        qp.setFont(QFont('Arial', 10))
-        self.text1 = '        Спортивный забег "Пять Вершин"'
-        self.text2 = '                 Текущие результаты:'
-        _text_indent = 33
-        _text_hight = 12
-        qp.drawText(0, 10, self.text1)
-        qp.drawText(0, 20, self.text2)
+        qp.setFont(QFont('Arial', 12))
+        #self._text1 = '        Спортивный забег "Пять Вершин"'
+        self._text2 = 'Текущие результаты:'
+        _text_indent = 52
+        _nr_indent = 0
+        _name_indent = 19
+        _name_size = 20
+        _comand_indent = 211
+        _comand_size = 8
+        _result_indent = 257
+        _text_hight = 17
+        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
                 
         for i in range(self._viewWindowHigh):
                     qp.setPen(QColor('yellow'))
-                    qp.drawText(0, (i*_text_hight)+_text_indent, self._viewText[i][0])
+                    qp.drawText(_nr_indent, (i*_text_hight)+_text_indent, self._viewText[i][0])
                     
                     qp.setPen(QColor('green'))                 
                     txt = [self._viewText[i][1][k]
-                           for k in range(15) if len(self._viewText[i][1]) > k]
+                           for k in range(_name_size) if len(self._viewText[i][1]) > k]
                     txt = ''.join([str(element) for element in txt])
-                    qp.drawText(19, (i*_text_hight)+_text_indent, txt)
+                    qp.drawText(_name_indent, (i*_text_hight)+_text_indent, txt)
                     
                     txt = [self._viewText[i][2][k]
-                           for k in range(5) if len(self._viewText[i][2]) > k]
+                           for k in range(_comand_size) if len(self._viewText[i][2]) > k]
                     txt = ''.join([str(element) for element in txt])
-                    qp.drawText(117, (i*_text_hight)+_text_indent, txt)
+                    qp.drawText(_comand_indent, (i*_text_hight)+_text_indent, txt)
                     
                     qp.setPen(QColor('red'))
-                    qp.drawText(146, (i*_text_hight)+_text_indent, self._viewText[i][3])  
+                    qp.drawText(_result_indent, (i*_text_hight)+_text_indent, self._viewText[i][3])  
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 10))
+        qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('white'))
-        self.text1 = '          Спортивный забег "Пять Вершин"'
-        self.text2 = '                    Протокол финиша:'
-        qp.drawText(0, 10, self.text1)
-        qp.drawText(0, 20, self.text2)
-        _text_indent = 33
-        _text_hight = 12
-        qp.setFont(QFont('Arial', 10))
+        #self._text1 = '          Спортивный забег "Пять Вершин"'
+        self._text2 = 'Протокол финиша:'
+        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
+        _text_indent = 52
+        _nr_indent = 33
+        _name_indent = 68
+        _name_size = 20
+        _comand_indent = 211
+        _comand_size = 8
+        _result_indent = 257
+        _text_hight = 17
+        qp.setFont(QFont('Arial', 12))
         for i in range(0, self._viewCount1):
             
             qp.setPen(QColor('green'))
@@ -241,15 +259,15 @@ class SecondWindow(QtWidgets.QWidget):
                         self._viewText[self._viewCount2+i][0])
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
-                   for k in range(25) if len(self._viewText[self._viewCount2+i][1]) > k]
+                   for k in range(_name_size) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(22, (i*_text_hight)+_text_indent, txt)
+            qp.drawText(_name_indent, (i*_text_hight)+_text_indent, txt)
             txt = [self._viewText[self._viewCount2+i][2][k]
-                   for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
+                   for k in range(_comand_size) if len(self._viewText[self._viewCount2+i][2]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(211, (i*_text_hight)+_text_indent, txt)
+            qp.drawText(_comand_indent, (i*_text_hight)+_text_indent, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(267, (i*_text_hight)+_text_indent,
+            qp.drawText(_result_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
             
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
@@ -273,15 +291,19 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode4(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 10))
+        qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('white'))
-        self.text1 = '        Спортивный забег "Пять Вершин"'
-        self.text2 = '                  Протокол финиша:'
-        qp.drawText(0, 10, self.text1)
-        qp.drawText(0, 20, self.text2)
-        _text_indent = 33
-        _text_hight = 12
-        qp.setFont(QFont('Arial', 10))
+        #self._text1 = '        Спортивный забег "Пять Вершин"'
+        self._text2 = 'Протокол финиша:'
+        qp.drawText(QRect(0, 0, 320, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, 320, 18), Qt.AlignCenter, self._text2)
+        _text_indent = 52
+        _nr_indent = 33
+        _name_indent = 68
+        _name_size = 20
+        _result_indent = 257
+        _text_hight = 17
+        qp.setFont(QFont('Arial', 12))
         for i in range(0, self._viewCount1):
             if (self._viewCount2+i) > (len(self._viewText)-1):
                 break
@@ -291,22 +313,28 @@ class SecondWindow(QtWidgets.QWidget):
             M = self._viewCount2+i+1
             M = str(M)
             txt = ''.join([str(element) for element in M])
+            M = int(txt)
+            if M < 100:
+               txt = " " + txt 
+            if M < 10:
+               txt = " " + txt  
             qp.drawText(0, (i*_text_hight)+_text_indent,
                         txt)
-            qp.setPen(QColor('white'))
-            qp.drawText(22, (i*_text_hight)+_text_indent,
+            qp.setPen(QColor('green'))
+            qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
-                   for k in range(24) if len(self._viewText[self._viewCount2+i][1]) > k]
+                   for k in range(_name_size) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.drawText(45, (i*_text_hight)+_text_indent, txt)
-            txt = [self._viewText[self._viewCount2+i][2][k]
-                   for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
-            txt = ''.join([str(element) for element in txt])
-            qp.drawText(193, (i*_text_hight)+_text_indent, txt)
+            qp.setPen(QColor('white'))
+            qp.drawText(_name_indent, (i*_text_hight)+_text_indent, txt)
+            #txt = [self._viewText[self._viewCount2+i][2][k]
+            #       for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
+            #txt = ''.join([str(element) for element in txt])
+            #qp.drawText(193, (i*_text_hight)+_text_indent, txt)
             qp.setPen(QColor('red'))
-            qp.drawText(268, (i*_text_hight)+_text_indent,
+            qp.drawText(_result_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
@@ -495,13 +523,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox2.setRange(-1920, 1920)
         self.spinbox2.setValue(self.w2_top)
         self.spinbox2.setSuffix('px')
-        self.spinbox2.setFixedWidth(100)
+        self.spinbox2.setFixedWidth(65)
         
         self.spinbox3 = QSpinBox(self)
         self.spinbox3.setRange(-1080, 1080)
         self.spinbox3.setValue(self.w2_left)
         self.spinbox3.setSuffix('px')
-        self.spinbox3.setFixedWidth(100)
+        self.spinbox3.setFixedWidth(65)
         
         
 
@@ -764,18 +792,22 @@ class MainWindow(QtWidgets.QMainWindow):
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[12])
         elif self.sorted_rule == 8 and self.append_rule == 1:
-                lfr_pro_t = sorted(
+                lfr_pro = sorted(
                     lfr_pro, key=itemgetter(5, 1))
                 lfr_pro_t = sorted(
-                    lfr_pro_t, key=lambda x: (x[1] % 100))
+                    lfr_pro, key=lambda x: (x[1] % 100))
+                *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)  #(x[8] % 10)
         elif self.sorted_rule == 8:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[8])
+                *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)  #(x[8] % 10)
         elif self.sorted_rule == 5 and self.append_rule == 1:
-                lfr_pro_t = sorted(
+                lfr_pro = sorted(
                     lfr_pro, key=itemgetter(5, 1) )
                 lfr_pro_t = sorted(
-                    lfr_pro_t, key=lambda x: (x[1] % 100) )
+                    lfr_pro, key=lambda x: (x[1] % 100) )
+                
+                
         elif self.sorted_rule == 5:
                 #lfr_pro_t = sorted(
                 #    lfr_pro, key=lambda x: x[5]) 
@@ -787,7 +819,10 @@ class MainWindow(QtWidgets.QMainWindow):
         
         return lfr_pro_t
     
-    
+        #*res, = filter(lambda x: x[1] == 31, spisok)
+
+        #*res, = filter(lambda x: x[0][-1] != 'ь', spisok)
+
 
     #@pyqtSlot()
     def clicked(self, item):
