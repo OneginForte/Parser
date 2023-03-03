@@ -43,7 +43,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._width = 320
         self._height = 480
         self.image = QPixmap(r"evraz30.bmp")
-        self._text1 = 'Эстафета руководителей'
+        self._text1 = 'Эстафета руководящего состава'
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -379,7 +379,7 @@ class PT():
 
 class MainWindow(QtWidgets.QMainWindow):
     
-    def __init__(self):
+    def __init__(self, parent=None):
         super(MainWindow, self).__init__()
         #self.lfr = list()
         self.cwd = "" # Папка с программой
@@ -393,6 +393,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.doublesave = 0 # Триггер сохранения двойного результата в один протокол.
         self.fullmsec = 0 # Триггер для отображения времени в абсолюте, в мсек.
         self.viewMode = 2 # Режим вывода. 0 - стартовый протокол. 2 - результаты
+        self.viewSecond = 0
         self.reload_timer = 10
         self.all_tabs = []
 
@@ -437,7 +438,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.list_widget.setStyleSheet("QListWidget"
                                   "{"
                                   "border : 1px solid black;"
-                                  "font: 10pt fixedsys;"
+                                  "font: 10pt Arial;"
                                   "}"
                                   )
                                
@@ -520,7 +521,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox1.setSuffix(' сек.')
         self.spinbox1.setFixedWidth(65)
         
-               
         self.spinbox2 = QSpinBox(self)
         self.spinbox2.setRange(-1920, 1920)
         self.spinbox2.setValue(self.w2_top)
@@ -532,14 +532,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox3.setValue(self.w2_left)
         self.spinbox3.setSuffix('px')
         self.spinbox3.setFixedWidth(65)
-        
-        
 
         self.combobox1 = QComboBox(self)
         self.combobox1.setFixedWidth(165)
         self.combobox1.hidePopup()
-        
-        
+         
         self.right_layout = QVBoxLayout()
       
         #self.setLayout(self.right_layout)
@@ -552,7 +549,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox5.pressed.connect(self.slot_btn_choose2) 
         self.checkbox6.pressed.connect(self.slot_btn_choose3)
         self.btn_choose4.pressed.connect(self.slot_btn_choose4)
-        #self.btn_choose5.pressed.connect(self.slot_btn_choose5)
+        self.btn_choose5.pressed.connect(self.slot_btn_choose5)
         self.btn_chooseFile1.clicked.connect(self.slot_btn_chooseFile1)
         #self.btn_chooseFile2.clicked.connect(self.slot_btn_chooseFile2)
         #self.btn_chooseFile3.clicked.connect(self.slot_btn_chooseFile3) 
@@ -656,13 +653,12 @@ class MainWindow(QtWidgets.QMainWindow):
         len_lfr = len(lfr_pro_t) 
         
         # Вывод на второе окно
-        self.updateSecond(len_lfr, lfr_pro_t)
+        if self.viewSecond == 1:
+            self.updateSecond(len_lfr, lfr_pro_t)
         
         # Преобразуем списки участников в чистый текст.
         lfr_pro_t = ['\t'.join(lfr_pro_t[i])
                          for i in range(len(lfr_pro_t))]
-        
-           
 
         #lfr_pro_t.insert(
         #    0, '№         Участник\t\t    Цех\t\tг.р.\t   Группа         Резульат1   Результат2   Итоговый')
@@ -793,16 +789,19 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.sorted_rule == 8 and len(lfr_pro[0])>10:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[12])
+                
         elif self.sorted_rule == 8 and self.append_rule == 1:
                 lfr_pro = sorted(
                     lfr_pro, key=itemgetter(5, 1))
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: (x[1] % 100))
                 *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)  #(x[8] % 10)
+                
         elif self.sorted_rule == 8:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[8])
-                *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)  #(x[8] % 10)
+                #*lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)  #(x[8] % 10)
+                
         elif self.sorted_rule == 5 and self.append_rule == 1:
                 lfr_pro = sorted(
                     lfr_pro, key=itemgetter(5, 1) )
@@ -917,6 +916,21 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.view_rule = 1
             self.reload()
+    
+    def slot_btn_choose5(self):
+        # self.btn_choose1.setChecked(False)
+        # self.btn_choose2.setChecked(False)
+        # self.btn_choose3.setChecked(True)
+        if self.btn_choose5.toggled():
+            self.viewSecond = 1
+            self.w2 = SecondWindow()
+            self.reload()
+            #self.btn_choose5.setChecked(True)
+        else:
+            self.viewSecond = 0
+            self.w2.close()
+            #self.btn_choose5.setChecked(False)
+            #self.reload()
 
     def checkbox_7(self, state):
         self.checkbox4.setChecked(False)
@@ -987,7 +1001,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox7.setEnabled(True)
         self.checkbox8.setEnabled(True)
         self.btn_choose4.setEnabled(True)
-        #self.btn_choose5.setEnabled(False)
+        self.btn_choose5.setEnabled(True)
         #self.checkbox2.setEnabled(False)
         #self.checkbox3.setCheckState(False)
         #self.checkbox3.setEnabled(False)
