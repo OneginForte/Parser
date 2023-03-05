@@ -483,6 +483,8 @@ class MainWindow(QtWidgets.QMainWindow):
                                     alignment=QtCore.Qt.AlignCenter)
         self.text4 = QtWidgets.QLabel("Координаты",
                                     alignment=QtCore.Qt.AlignCenter)
+        self.text5 = QtWidgets.QLabel("Вывод",
+                                    alignment=QtCore.Qt.AlignCenter)
         self.checkbox1 = QCheckBox('Обновлять автоматически', self)
         #self.checkbox2 = QCheckBox('Сохранять автоматически', self)
         #self.checkbox2.setEnabled(False)
@@ -579,31 +581,37 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.text2)
         self.left_layout.addWidget(self.checkbox4) 
         self.left_layout.addWidget(self.checkbox5) 
-        self.left_layout.addWidget(self.checkbox6)
         self.left_layout.addWidget(self.checkbox7)
+        self.left_layout.addWidget(self.text5)
+        self.left_layout.addWidget(self.checkbox6)
         self.left_layout.addWidget(self.checkbox8)
         self.left_layout.addWidget(self.btn_choose4)
         self.left_layout.addWidget(self.btn_choose5)
-        #self.left_layout.insertSpacing(10, 20)
+        
         self.left_layout.addWidget(self.text4)
         self.left_layout.addWidget(self.spinbox2)
         self.left_layout.addWidget(self.spinbox3)
         #self.left_layout.addWidget(self.checkbox7)   
-        #self.left_layout.insertSpacing(10, 20)
+        
         self.left_layout.addWidget(self.btn_chooseFile1) #,alignment=QtCore.Qt.AlignTop
         #self.left_layout.addWidget(self.btn_chooseFile2) 
         #self.left_layout.addWidget(self.btn_chooseFile3)
-        self.left_layout.insertSpacing(10, 10)
+        
         self.left_layout.addWidget(self.checkbox1)
         self.left_layout.addWidget(self.spinbox1)
         
         #self.left_layout.addWidget(self.btn_chooseFile4)
         #self.left_layout.addWidget(self.checkbox2)
         #self.left_layout.addWidget(self.checkbox3)
-        self.left_layout.insertSpacing(10, 20)
+        #self.left_layout.insertSpacing(10, 20)
         self.left_layout.addWidget(self.text3)
         self.left_layout.addWidget(self.combobox1)
 
+        self.left_layout.insertSpacing(0, 20)
+        self.left_layout.insertSpacing(10, 10)
+        self.left_layout.insertSpacing(14, 10)
+        self.left_layout.insertSpacing(17, 10)
+        
         self.left_layout.addStretch()
 
         grid.addLayout(self.left_layout, 0, 0 , 
@@ -785,7 +793,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lfr_pro = [e.copy() for e in lfr_pro_t]
                         
      
-        # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
+        # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху, 7 - по группе. По умолчанию 1 - по стартовому номеру
         if self.sorted_rule == 8 and len(lfr_pro[0])>10:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[12])
@@ -795,20 +803,23 @@ class MainWindow(QtWidgets.QMainWindow):
                     lfr_pro, key=itemgetter(5, 1))
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: (x[1] % 100))
-                *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)  #(x[8] % 10)
+                if self.view_rule == 0:
+                    *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)
+                    *lfr_pro_t, = filter(lambda x: x[8] != 0, lfr_pro_t)#(x[8] % 10)
                 
         elif self.sorted_rule == 8:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[8])
-                #*lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)  #(x[8] % 10)
+                if self.view_rule == 0: # 0 с стартовым и результатом
+                    *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)
+                    *lfr_pro_t, = filter(lambda x: x[8] != 0, lfr_pro_t)#(x[8] % 10)
                 
         elif self.sorted_rule == 5 and self.append_rule == 1:
                 lfr_pro = sorted(
                     lfr_pro, key=itemgetter(5, 1) )
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: (x[1] % 100) )
-                
-                
+  
         elif self.sorted_rule == 5:
                 #lfr_pro_t = sorted(
                 #    lfr_pro, key=lambda x: x[5]) 
@@ -921,7 +932,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.btn_choose1.setChecked(False)
         # self.btn_choose2.setChecked(False)
         # self.btn_choose3.setChecked(True)
-        if self.btn_choose5.toggled():
+        if self.viewSecond == 0:
             self.viewSecond = 1
             self.w2 = SecondWindow()
             self.reload()
