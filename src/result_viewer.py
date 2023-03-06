@@ -20,6 +20,8 @@ from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout,
 class SecondWindow(QtWidgets.QWidget):
     viewText = pyqtSignal(list)
     
+    
+    
     def __init__(self, parent=None):
         # Передаём ссылку на родительский элемент и чтобы виджет
         # отображался как самостоятельное окно указываем тип окно
@@ -84,7 +86,7 @@ class SecondWindow(QtWidgets.QWidget):
         self.setPalette(pal)
         #QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("plastique"))
         #self.changePalette()
-        #self.resize(self._width ,self._height)
+        self.resize(self._width ,self._height)
         
         self.show()
 
@@ -244,20 +246,33 @@ class SecondWindow(QtWidgets.QWidget):
         self._text2 = 'Протокол финиша:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
-        _text_indent = 52
-        _nr_indent = 33
-        _name_indent = 68
+        _text_indent = 51
+        _nr_indent = 29
+        _name_indent = 59
         _name_size = 20
-        _comand_indent = 211
-        _comand_size = 8
+        _comand_indent = 206
+        _comand_size = 5
         _result_indent = 257
         _text_hight = 17
         qp.setFont(QFont('Arial', 12))
         for i in range(0, self._viewCount1):
             
+            M = self._viewCount2+i+1
+            M = str(M)
+            txt = ''.join([str(element) for element in M])
+            M = int(txt)
+            if M < 100:
+               txt = " " + txt 
+            if M < 10:
+               txt = " " + txt  
+               
+            qp.setPen(QColor('yellow'))
+            qp.drawText(0, (i*_text_hight)+_text_indent,txt)
+            
+            
             qp.setPen(QColor('green'))
             # lfr_grp[i].pop(1)
-            qp.drawText(0, (i*_text_hight)+_text_indent,
+            qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
             #txt = self._viewText[i][1]
             txt = [self._viewText[self._viewCount2+i][1][k]
@@ -309,8 +324,6 @@ class SecondWindow(QtWidgets.QWidget):
         for i in range(0, self._viewCount1):
             if (self._viewCount2+i) > (len(self._viewText)-1):
                 break
-            
-            qp.setPen(QColor('yellow'))
             # lfr_grp[i].pop(1)
             M = self._viewCount2+i+1
             M = str(M)
@@ -320,9 +333,18 @@ class SecondWindow(QtWidgets.QWidget):
                txt = " " + txt 
             if M < 10:
                txt = " " + txt  
-            qp.drawText(0, (i*_text_hight)+_text_indent,
-                        txt)
-            qp.setPen(QColor('green'))
+               
+            qp.setPen(QColor('yellow'))
+            qp.drawText(0, (i*_text_hight)+_text_indent,txt)
+            
+            M = int((self._viewText[self._viewCount2+i][0]))
+            
+            if  M//100 == 1:                #((self._viewCount2+i+1)%4) == 0:
+                qp.setPen(QColor('orange'))
+            else:
+                qp.setPen(QColor('green'))
+                
+            #qp.setPen(QColor('green'))
             qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
             #txt = self._viewText[i][1]
@@ -338,6 +360,8 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('red'))
             qp.drawText(_result_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
+            
+            
 
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
@@ -451,11 +475,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose4.setCheckable(True)
         self.btn_choose4.setEnabled(False)
                 
-        self.btn_choose5 = QPushButton(self)
-        self.btn_choose5.setObjectName("Вывод")
-        self.btn_choose5.setText("Вывести")
-        self.btn_choose5.setCheckable(True)
-        self.btn_choose5.setEnabled(False)
+        #self.btn_choose5 = QPushButton(self)
+        #self.btn_choose5.setObjectName("Вывод")
+        #self.btn_choose5.setText("Вывести")
+        #self.btn_choose5.setCheckable(True)
+        #self.btn_choose5.setEnabled(False)
         
         self.btn_chooseFile1 = QPushButton(self)  
         self.btn_chooseFile1.setObjectName("Выбрать")
@@ -510,9 +534,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox7.setText("Цех")
         self.checkbox7.setEnabled(False)
         
-        self.checkbox8 = QCheckBox("Команда эст.", self)
-        self.checkbox8.setText("Команда эст.")
+        self.checkbox8 = QCheckBox("Эстафета", self)
+        self.checkbox8.setText("Эстафета")
         self.checkbox8.setEnabled(False)
+        
+        self.checkbox9 = QCheckBox("Вывести", self)
+        self.checkbox9.setText("Вывести")
+        self.checkbox9.setCheckable(True)
+        self.checkbox9.setEnabled(False)
+        
+        self.checkbox10 = QCheckBox("Командный", self)
+        self.checkbox10.setText("Командный")
+        self.checkbox10.setCheckable(True)
+        self.checkbox10.setEnabled(False)
 
         #self.checkbox7 = QCheckBox('Время абсолютное в мсек', self)
         #self.checkbox7.setEnabled(False)
@@ -551,7 +585,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox5.pressed.connect(self.slot_btn_choose2) 
         self.checkbox6.pressed.connect(self.slot_btn_choose3)
         self.btn_choose4.pressed.connect(self.slot_btn_choose4)
-        self.btn_choose5.pressed.connect(self.slot_btn_choose5)
+        #self.btn_choose5.pressed.connect(self.slot_btn_choose5)
         self.btn_chooseFile1.clicked.connect(self.slot_btn_chooseFile1)
         #self.btn_chooseFile2.clicked.connect(self.slot_btn_chooseFile2)
         #self.btn_chooseFile3.clicked.connect(self.slot_btn_chooseFile3) 
@@ -563,6 +597,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.checkbox3.stateChanged.connect(self.checkbox_3)
         self.checkbox7.stateChanged.connect(self.checkbox_7)
         self.checkbox8.stateChanged.connect(self.checkbox_8)
+        self.checkbox9.stateChanged.connect(self.checkbox_9)
+        self.checkbox10.stateChanged.connect(self.checkbox_10)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
         self.spinbox2.valueChanged.connect(self.spinBox_2)
         self.spinbox3.valueChanged.connect(self.spinBox_3)
@@ -581,12 +617,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.text2)
         self.left_layout.addWidget(self.checkbox4) 
         self.left_layout.addWidget(self.checkbox5) 
-        self.left_layout.addWidget(self.checkbox7)
-        self.left_layout.addWidget(self.text5)
+        self.left_layout.addWidget(self.checkbox7)        
         self.left_layout.addWidget(self.checkbox6)
+        self.left_layout.addWidget(self.text5)
         self.left_layout.addWidget(self.checkbox8)
+        self.left_layout.addWidget(self.checkbox10)
         self.left_layout.addWidget(self.btn_choose4)
-        self.left_layout.addWidget(self.btn_choose5)
+        #self.left_layout.addWidget(self.btn_choose5)
+        self.left_layout.addWidget(self.checkbox9)
         
         self.left_layout.addWidget(self.text4)
         self.left_layout.addWidget(self.spinbox2)
@@ -699,6 +737,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def updateSecond (self, len, lfr_pro_t):
         # ['6  ', 'Карпачева Оксана', 'НТМК', '1975', 'Ж2 НТМК         ', '00:00:32,18']
         # Пока выводим стартовый список. Потом будем выводить не стартовый.
+        # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху, 7 - по группе. По умолчанию 1 - по стартовому номеру
         text_v = []
         
         inc = 0
@@ -719,8 +758,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.sorted_rule == 8:      
             if self.autoreload == 1:
                 text_v.insert(0, 0)
-            else:
+            elif self.append_rule == 1:
                 text_v.insert(0, 4)
+            else:
+                text_v.insert(0, 3)
         else:
             text_v.insert(0, 1)
         # Обновляем содержимое второго окна
@@ -749,7 +790,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def pro_preapare(self, lfr_pro_t):
         
         # Удаляем лишние поля, при условии, что список не пустой.
-        if len(lfr_pro_t) > 0:
+        if len(lfr_pro_t) > 0 and self.append_rule != 2:
             [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
             [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
             [(lfr_pro_t[i].pop(1)) for i in range(len(lfr_pro_t))]
@@ -759,6 +800,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if len(lfr_pro_t[0]) > 7 and self.group_rule != 1:
                     [(lfr_pro_t[i].pop(7)) for i in range(len(lfr_pro_t))]
          
+        # ['101', 'Яскунов Егор', 'ЦРМО-31м', '1900', '1группа М       ', '24:07,90']
         return lfr_pro_t
 
     def funcSort(x):
@@ -806,6 +848,36 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.view_rule == 0:
                     *lfr_pro_t, = filter(lambda x: x[8] != 4294967295, lfr_pro_t)
                     *lfr_pro_t, = filter(lambda x: x[8] != 0, lfr_pro_t)#(x[8] % 10)
+        
+        elif self.sorted_rule == 8 and self.append_rule == 2:
+            lfr_pro = sorted(
+                lfr_pro, key=itemgetter(5, 1))
+            # lfr_pro_t = sorted(
+            #    lfr_pro, key=lambda x: (x[1] % 100))
+
+            # [0, 171, '171', 9, 'Мельник Елена', 'ОТиПБ1', '1988', '3группа Ж       ', 88875, '00:14:48,75']
+            lfr_pro_s = []
+            lfr_pro_t = []
+            temp_group = lfr_pro[0][5]
+            for i in range(len(lfr_pro)):
+                if temp_group == lfr_pro[i][5]:
+                    lfr_pro_s.append(lfr_pro[i][5])
+                    lfr_pro_s.append(lfr_pro[i][8])    
+                else:
+                    
+                    
+                    
+                    lfr_pro_t.append(lfr_pro_s)
+                    lfr_pro_s = []
+                    lfr_pro_s.append(lfr_pro[i][5])
+                    lfr_pro_s.append(lfr_pro[i][8])
+                    temp_group = lfr_pro[i][5]
+                
+
+        
+        # ['101', 'Яскунов Егор', 'ЦРМО-31м', '1900', '1группа М       ', '24:07,90']
+
+                
                 
         elif self.sorted_rule == 8:
                 lfr_pro_t = sorted(
@@ -819,7 +891,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     lfr_pro, key=itemgetter(5, 1) )
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: (x[1] % 100) )
-  
+         
         elif self.sorted_rule == 5:
                 #lfr_pro_t = sorted(
                 #    lfr_pro, key=lambda x: x[5]) 
@@ -928,21 +1000,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.view_rule = 1
             self.reload()
     
-    def slot_btn_choose5(self):
-        # self.btn_choose1.setChecked(False)
-        # self.btn_choose2.setChecked(False)
-        # self.btn_choose3.setChecked(True)
-        if self.viewSecond == 0:
-            self.viewSecond = 1
-            self.w2 = SecondWindow()
-            self.reload()
-            #self.btn_choose5.setChecked(True)
-        else:
-            self.viewSecond = 0
-            self.w2.close()
-            #self.btn_choose5.setChecked(False)
-            #self.reload()
-
     def checkbox_7(self, state):
         self.checkbox4.setChecked(False)
         self.checkbox5.setChecked(False)
@@ -955,11 +1012,36 @@ class MainWindow(QtWidgets.QMainWindow):
     def checkbox_8(self, state):
         if state == Qt.Checked:
             self.append_rule = 1
+            self.checkbox10.setChecked(False)
             self.reload()
+        #else:
+        #    self.append_rule = 0
+        #    self.reload()
+
+    def checkbox_9(self, state):
+            # self.btn_choose1.setChecked(False)
+            # self.btn_choose2.setChecked(False)
+            # self.btn_choose3.setChecked(True)
+        if state == Qt.Checked:
+            self.viewSecond = 1
+            self.w2 = SecondWindow()
+            self.reload()
+            # self.btn_choose5.setChecked(True)
         else:
-            self.append_rule = 0
+            self.viewSecond = 0
+            self.w2.close()
+            # self.btn_choose5.setChecked(False)
+            # self.reload()
+
+    def checkbox_10(self, state):
+        if state == Qt.Checked:
+            self.append_rule = 2
+            self.checkbox8.setChecked(False)
+            
             self.reload()
-    
+        #else:
+        #    self.append_rule = 0
+        #    self.reload()
 
     def slot_btn_chooseFile1(self):
 
@@ -1011,8 +1093,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox6.setEnabled(True)
         self.checkbox7.setEnabled(True)
         self.checkbox8.setEnabled(True)
+        self.checkbox9.setEnabled(True)
+        self.checkbox10.setEnabled(True)
         self.btn_choose4.setEnabled(True)
-        self.btn_choose5.setEnabled(True)
+        #self.btn_choose5.setEnabled(True)
         #self.checkbox2.setEnabled(False)
         #self.checkbox3.setCheckState(False)
         #self.checkbox3.setEnabled(False)
