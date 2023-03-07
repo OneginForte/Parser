@@ -188,7 +188,7 @@ class Parser:
                         
             # Игнорируем участника без стартового номера, если нам они не нужны
             if M == 65535:                
-                if view_rule != 1:  
+                if view_rule != 1 and view_rule != 2:  
                     return 0
                 s = "   "                   
             else:

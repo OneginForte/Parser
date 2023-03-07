@@ -45,7 +45,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._width = 320
         self._height = 480
         self.image = QPixmap(r"evraz30.bmp")
-        self._text1 = 'Эстафета руководящего состава'
+        self._text1 = '"Закрытие лыжного сезона"'
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -211,32 +211,40 @@ class SecondWindow(QtWidgets.QWidget):
         self._text2 = 'Текущие результаты:'
         _text_indent = 52
         _nr_indent = 0
-        _name_indent = 19
-        _name_size = 20
+        _name_indent = 25
+        _name_size = 35
         _comand_indent = 211
         _comand_size = 8
-        _result_indent = 257
+        _result_indent = 236
         _text_hight = 17
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
                 
         for i in range(self._viewWindowHigh):
+                    if i == len(self._viewText):
+                        break
+                    M = i+1
+                    M = str(M)
+                    txt = ''.join([str(element) for element in M])
+                    M = int(txt)
+                    if M < 100:
+                        txt = " " + txt 
+                    if M < 10:
+                        txt = " " + txt  
+               
                     qp.setPen(QColor('yellow'))
-                    qp.drawText(_nr_indent, (i*_text_hight)+_text_indent, self._viewText[i][0])
-                    
+                    qp.drawText(0, (i*_text_hight)+_text_indent,txt)
+                                        
                     qp.setPen(QColor('green'))                 
-                    txt = [self._viewText[i][1][k]
-                           for k in range(_name_size) if len(self._viewText[i][1]) > k]
+                    txt = [self._viewText[i][0][k]
+                           for k in range(_name_size) if len(self._viewText[i][0]) > k]
                     txt = ''.join([str(element) for element in txt])
                     qp.drawText(_name_indent, (i*_text_hight)+_text_indent, txt)
                     
-                    txt = [self._viewText[i][2][k]
-                           for k in range(_comand_size) if len(self._viewText[i][2]) > k]
-                    txt = ''.join([str(element) for element in txt])
-                    qp.drawText(_comand_indent, (i*_text_hight)+_text_indent, txt)
-                    
                     qp.setPen(QColor('red'))
-                    qp.drawText(_result_indent, (i*_text_hight)+_text_indent, self._viewText[i][3])  
+                    qp.drawText(_result_indent, (i*_text_hight)+_text_indent, self._viewText[i][1])  
+                    
+                    
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
@@ -317,7 +325,7 @@ class SecondWindow(QtWidgets.QWidget):
         _text_indent = 52
         _nr_indent = 33
         _name_indent = 68
-        _name_size = 20
+        _name_size = 19
         _result_indent = 257
         _text_hight = 17
         qp.setFont(QFont('Arial', 12))
@@ -409,7 +417,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cwd = "" # Папка с программой
         self.cwd1 = "" # Папка по умолчанию, после первого открытия файла
         self.sorted_rule = 1    # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху эстафета, 7 - по группе. По умолчанию 1 - по стартовому номеру
-        self.view_rule = 0 # 1 - все подряд, 0 - с номерами.
+        self.view_rule = 0 # 1 - все подряд, 0 - с номерами, 2 - все подряд дополнительное правило
         self.group_rule = 0 # Сортировка по номеру группы. 0 - все.
         self.append_rule = 0 # Триггер для объединения результатов. 1 - эстафета
         self.autoreload = 0 # Триггер автообновления.
@@ -540,12 +548,12 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.checkbox9 = QCheckBox("Вывести", self)
         self.checkbox9.setText("Вывести")
-        self.checkbox9.setCheckable(True)
+        #self.checkbox9.setCheckable(True)
         self.checkbox9.setEnabled(False)
         
         self.checkbox10 = QCheckBox("Командный", self)
         self.checkbox10.setText("Командный")
-        self.checkbox10.setCheckable(True)
+        #self.checkbox10.setCheckable(True)
         self.checkbox10.setEnabled(False)
 
         #self.checkbox7 = QCheckBox('Время абсолютное в мсек', self)
@@ -581,9 +589,7 @@ class MainWindow(QtWidgets.QMainWindow):
    
         #self.setLayout(self.left_layout)
         
-        self.checkbox4.pressed.connect(self.slot_btn_choose1) 
-        self.checkbox5.pressed.connect(self.slot_btn_choose2) 
-        self.checkbox6.pressed.connect(self.slot_btn_choose3)
+        
         self.btn_choose4.pressed.connect(self.slot_btn_choose4)
         #self.btn_choose5.pressed.connect(self.slot_btn_choose5)
         self.btn_chooseFile1.clicked.connect(self.slot_btn_chooseFile1)
@@ -595,7 +601,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox1.stateChanged.connect(self.checkBox_1)
         #self.checkbox2.stateChanged.connect(self.checkbox_2)
         #self.checkbox3.stateChanged.connect(self.checkbox_3)
-        self.checkbox7.stateChanged.connect(self.checkbox_7)
+        self.checkbox4.clicked.connect(self.checkbox_4) 
+        self.checkbox5.clicked.connect(self.checkbox_5) 
+        self.checkbox6.clicked.connect(self.checkbox_6)
+        self.checkbox7.clicked.connect(self.checkbox_7)
         self.checkbox8.stateChanged.connect(self.checkbox_8)
         self.checkbox9.stateChanged.connect(self.checkbox_9)
         self.checkbox10.stateChanged.connect(self.checkbox_10)
@@ -682,6 +691,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Распакуем список групп и сами протоколы. Вернет списки и число годных записей. 
         # Зависимость от group_rule - сортировка по номеру группы, 0 - все, и view_rule - 1 - все подряд, 0 - с номерами.
         self.lfr_grp1 = Parser.repack_grp(dPars, self.grp1)
+        
         self.lfr_pro1, self.increment_pro1 = Parser.repack_pro(
             dPars, self.lfr_grp1, self.pro1, self.group_rule, self.view_rule, self.fullmsec)
         
@@ -694,6 +704,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         QListWidget.clear(self.list_widget)
 
+        
         lfr_pro_t = self.pro_preapare(lfr_pro_t)
         
         len_lfr = len(lfr_pro_t) 
@@ -746,20 +757,26 @@ class MainWindow(QtWidgets.QMainWindow):
                 break
             text_temp = []
             inc += 1
-            text_temp.append(lfr_pro_t[i][0])
-            text_temp.append(lfr_pro_t[i][1])
-            text_temp.append(lfr_pro_t[i][2])
-            text_temp.append(lfr_pro_t[i][5])
+            if self.append_rule != 2:
+                text_temp.append(lfr_pro_t[i][0])
+                text_temp.append(lfr_pro_t[i][1])
+                text_temp.append(lfr_pro_t[i][2])
+                text_temp.append(lfr_pro_t[i][5])
+            else:
+                text_temp.append(lfr_pro_t[i][0])
+                text_temp.append(lfr_pro_t[i][1])
             #text_temp = ' '.join(text_temp)
             text_v.append(text_temp)
 
         text_v.insert(0,self.w2_top)
         text_v.insert(0,self.w2_left)
         if self.sorted_rule == 8:      
-            if self.autoreload == 1:
-                text_v.insert(0, 0)
-            elif self.append_rule == 1:
+            #if self.autoreload == 1:
+            #    text_v.insert(0, 0)
+            if self.append_rule == 1:
                 text_v.insert(0, 4)
+            elif self.append_rule == 2:
+                text_v.insert(0, 2)
             else:
                 text_v.insert(0, 3)
         else:
@@ -788,7 +805,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return lfr_grp
 
     def pro_preapare(self, lfr_pro_t):
-        
+       
         # Удаляем лишние поля, при условии, что список не пустой.
         if len(lfr_pro_t) > 0 and self.append_rule != 2:
             [(lfr_pro_t[i].pop(0)) for i in range(len(lfr_pro_t))]
@@ -799,12 +816,100 @@ class MainWindow(QtWidgets.QMainWindow):
                 [(lfr_pro_t[i].pop(6)) for i in range(len(lfr_pro_t))]
                 if len(lfr_pro_t[0]) > 7 and self.group_rule != 1:
                     [(lfr_pro_t[i].pop(7)) for i in range(len(lfr_pro_t))]
-         
+        elif len(lfr_pro_t) > 0:
+            [(lfr_pro_t[i].pop(1)) for i in range(len(lfr_pro_t))]
+            [(lfr_pro_t[i].pop(1)) for i in range(len(lfr_pro_t))]
+             
         # ['101', 'Яскунов Егор', 'ЦРМО-31м', '1900', '1группа М       ', '24:07,90']
         return lfr_pro_t
 
     def funcSort(x):
         return x%100   
+
+    def relay_sort(self, lfr_pro):
+    
+        lfr_pro_t = []
+        
+        rez = [0, 0, 0, 0]
+        msecf = 0
+        msec = 0
+        s = ''
+        lfr_pro_t.append(lfr_pro[0])
+        if len(lfr_pro) < 6:
+            return     
+        #_count = lfr_pro_s[i].count('4294967295')
+        for k in lfr_pro:
+            if isinstance(k, str):
+                pass
+            elif k != 4294967295:
+                msec += k
+                msecf += k
+            else:
+                msecf += k
+            
+        lfr_pro_t.append(msecf)
+        lfr_pro_t.append(msec)
+                #else:
+                #    msec = lfr_pro_s[i][1]+lfr_pro_s[i][3]+lfr_pro_s[i][5]+lfr_pro_s[i][7]
+                
+        if msec!=4294967295:
+                
+            if self.fullmsec !=1:
+                
+                rez[0] = msec // 360000
+                msec = msec % 360000
+                rez[1] = msec // 6000
+                msec = msec % 6000
+                rez[2] = msec // 100
+                msec = msec % 100
+                rez[3] = msec
+            else:
+                rez[0] = 0
+                rez[1] = 0
+                rez[2] = msec // 100
+                msec = msec % 100
+                rez[3] = msec
+                #rez[2] = rez[2]-msec
+                    
+                #msec = rez[0]*3600
+                #msec += rez[1]*60
+                #msec += rez
+        else:
+                rez[0] = 0
+                rez[1] = 0
+                rez[2] = 0
+                rez[3] = 0
+                #if time_rule !=1:
+                #if rez[0] > 9:
+                #    s =  str(rez[0]) + ':'
+                #else:
+                #    s = '0' + str(rez[0]) + ':'
+        if rez[0] > 9:
+            s = s + str(rez[0]) + ':'  
+        else:
+            s = s +'0' + str(rez[0]) + ':'
+        
+        if rez[1] > 9:
+            s = s + str(rez[1]) + ':'  
+        else:
+            s = s +'0' + str(rez[1]) + ':'
+
+        if rez[2] > 9:
+            s = s  + str(rez[2])
+        else:
+            s = s + '0' + str(rez[2])
+
+        if rez[3] > 9:
+            s = s + ',' + str(rez[3])
+        else:
+            s = s + ',0' + str(rez[3])
+                
+        lfr_pro_t.append(s)   
+                
+                   
+        
+        return lfr_pro_t 
+        
 
     def pro_grp_sort(self, lfr_pro, lfr_grp):
         # [0, 171, '171', 9, 'Мельник Елена', 'ОТиПБ1', '1988', '3группа Ж       ', 88875, '00:14:48,75']
@@ -856,29 +961,29 @@ class MainWindow(QtWidgets.QMainWindow):
             #    lfr_pro, key=lambda x: (x[1] % 100))
 
             # [0, 171, '171', 9, 'Мельник Елена', 'ОТиПБ1', '1988', '3группа Ж       ', 88875, '00:14:48,75']
+            # ['101', 'Яскунов Егор', 'ЦРМО-31м', '1900', '1группа М       ', '24:07,90']
+            # ['АТЦм', 146425, 'АТЦм', 269508, 'АТЦм', 238904, 'АТЦм', 232263]
             lfr_pro_s = []
             lfr_pro_t = []
             temp_group = lfr_pro[0][5]
             for i in range(len(lfr_pro)):
-                if temp_group == lfr_pro[i][5]:
+                if temp_group == lfr_pro[i][5] and i != len(lfr_pro):
                     lfr_pro_s.append(lfr_pro[i][5])
                     lfr_pro_s.append(lfr_pro[i][8])    
                 else:
-                    
-                    
-                    
-                    lfr_pro_t.append(lfr_pro_s)
+                    lfr_pro_t.append(self.relay_sort(lfr_pro_s))
                     lfr_pro_s = []
                     lfr_pro_s.append(lfr_pro[i][5])
                     lfr_pro_s.append(lfr_pro[i][8])
-                    temp_group = lfr_pro[i][5]
+                temp_group = lfr_pro[i][5]
                 
-
-        
-        # ['101', 'Яскунов Егор', 'ЦРМО-31м', '1900', '1группа М       ', '24:07,90']
-
-                
-                
+            lfr_pro_t.append(self.relay_sort(lfr_pro_s))
+            lfr_pro = [x for x in lfr_pro_t if x is not None]
+            
+            lfr_pro_t = sorted(
+                    lfr_pro, key=lambda x: x[1])
+            
+               
         elif self.sorted_rule == 8:
                 lfr_pro_t = sorted(
                     lfr_pro, key=lambda x: x[8])
@@ -935,6 +1040,102 @@ class MainWindow(QtWidgets.QMainWindow):
             self.doublesave = 0
         self.reload()
 
+    # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
+    def checkbox_4(self):
+        # self.btn_choose1.setChecked(True)
+        self.checkbox4.setChecked(True)
+        self.checkbox5.setChecked(False)
+        self.checkbox6.setChecked(False)
+        self.checkbox7.setChecked(False)
+        self.checkbox8.setChecked(False)
+        self.checkbox10.setChecked(False)
+        self.checkbox8.setEnabled(False)
+        self.checkbox10.setEnabled(False)
+        self.sorted_rule = 1
+        self.append_rule = 0
+        self.reload()
+
+    # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
+    def checkbox_5(self):
+        self.checkbox4.setChecked(False)
+        self.checkbox5.setChecked(True)
+        self.checkbox6.setChecked(False)
+        self.checkbox7.setChecked(False)
+        self.checkbox8.setChecked(False)
+        self.checkbox10.setChecked(False)
+        self.checkbox8.setEnabled(False)
+        self.checkbox10.setEnabled(False)
+        
+        self.sorted_rule = 4
+        self.append_rule = 0
+        self.reload()
+
+    # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
+    def checkbox_6(self):
+        self.checkbox4.setChecked(False)
+        self.checkbox5.setChecked(False)
+        self.checkbox7.setChecked(False)
+        self.checkbox6.setChecked(True)
+        self.checkbox8.setChecked(False)
+        self.checkbox10.setChecked(False)
+        self.checkbox8.setEnabled(True)
+        self.checkbox10.setEnabled(True)
+        
+        # self.btn_choose3.setChecked(True)
+        self.sorted_rule = 8
+        self.reload()
+
+    def checkbox_7(self):
+        self.checkbox4.setChecked(False)
+        self.checkbox5.setChecked(False)
+        self.checkbox6.setChecked(False)
+        self.checkbox7.setChecked(True)
+        self.checkbox8.setEnabled(True)
+        self.checkbox10.setEnabled(False)
+       
+        # self.btn_choose3.setChecked(True)
+        self.sorted_rule = 5
+        self.reload()
+ 
+    def checkbox_8(self, state):
+        if state == Qt.Checked:
+            self.append_rule = 1
+            self.checkbox10.setChecked(False)
+            self.reload()
+        elif self.append_rule == 2:
+            return
+        else:
+            self.append_rule = 0
+            self.reload()
+
+    def checkbox_9(self, state):
+            # self.btn_choose1.setChecked(False)
+            # self.btn_choose2.setChecked(False)
+            # self.btn_choose3.setChecked(True)
+        if state == Qt.Checked:
+            self.viewSecond = 1
+            self.w2 = SecondWindow()
+            self.reload()
+            # self.btn_choose5.setChecked(True)
+        else:
+            self.viewSecond = 0
+            self.w2.close()
+            # self.btn_choose5.setChecked(False)
+            # self.reload()
+
+    def checkbox_10(self, state):
+        if state == Qt.Checked:
+            self.append_rule = 2
+            self.checkbox8.setChecked(False)
+            self.reload()
+        elif self.append_rule ==1:
+            return
+        else:
+            self.append_rule = 0
+            self.reload()
+            #    self.reload()
+
+
     def spinBox_1(self):
         self.reload_timer = self.spinbox1.value()
         
@@ -958,35 +1159,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.group_rule = index_val
         self.reload()
 
-    # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
-    def slot_btn_choose1(self):
-        # self.btn_choose1.setChecked(True)
-        self.checkbox5.setChecked(False)
-        self.checkbox6.setChecked(False)
-        self.checkbox7.setChecked(False)
-        
-        self.sorted_rule = 1
-        self.reload()
 
-    # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
-    def slot_btn_choose2(self):
-        self.checkbox4.setChecked(False)
-        # self.btn_choose2.setChecked(True)
-        self.checkbox6.setChecked(False)
-        self.checkbox7.setChecked(False)
-        
-        self.sorted_rule = 4
-        self.reload()
 
-    # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
-    def slot_btn_choose3(self):
-        self.checkbox4.setChecked(False)
-        self.checkbox5.setChecked(False)
-        self.checkbox7.setChecked(False)
-        
-        # self.btn_choose3.setChecked(True)
-        self.sorted_rule = 8
-        self.reload()
 
     # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
     def slot_btn_choose4(self):
@@ -1000,48 +1174,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.view_rule = 1
             self.reload()
     
-    def checkbox_7(self, state):
-        self.checkbox4.setChecked(False)
-        self.checkbox5.setChecked(False)
-        self.checkbox6.setChecked(False)
-       
-        # self.btn_choose3.setChecked(True)
-        self.sorted_rule = 5
-        self.reload()
- 
-    def checkbox_8(self, state):
-        if state == Qt.Checked:
-            self.append_rule = 1
-            self.checkbox10.setChecked(False)
-            self.reload()
-        #else:
-        #    self.append_rule = 0
-        #    self.reload()
-
-    def checkbox_9(self, state):
-            # self.btn_choose1.setChecked(False)
-            # self.btn_choose2.setChecked(False)
-            # self.btn_choose3.setChecked(True)
-        if state == Qt.Checked:
-            self.viewSecond = 1
-            self.w2 = SecondWindow()
-            self.reload()
-            # self.btn_choose5.setChecked(True)
-        else:
-            self.viewSecond = 0
-            self.w2.close()
-            # self.btn_choose5.setChecked(False)
-            # self.reload()
-
-    def checkbox_10(self, state):
-        if state == Qt.Checked:
-            self.append_rule = 2
-            self.checkbox8.setChecked(False)
-            
-            self.reload()
-        #else:
-        #    self.append_rule = 0
-        #    self.reload()
 
     def slot_btn_chooseFile1(self):
 
@@ -1092,9 +1224,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox5.setEnabled(True)
         self.checkbox6.setEnabled(True)
         self.checkbox7.setEnabled(True)
-        self.checkbox8.setEnabled(True)
         self.checkbox9.setEnabled(True)
-        self.checkbox10.setEnabled(True)
         self.btn_choose4.setEnabled(True)
         #self.btn_choose5.setEnabled(True)
         #self.checkbox2.setEnabled(False)
