@@ -31,6 +31,7 @@ class SecondWindow(QtWidgets.QWidget):
         self.start = 0
         self._viewText = list()
         self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
+        self._temp_viewMode = 0
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
         self._viewWindowHigh = 26
@@ -57,11 +58,17 @@ class SecondWindow(QtWidgets.QWidget):
         
         self._viewText = text
         self.viewText.emit(text)
-        _temp_viewMode = self._viewText.pop(0)
+        self._temp_viewMode = self._viewMode
+        _viewMode = self._viewText.pop(0)
+        if _viewMode//10 and self._temp_viewMode == _viewMode%10:
+            self._temp_viewMode = _viewMode%10
+            _viewMode = 0
+        else:
+            _viewMode = _viewMode % 10
         self._left = self._viewText.pop(0)
         self._top = self._viewText.pop(0)
-        if  _temp_viewMode != 0:
-            self._viewMode = _temp_viewMode
+        if  _viewMode != 0:
+            self._viewMode = _viewMode
             self.killTimer(self.timer_id)
             self._viewLoop = 1
             self.start = 1
@@ -72,6 +79,8 @@ class SecondWindow(QtWidgets.QWidget):
             self.time = 0
             self.timer_id = self.startTimer(200)
             #self.update()
+        else: 
+            self._viewMode = self._temp_viewMode
 
     def secondWin1(self):
                       
@@ -170,6 +179,8 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
+            if (self._viewCount2+i) > (len(self._viewText)-1):
+                break
                     # lfr_grp[i].pop(1)
             qp.drawText(_nr_indent, (i*_text_hight) + _text_indent,
                                 self._viewText[self._viewCount2+i][0])
@@ -208,7 +219,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setPen(QColor('white'))
         qp.setFont(QFont('Arial', 12))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
-        self._text2 = 'Текущие результаты:'
+        self._text2 = 'Текущие результаты команд:'
         _text_indent = 52
         _nr_indent = 0
         _name_indent = 25
@@ -251,7 +262,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('white'))
         #self._text1 = '          Спортивный забег "Пять Вершин"'
-        self._text2 = 'Протокол финиша:'
+        self._text2 = 'Протокол финиша абсолют:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 51
@@ -264,7 +275,8 @@ class SecondWindow(QtWidgets.QWidget):
         _text_hight = 17
         qp.setFont(QFont('Arial', 12))
         for i in range(0, self._viewCount1):
-            
+            if i == len(self._viewText):
+                break
             M = self._viewCount2+i+1
             M = str(M)
             txt = ''.join([str(element) for element in M])
@@ -276,8 +288,7 @@ class SecondWindow(QtWidgets.QWidget):
                
             qp.setPen(QColor('yellow'))
             qp.drawText(0, (i*_text_hight)+_text_indent,txt)
-            
-            
+
             qp.setPen(QColor('green'))
             # lfr_grp[i].pop(1)
             qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
@@ -319,7 +330,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('white'))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
-        self._text2 = 'Протокол финиша:'
+        self._text2 = 'Протокол финиша эстафета:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 52
@@ -392,9 +403,9 @@ class SecondWindow(QtWidgets.QWidget):
 
 class PT():
 
-    def __init__(self, t, hFunction):
+    def __init__(self, t, _hFunction):
         self.t = t
-        self.hFunction = hFunction
+        self.hFunction = _hFunction
         self.thread = Timer(self.t, self.handle_function)
 
     def handle_function(self):
@@ -542,7 +553,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox7.setText("Цех")
         self.checkbox7.setEnabled(False)
         
-        self.checkbox8 = QCheckBox("Эстафета", self)
+        self.checkbox8 = QCheckBox("Эстафета цикл", self)
         self.checkbox8.setText("Эстафета")
         self.checkbox8.setEnabled(False)
         
@@ -770,20 +781,30 @@ class MainWindow(QtWidgets.QMainWindow):
 
         text_v.insert(0,self.w2_top)
         text_v.insert(0,self.w2_left)
-        if self.sorted_rule == 8:      
-            #if self.autoreload == 1:
-            #    text_v.insert(0, 0)
-            if self.append_rule == 1:
-                text_v.insert(0, 4)
+        if self.sorted_rule == 8:       
+            if self.append_rule == 1:  # Триггер для объединения результатов. 1 - эстафета
+                if self.autoreload == 1:
+                    text_v.insert(0, 14)
+                else:
+                    text_v.insert(0, 4)
             elif self.append_rule == 2:
-                text_v.insert(0, 2)
+                if self.autoreload == 1:
+                    text_v.insert(0, 12)
+                else:
+                    text_v.insert(0, 2)      
             else:
-                text_v.insert(0, 3)
+                if self.autoreload == 1:
+                    text_v.insert(0, 13)
+                else:
+                    text_v.insert(0, 3)
         else:
-            text_v.insert(0, 1)
+            if self.autoreload == 1:
+                text_v.insert(0, 11)
+            else:
+                text_v.insert(0, 1)
         # Обновляем содержимое второго окна
         self.w2.updateSecondWin = text_v
-   
+          
     
     def saveprot(self, prot):
         if self.local_filename_choose4 != "" and len(prot)>0:
@@ -1018,13 +1039,13 @@ class MainWindow(QtWidgets.QMainWindow):
         QMessageBox.information(
             self, "Подробнее", "Участник номер: " + item.text(), QMessageBox.Ok)
 
-    def checkBox_1(self, state):
+    def checkBox_1(self, state): # Автоматическое обновление протокола. Имеет баг при выводе.
        if state == Qt.Checked:
             self.autoreload = 1            
-            t.start()
+            self.t.start()
        else:
             self.autoreload = 0
-            t.stop()
+            self.t.stop()
 
     def checkbox_2(self, state):
         if state == Qt.Checked:
@@ -1097,7 +1118,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.sorted_rule = 5
         self.reload()
  
-    def checkbox_8(self, state):
+    def checkbox_8(self, state):  # "Эстафета"
         if state == Qt.Checked:
             self.append_rule = 1
             self.checkbox10.setChecked(False)
@@ -1108,7 +1129,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.append_rule = 0
             self.reload()
 
-    def checkbox_9(self, state):
+    def checkbox_9(self, state): # Вывод второго окна
             # self.btn_choose1.setChecked(False)
             # self.btn_choose2.setChecked(False)
             # self.btn_choose3.setChecked(True)
@@ -1123,12 +1144,12 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.btn_choose5.setChecked(False)
             # self.reload()
 
-    def checkbox_10(self, state):
+    def checkbox_10(self, state):  # Командный
         if state == Qt.Checked:
             self.append_rule = 2
             self.checkbox8.setChecked(False)
             self.reload()
-        elif self.append_rule ==1:
+        elif self.append_rule == 1:
             return
         else:
             self.append_rule = 0
@@ -1137,8 +1158,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def spinBox_1(self):
-        self.reload_timer = self.spinbox1.value()
-        
+        if self.autoreload == 1:
+            self.t.stop()
+            self.reload_timer = self.spinbox1.value()
+            self.t.start()
+        else:
+            self.reload_timer = self.spinbox1.value()
     def spinBox_2(self):
         self.w2_top = self.spinbox2.value()
         self.w2.move(self.w2_top, self.w2_left)
@@ -1332,9 +1357,9 @@ if __name__ == '__main__':
 
     w = MainWindow() 
     
-    w.show ()   
+    w.show()   
 
-    t = PT(w.reload_timer, w.reload)
+    w.t = PT(w.reload_timer, w.reload)
 
     sys.exit(app.exec())
 
