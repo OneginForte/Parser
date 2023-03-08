@@ -103,18 +103,18 @@ class SecondWindow(QtWidgets.QWidget):
     def paintEvent(self, param):
         qp = QPainter(self)
         
-        if not self._viewText:
+        #if not self._viewText:
             
             #self.qp.begin(self)
-            qp.drawPixmap(self.rect(), self.image)
+        #    qp.drawPixmap(self.rect(), self.image)
 
         #self.qp.begin(self)
         #qp.setRenderHints(QPainter.Antialiasing)
-        if self._viewText:
+        #if self._viewText:
             
             #qp.drawPixmap(self.rect(), self.image)
 
-            if self._viewLoop == 1:
+        if self._viewLoop == 1:
                
                 qp.save()
                 #self.qp = QPainter(self)
@@ -130,7 +130,7 @@ class SecondWindow(QtWidgets.QWidget):
 
         #if self._viewText[0] == 0 or self._viewText[0] == 1 or self._viewText[0] == 2 or self._viewText[0] == 3:
    
-        if len(self._viewText) != 0 and self.start == 1:
+        if self.start == 1: #len(self._viewText) != 0 and 
 
             if self._viewMode == 1:
                 self.viewMode1(qp)
@@ -179,7 +179,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
-            if (self._viewCount2+i) > (len(self._viewText)-1):
+            if (self._viewCount2+i) == (len(self._viewText)):
                 break
                     # lfr_grp[i].pop(1)
             qp.drawText(_nr_indent, (i*_text_hight) + _text_indent,
@@ -339,9 +339,11 @@ class SecondWindow(QtWidgets.QWidget):
         _name_size = 19
         _result_indent = 257
         _text_hight = 17
+        _count_highlight = False
+        _temp_highlight = 0
         qp.setFont(QFont('Arial', 12))
         for i in range(0, self._viewCount1):
-            if (self._viewCount2+i) > (len(self._viewText)-1):
+            if (self._viewCount2+i) == (len(self._viewText)):
                 break
             # lfr_grp[i].pop(1)
             M = self._viewCount2+i+1
@@ -358,11 +360,21 @@ class SecondWindow(QtWidgets.QWidget):
             
             M = int((self._viewText[self._viewCount2+i][0]))
             
-            if  M//100 == 1:                #((self._viewCount2+i+1)%4) == 0:
+            if self._viewCount2+i+1 == 1:
+                _temp_highlight = M%100
+            
+            if M%100 != _temp_highlight:
+                _temp_highlight = M%100
+                _count_highlight = not _count_highlight
+            
+            if  _count_highlight == False:  
+        
                 qp.setPen(QColor('orange'))
+                   
             else:
-                qp.setPen(QColor('green'))
                 
+                qp.setPen(QColor('green'))
+
             #qp.setPen(QColor('green'))
             qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
@@ -370,7 +382,7 @@ class SecondWindow(QtWidgets.QWidget):
             txt = [self._viewText[self._viewCount2+i][1][k]
                    for k in range(_name_size) if len(self._viewText[self._viewCount2+i][1]) > k]
             txt = ''.join([str(element) for element in txt])
-            qp.setPen(QColor('white'))
+            #qp.setPen(QColor('white'))
             qp.drawText(_name_indent, (i*_text_hight)+_text_indent, txt)
             #txt = [self._viewText[self._viewCount2+i][2][k]
             #       for k in range(8) if len(self._viewText[self._viewCount2+i][2]) > k]
@@ -783,7 +795,7 @@ class MainWindow(QtWidgets.QMainWindow):
         text_v.insert(0,self.w2_left)
         if self.sorted_rule == 8:       
             if self.append_rule == 1:  # Триггер для объединения результатов. 1 - эстафета
-                if self.autoreload == 1:
+                if self.autoreload == 1: # autoreload только обновляет выводимый текст, не сбрасывая экран
                     text_v.insert(0, 14)
                 else:
                     text_v.insert(0, 4)
@@ -960,7 +972,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             lfr_pro = [e.copy() for e in lfr_pro_t]
                         
-     
+        if len(lfr_pro) == 0:
+            return lfr_pro_t 
         # Сортируем списки. 9 - по цеху, 4 - по имени, 8 - по результату, 5 - по цеху, 7 - по группе. По умолчанию 1 - по стартовому номеру
         if self.sorted_rule == 8 and len(lfr_pro[0])>10:
                 lfr_pro_t = sorted(
@@ -1111,6 +1124,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox5.setChecked(False)
         self.checkbox6.setChecked(False)
         self.checkbox7.setChecked(True)
+        self.checkbox10.setChecked(False)
         self.checkbox8.setEnabled(True)
         self.checkbox10.setEnabled(False)
        
