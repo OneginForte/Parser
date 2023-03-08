@@ -554,7 +554,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox7.setEnabled(False)
         
         self.checkbox8 = QCheckBox("Эстафета цикл", self)
-        self.checkbox8.setText("Эстафета")
+        self.checkbox8.setText("Эстафета цикл")
         self.checkbox8.setEnabled(False)
         
         self.checkbox9 = QCheckBox("Вывести", self)
@@ -562,8 +562,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.checkbox9.setCheckable(True)
         self.checkbox9.setEnabled(False)
         
-        self.checkbox10 = QCheckBox("Командный", self)
-        self.checkbox10.setText("Командный")
+        self.checkbox10 = QCheckBox("Командный результат", self)
+        self.checkbox10.setText("Командный результат")
         #self.checkbox10.setCheckable(True)
         self.checkbox10.setEnabled(False)
 
