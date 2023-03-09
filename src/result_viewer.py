@@ -140,6 +140,8 @@ class SecondWindow(QtWidgets.QWidget):
                 self.viewMode3(qp)
             if self._viewMode == 4:
                 self.viewMode4(qp)
+            if self._viewMode == 5:
+                self.viewMode5(qp)
                  
                         #self._viewCount2 += self._viewCount3 
                         #self.time += self.time_step
@@ -342,7 +344,7 @@ class SecondWindow(QtWidgets.QWidget):
         _count_highlight = False
         _temp_highlight = 0
         qp.setFont(QFont('Arial', 12))
-        for i in range(0, self._viewCount1):
+        for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
                 break
             # lfr_grp[i].pop(1)
@@ -392,8 +394,6 @@ class SecondWindow(QtWidgets.QWidget):
             qp.drawText(_result_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][3])
             
-            
-
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
             self._viewCount3 = (
@@ -412,6 +412,67 @@ class SecondWindow(QtWidgets.QWidget):
             self.time += self.time_step
         else:
             self._viewCount1 += 1
+
+    def viewMode5(self, qp):
+        qp.setPen(QColor('white'))
+        qp.setFont(QFont('Arial', 12))
+        #self._text1 = '        Спортивный забег "Пять Вершин"'
+        self._text2 = 'Текущие командные результаты:'
+        _text_indent = 52
+        _nr_indent = 0
+        _name_indent = 25
+        _name_size = 35
+        _comand_indent = 211
+        _comand_size = 8
+        _result_indent = 236
+        _text_hight = 17
+        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
+                
+        for i in range (0, self._viewCount1):
+            if (self._viewCount2+i) == (len(self._viewText)):
+                break
+            M = self._viewCount2+i+1
+            M = str(M)
+            txt = ''.join([str(element) for element in M])
+            M = int(txt)
+            if M < 100:
+                txt = " " + txt 
+            if M < 10:
+                txt = " " + txt  
+               
+            qp.setPen(QColor('yellow'))
+            qp.drawText(0, (i*_text_hight)+_text_indent,txt)
+                                        
+            qp.setPen(QColor('green'))                 
+            txt = [self._viewText[self._viewCount2+i][0][k]
+                for k in range(_name_size) if len(self._viewText[self._viewCount2+i][0]) > k]
+            txt = ''.join([str(element) for element in txt])
+            qp.drawText(_name_indent, (i*_text_hight)+_text_indent, txt)
+                    
+            qp.setPen(QColor('red'))
+            qp.drawText(_result_indent, (i*_text_hight)+_text_indent, self._viewText[self._viewCount2+i][1])  
+        
+        
+        if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
+
+            self._viewCount3 = (
+                (len(self._viewText)) - self._viewCount2)
+
+        if (self._viewCount2+self._viewCount1) == (len(self._viewText)):
+            self._viewCount1 = 1
+            self._viewCount2 = 0
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+
+        elif self._viewCount1 == self._viewCount3:
+            self._viewCount1 = 1
+            self._viewCount2 += self._viewWindowHigh
+            self._viewCount3 = self._viewWindowHigh
+            self.time += self.time_step
+        else:
+            self._viewCount1 += 1            
+
 
 class PT():
 
@@ -799,11 +860,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     text_v.insert(0, 14)
                 else:
                     text_v.insert(0, 4)
-            elif self.append_rule == 2:
+            elif self.append_rule == 2:  #текущие командные результаты
                 if self.autoreload == 1:
-                    text_v.insert(0, 12)
+                    text_v.insert(0, 15)
                 else:
-                    text_v.insert(0, 2)      
+                    text_v.insert(0, 5)    
             else:
                 if self.autoreload == 1:
                     text_v.insert(0, 13)
@@ -1000,6 +1061,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lfr_pro_s = []
             lfr_pro_t = []
             temp_group = lfr_pro[0][5]
+            temp_null_count = 0
             for i in range(len(lfr_pro)):
                 if temp_group == lfr_pro[i][5] and i != len(lfr_pro):
                     lfr_pro_s.append(lfr_pro[i][5])
@@ -1009,7 +1071,13 @@ class MainWindow(QtWidgets.QMainWindow):
                     lfr_pro_s = []
                     lfr_pro_s.append(lfr_pro[i][5])
                     lfr_pro_s.append(lfr_pro[i][8])
+                if lfr_pro[i][8] == 4294967295:
+                    temp_null_count += 1
                 temp_group = lfr_pro[i][5]
+            
+            if  len(lfr_pro) == temp_null_count:
+                #lfr_pro_t = []
+                return lfr_pro_t
                 
             lfr_pro_t.append(self.relay_sort(lfr_pro_s))
             lfr_pro = [x for x in lfr_pro_t if x is not None]
