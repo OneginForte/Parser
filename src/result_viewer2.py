@@ -34,7 +34,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._temp_viewMode = 0
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
-        self._viewWindowHigh = 26
+        self._viewWindowHigh = 12
         self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
@@ -44,7 +44,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._top = 0
         self._left = 0
         self._width = 320
-        self._height = 480
+        self._height = 240
         self.image = QPixmap(r"evraz30.bmp")
         self._text1 = '"Закрытие лыжного сезона"'
         self.secondWin1()
@@ -516,7 +516,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.w2_top = 0
         self.w2_left = 0
         self.w2_width = 320
-        self.w2_height = 480
+        self.w2_height = 240
 
         self.grp1 = []
 
