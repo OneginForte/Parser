@@ -2,6 +2,7 @@ import os
 #import struct
 import sys
 from threading import Timer
+import datetime
 from time import sleep
 import struct
 from operator import itemgetter
@@ -38,7 +39,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
-        self.time = 0
+        self.time = 5
         self.time_step = 20 #0.025
         self.timer_id = self.startTimer(200)
         self._top = 0
@@ -47,6 +48,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._height = 480
         self.image = QPixmap(r"evraz30.bmp")
         self._text1 = '"Закрытие лыжного сезона"'
+        self._time = ''
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -76,11 +78,12 @@ class SecondWindow(QtWidgets.QWidget):
             self._viewCount1 = 1
             self._viewCount2 = 0
             self._viewCount3 = self._viewWindowHigh
-            self.time = 0
+            self.time = 5
             self.timer_id = self.startTimer(200)
             #self.update()
         else: 
             self._viewMode = self._temp_viewMode
+            self._viewLoop = 1
 
     def secondWin1(self):
                       
@@ -142,25 +145,19 @@ class SecondWindow(QtWidgets.QWidget):
                 self.viewMode4(qp)
             if self._viewMode == 5:
                 self.viewMode5(qp)
-                 
-                        #self._viewCount2 += self._viewCount3 
-                        #self.time += self.time_step
-                        #self.time += self.time_step
-                        #self._viewCount2 += self._viewCount3    
-                        # self._viewWindow[[0],[0]]
-                        #self.time += self.time_step
-                        #self.time += self.time_step                    
-                        #self.time += self.time_step
         else:
             self.start = 0
             #self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
             
     def timerEvent(self, event):
-        if self.timer_id == event.timerId() and self.start == 1:
-            if self.time == 0:
-                self.update() 
-            else: 
+        self.now = datetime.datetime.now()
+        self._time = self.now.strftime("%H:%M")
+        if self.timer_id == event.timerId():
+            if self.time != 0 and self.start == 1:
                 self.time -= 1
+            else: 
+                self.update() 
+                
     
     def viewMode1(self, qp):
         # self.qp.eraseRect(self._top, self._left, self._width, self._height)
@@ -332,7 +329,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('white'))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
-        self._text2 = 'Протокол финиша эстафета:'
+        self._text2 = 'Протокол финиша эстафета: ' + self._time
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 52
@@ -417,7 +414,7 @@ class SecondWindow(QtWidgets.QWidget):
         qp.setPen(QColor('white'))
         qp.setFont(QFont('Arial', 12))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
-        self._text2 = 'Текущие командные результаты:'
+        self._text2 = 'Текущие командные результаты: ' + self._time
         _text_indent = 52
         _nr_indent = 0
         _name_indent = 25
