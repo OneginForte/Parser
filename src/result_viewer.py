@@ -104,11 +104,11 @@ class SecondWindow(QtWidgets.QWidget):
 
 
     def paintEvent(self, param):
-        qp = QPainter(self)
+        qp = QPainter()
         
         #if not self._viewText:
             
-            #self.qp.begin(self)
+        qp.begin(self)
         #    qp.drawPixmap(self.rect(), self.image)
 
         #self.qp.begin(self)
