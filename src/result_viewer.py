@@ -25,7 +25,7 @@ class SecondWindow(QtWidgets.QWidget):
     
     def __init__(self, parent=None):
         # Передаём ссылку на родительский элемент и чтобы виджет
-        # отображался как самостоятельное окно указываем тип окно
+        # отображался как самостоятельное окно указываем тип "окно"
         
         super().__init__(parent)
         self._parent = parent
@@ -47,7 +47,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._width = 320
         self._height = 480
         self.image = QPixmap(r"evraz30.bmp")
-        self._text1 = '"Закрытие лыжного сезона"'
+        self._text1 = '"Весенний кросс"'
         self._time = ''
         self.secondWin1()
     
@@ -175,7 +175,7 @@ class SecondWindow(QtWidgets.QWidget):
         _result_indent = 257
         _text_hight = 17
         qp.setFont(QFont('Arial', 12))
-        qp.setPen(QColor('green'))
+        qp.setPen(QColor('greenyellow'))
 
         for i in range(0,self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
@@ -245,7 +245,7 @@ class SecondWindow(QtWidgets.QWidget):
                     qp.setPen(QColor('yellow'))
                     qp.drawText(0, (i*_text_hight)+_text_indent,txt)
                                         
-                    qp.setPen(QColor('green'))                 
+                    qp.setPen(QColor('greenyellow'))                 
                     txt = [self._viewText[i][0][k]
                            for k in range(_name_size) if len(self._viewText[i][0]) > k]
                     txt = ''.join([str(element) for element in txt])
@@ -269,7 +269,7 @@ class SecondWindow(QtWidgets.QWidget):
         _name_indent = 59
         _name_size = 17
         _comand_indent = 206
-        _comand_size = 5
+        _comand_size = 4
         _result_indent = 257
         _text_hight = 17
         qp.setFont(QFont('Arial', 12))
@@ -288,7 +288,7 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('yellow'))
             qp.drawText(0, (i*_text_hight)+_text_indent,txt)
 
-            qp.setPen(QColor('green'))
+            qp.setPen(QColor('greenyellow'))
             # lfr_grp[i].pop(1)
             qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
@@ -372,7 +372,7 @@ class SecondWindow(QtWidgets.QWidget):
                    
             else:
                 
-                qp.setPen(QColor('green'))
+                qp.setPen(QColor('greenyellow'))
 
             #qp.setPen(QColor('green'))
             qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
@@ -441,7 +441,7 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('yellow'))
             qp.drawText(0, (i*_text_hight)+_text_indent,txt)
                                         
-            qp.setPen(QColor('green'))                 
+            qp.setPen(QColor('greenyellow'))                 
             txt = [self._viewText[self._viewCount2+i][0][k]
                 for k in range(_name_size) if len(self._viewText[self._viewCount2+i][0]) > k]
             txt = ''.join([str(element) for element in txt])
