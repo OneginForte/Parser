@@ -1292,7 +1292,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.cwd1 == "":
             self.cwd1 = self.cwd
         
-        self.local_filename_choose1, filetype = QFileDialog.getOpenFileName(self,
+        self.local_filename_choose1, _ = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 1",
                                                                             self.cwd1,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
@@ -1304,7 +1304,7 @@ class MainWindow(QtWidgets.QMainWindow):
                self.local_filename_choose1 = old_file
             return
 
-        grp_zag, grp1, increment_grp1 = Parser.read_grp(
+        _, _, increment_grp1 = Parser.read_grp(
             dPars, self.local_filename_choose1)
         
         if increment_grp1 == 0:
@@ -1313,7 +1313,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.local_filename_choose1 = ""
             return
         
-        pro1, increment_pro1 = Parser.read_pro(
+        _, increment_pro1 = Parser.read_pro(
             dPars, self.local_filename_choose1)
         if increment_pro1 == 0:
             QMessageBox.warning(
@@ -1353,7 +1353,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.cwd2 == "":
             self.cwd2 = self.cwd
         
-        self.local_filename_choose2, filetype = QFileDialog.getOpenFileName(self,
+        self.local_filename_choose2, _ = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 2",
                                                                             self.cwd2,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
@@ -1397,7 +1397,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Распакуем список групп и сами протоколы. Вернет списки и число годных записей.
         grp2 = Parser.repack_grp(dPars, grp2)
-        lfr_pro2, increment_pro2 = Parser.repack_pro(
+        _, increment_pro2 = Parser.repack_pro(
             dPars, grp2, pro2, self.group_rule, 0, self.fullmsec)
 
         # Проверим число участников. Протоколы не будут обратываться при не совпадении числа участников.
