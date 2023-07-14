@@ -46,7 +46,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._width = 320
         self._height = 240
         self.image = QPixmap(r"evraz30.bmp")
-        self._text1 = '"Закрытие лыжного сезона"'
+        self._text1 = '"Весенний кросс"'
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
