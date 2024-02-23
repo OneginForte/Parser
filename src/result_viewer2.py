@@ -39,14 +39,14 @@ class SecondWindow(QtWidgets.QWidget):
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
         self.time = 0
-        self.time_step = 20 #0.025
+        self.time_step = 35 #0.025
         self.timer_id = self.startTimer(200)
         self._top = 0
         self._left = 0
         self._width = 320
         self._height = 240
         self.image = QPixmap(r"evraz30.bmp")
-        self._text1 = '"Весенний кросс"'
+        self._text1 = 'Пять вершин'
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -72,7 +72,7 @@ class SecondWindow(QtWidgets.QWidget):
             self.killTimer(self.timer_id)
             self._viewLoop = 1
             self.start = 1
-            self.time_step = 20
+            self.time_step = 35
             self._viewCount1 = 1
             self._viewCount2 = 0
             self._viewCount3 = self._viewWindowHigh
@@ -220,7 +220,7 @@ class SecondWindow(QtWidgets.QWidget):
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
         qp.setFont(QFont('Arial', 12))
-        #self._text1 = '        Спортивный забег "Пять Вершин"'
+        #self._text1 = '        Открытие лыжного сезона 2024'
         self._text2 = 'Текущие результаты команд:'
         _text_indent = 52
         _nr_indent = 0
@@ -650,13 +650,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox1.setFixedWidth(65)
         
         self.spinbox2 = QSpinBox(self)
-        self.spinbox2.setRange(-1920, 1920)
+        self.spinbox2.setRange(-65535, 65535)
         self.spinbox2.setValue(self.w2_top)
         self.spinbox2.setSuffix('px')
         self.spinbox2.setFixedWidth(65)
         
         self.spinbox3 = QSpinBox(self)
-        self.spinbox3.setRange(-1080, 1080)
+        self.spinbox3.setRange(-65535, 65535)
         self.spinbox3.setValue(self.w2_left)
         self.spinbox3.setSuffix('px')
         self.spinbox3.setFixedWidth(65)
