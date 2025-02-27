@@ -2,7 +2,6 @@ import os
 #import struct
 import sys
 from threading import Timer
-import datetime
 from time import sleep
 import struct
 from operator import itemgetter
@@ -25,7 +24,7 @@ class SecondWindow(QtWidgets.QWidget):
     
     def __init__(self, parent=None):
         # Передаём ссылку на родительский элемент и чтобы виджет
-        # отображался как самостоятельное окно указываем тип "окно"
+        # отображался как самостоятельное окно указываем тип окно
         
         super().__init__(parent)
         self._parent = parent
@@ -35,20 +34,19 @@ class SecondWindow(QtWidgets.QWidget):
         self._temp_viewMode = 0
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
-        self._viewWindowHigh = 26
+        self._viewWindowHigh = 12
         self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
-        self.time = 5
-        self.time_step = 40 #0.025
+        self.time = 0
+        self.time_step = 35 #0.025
         self.timer_id = self.startTimer(200)
         self._top = 0
         self._left = 0
-        self._width = 320
-        self._height = 480
+        self._width = 200
+        self._height = 100
         self.image = QPixmap(r"evraz30.bmp")
-        self._text1 = '"Весенний кросс"'
-        self._time = ''
+        self._text1 = '"Треугольник"'
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -74,16 +72,15 @@ class SecondWindow(QtWidgets.QWidget):
             self.killTimer(self.timer_id)
             self._viewLoop = 1
             self.start = 1
-            self.time_step = 40
+            self.time_step = 35
             self._viewCount1 = 1
             self._viewCount2 = 0
             self._viewCount3 = self._viewWindowHigh
-            self.time = 1
+            self.time = 0
             self.timer_id = self.startTimer(200)
             #self.update()
         else: 
             self._viewMode = self._temp_viewMode
-            self._viewLoop = 1
 
     def secondWin1(self):
                       
@@ -104,11 +101,11 @@ class SecondWindow(QtWidgets.QWidget):
 
 
     def paintEvent(self, param):
-        qp = QPainter()
+        qp = QPainter(self)
         
         #if not self._viewText:
             
-        qp.begin(self)
+            #self.qp.begin(self)
         #    qp.drawPixmap(self.rect(), self.image)
 
         #self.qp.begin(self)
@@ -145,23 +142,29 @@ class SecondWindow(QtWidgets.QWidget):
                 self.viewMode4(qp)
             if self._viewMode == 5:
                 self.viewMode5(qp)
+                 
+                        #self._viewCount2 += self._viewCount3 
+                        #self.time += self.time_step
+                        #self.time += self.time_step
+                        #self._viewCount2 += self._viewCount3    
+                        # self._viewWindow[[0],[0]]
+                        #self.time += self.time_step
+                        #self.time += self.time_step                    
+                        #self.time += self.time_step
         else:
             self.start = 0
             #self.qp.eraseRect ( self.top, self.left, self.width ,self.height )
             
     def timerEvent(self, event):
-        self.now = datetime.datetime.now()
-        self._time = self.now.strftime("%H:%M")
-        if self.timer_id == event.timerId():
-            if self.time != 0 and self.start == 1:
-                self.time -= 1
-            else: 
+        if self.timer_id == event.timerId() and self.start == 1:
+            if self.time == 0:
                 self.update() 
-                
+            else: 
+                self.time -= 1
     
     def viewMode1(self, qp):
         # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 12))
+        qp.setFont(QFont('Arial', 10))
         qp.setPen(QColor('white'))
         self._text2 = 'Протокол старта:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
@@ -173,9 +176,9 @@ class SecondWindow(QtWidgets.QWidget):
         _comand_indent = 231
         _comand_size = 12
         _result_indent = 257
-        _text_hight = 17
-        qp.setFont(QFont('Arial', 12))
-        qp.setPen(QColor('greenyellow'))
+        _text_hight = 14
+        qp.setFont(QFont('Arial', 10))
+        qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
@@ -216,19 +219,19 @@ class SecondWindow(QtWidgets.QWidget):
        
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
-        qp.setFont(QFont('Arial', 12))
-        #self._text1 = '        Спортивный забег "Пять Вершин"'
+        qp.setFont(QFont('Arial', 10))
+        #self._text1 = '        Открытие лыжного сезона 2024'
         self._text2 = 'Текущие результаты команд:'
-        _text_indent = 52
+        _text_indent = 29
         _nr_indent = 0
         _name_indent = 25
         _name_size = 35
-        _comand_indent = 211
+        _comand_indent = 111
         _comand_size = 8
-        _result_indent = 236
-        _text_hight = 17
+        _result_indent = 140
+        _text_hight = 14
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
+        #qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
                 
         for i in range(self._viewWindowHigh):
                     if i == len(self._viewText):
@@ -245,7 +248,7 @@ class SecondWindow(QtWidgets.QWidget):
                     qp.setPen(QColor('yellow'))
                     qp.drawText(0, (i*_text_hight)+_text_indent,txt)
                                         
-                    qp.setPen(QColor('greenyellow'))                 
+                    qp.setPen(QColor('green'))                 
                     txt = [self._viewText[i][0][k]
                            for k in range(_name_size) if len(self._viewText[i][0]) > k]
                     txt = ''.join([str(element) for element in txt])
@@ -258,21 +261,21 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 12))
+        qp.setFont(QFont('Arial', 10))
         qp.setPen(QColor('white'))
         #self._text1 = '          Спортивный забег "Пять Вершин"'
         self._text2 = 'Протокол финиша абсолют:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
-        _text_indent = 51
-        _nr_indent = 29
-        _name_indent = 59
-        _name_size = 17
-        _comand_indent = 206
+        #qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
+        _text_indent = 29
+        _nr_indent = 20
+        _name_indent = 41
+        _name_size = 11
+        _comand_indent = 119
         _comand_size = 4
-        _result_indent = 257
-        _text_hight = 17
-        qp.setFont(QFont('Arial', 12))
+        _result_indent = 149
+        _text_hight = 14
+        qp.setFont(QFont('Arial', 10))
         for i in range(0, self._viewCount1):
             if i == len(self._viewText):
                 break
@@ -288,7 +291,7 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('yellow'))
             qp.drawText(0, (i*_text_hight)+_text_indent,txt)
 
-            qp.setPen(QColor('greenyellow'))
+            qp.setPen(QColor('green'))
             # lfr_grp[i].pop(1)
             qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
                         self._viewText[self._viewCount2+i][0])
@@ -326,21 +329,21 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode4(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 12))
+        qp.setFont(QFont('Arial', 10))
         qp.setPen(QColor('white'))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
-        self._text2 = 'Время участников эстафеты: ' + self._time
+        self._text2 = 'Протокол финиша эстафета:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
-        _text_indent = 52
-        _nr_indent = 33
-        _name_indent = 68
-        _name_size = 17
-        _result_indent = 257
-        _text_hight = 17
+        #qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
+        _text_indent = 29
+        _nr_indent = 20
+        _name_indent = 41
+        _name_size = 15
+        _result_indent = 149
+        _text_hight = 14
         _count_highlight = False
         _temp_highlight = 0
-        qp.setFont(QFont('Arial', 12))
+        qp.setFont(QFont('Arial', 10))
         for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
                 break
@@ -372,7 +375,7 @@ class SecondWindow(QtWidgets.QWidget):
                    
             else:
                 
-                qp.setPen(QColor('greenyellow'))
+                qp.setPen(QColor('green'))
 
             #qp.setPen(QColor('green'))
             qp.drawText(_nr_indent, (i*_text_hight)+_text_indent,
@@ -412,19 +415,19 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode5(self, qp):
         qp.setPen(QColor('white'))
-        qp.setFont(QFont('Arial', 12))
+        qp.setFont(QFont('Arial', 10))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
-        self._text2 = 'Текущие командные результаты: ' + self._time
-        _text_indent = 52
+        self._text2 = 'Текущие командные результаты:'
+        _text_indent = 29
         _nr_indent = 0
         _name_indent = 25
         _name_size = 35
-        _comand_indent = 211
+        _comand_indent = 111
         _comand_size = 8
-        _result_indent = 236
-        _text_hight = 17
+        _result_indent = 130
+        _text_hight = 14
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
+        #qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
                 
         for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
@@ -441,7 +444,7 @@ class SecondWindow(QtWidgets.QWidget):
             qp.setPen(QColor('yellow'))
             qp.drawText(0, (i*_text_hight)+_text_indent,txt)
                                         
-            qp.setPen(QColor('greenyellow'))                 
+            qp.setPen(QColor('green'))                 
             txt = [self._viewText[self._viewCount2+i][0][k]
                 for k in range(_name_size) if len(self._viewText[self._viewCount2+i][0]) > k]
             txt = ''.join([str(element) for element in txt])
@@ -513,7 +516,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.w2_top = 0
         self.w2_left = 0
         self.w2_width = 320
-        self.w2_height = 480
+        self.w2_height = 240
 
         self.grp1 = []
 
@@ -1289,7 +1292,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.cwd1 == "":
             self.cwd1 = self.cwd
         
-        self.local_filename_choose1, filetype = QFileDialog.getOpenFileName(self,
+        self.local_filename_choose1, _ = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 1",
                                                                             self.cwd1,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
@@ -1301,7 +1304,7 @@ class MainWindow(QtWidgets.QMainWindow):
                self.local_filename_choose1 = old_file
             return
 
-        grp_zag, grp1, increment_grp1 = Parser.read_grp(
+        _, _, increment_grp1 = Parser.read_grp(
             dPars, self.local_filename_choose1)
         
         if increment_grp1 == 0:
@@ -1310,7 +1313,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.local_filename_choose1 = ""
             return
         
-        pro1, increment_pro1 = Parser.read_pro(
+        _, increment_pro1 = Parser.read_pro(
             dPars, self.local_filename_choose1)
         if increment_pro1 == 0:
             QMessageBox.warning(
@@ -1350,7 +1353,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.cwd2 == "":
             self.cwd2 = self.cwd
         
-        self.local_filename_choose2, filetype = QFileDialog.getOpenFileName(self,
+        self.local_filename_choose2, _ = QFileDialog.getOpenFileName(self,
                                                                             "Выбрать протокол 2",
                                                                             self.cwd2,  # Начальный путь
                                                                             "Pro Files (*.pro)")   # Установить фильтрацию расширений файлов, через двойную точку с запятой
@@ -1394,7 +1397,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Распакуем список групп и сами протоколы. Вернет списки и число годных записей.
         grp2 = Parser.repack_grp(dPars, grp2)
-        lfr_pro2, increment_pro2 = Parser.repack_pro(
+        _, increment_pro2 = Parser.repack_pro(
             dPars, grp2, pro2, self.group_rule, 0, self.fullmsec)
 
         # Проверим число участников. Протоколы не будут обратываться при не совпадении числа участников.
