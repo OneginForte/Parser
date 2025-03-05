@@ -34,7 +34,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._temp_viewMode = 0
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
-        self._viewWindowHigh = 12
+        self._viewWindowHigh = 6
         self._viewCount1 = 1
         self._viewCount2 = 0
         self._viewCount3 = self._viewWindowHigh
