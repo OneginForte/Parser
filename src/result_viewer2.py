@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QRect, pyqtSlot
 from PyQt5.QtGui import QPainter, QFont, QColor, QPalette, QPixmap
 from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout, QListWidget,
-                              QMessageBox, QPushButton, QVBoxLayout, QWidget, QCheckBox, QSpinBox)
+                              QMessageBox, QPushButton, QVBoxLayout, QWidget, QCheckBox, QSpinBox, QLineEdit)
 
 
 class SecondWindow(QtWidgets.QWidget):
@@ -46,7 +46,7 @@ class SecondWindow(QtWidgets.QWidget):
         self._width = 320
         self._height = 240
         self.image = QPixmap(r"evraz30.bmp")
-        self._text1 = '"Весенний кросс"'
+        self._text1 = '""'
         self.secondWin1()
     
     @QtCore.pyqtProperty(list, notify=viewText)
@@ -58,6 +58,7 @@ class SecondWindow(QtWidgets.QWidget):
         
         self._viewText = text
         self.viewText.emit(text)
+        self._text1 = self._viewText.pop(0)
         self._temp_viewMode = self._viewMode
         _viewMode = self._viewText.pop(0)
         if _viewMode//10 and self._temp_viewMode == _viewMode%10:
@@ -65,8 +66,12 @@ class SecondWindow(QtWidgets.QWidget):
             _viewMode = 0
         else:
             _viewMode = _viewMode % 10
+                  
+        self._height = self._viewText.pop(0)
+        self._width = self._viewText.pop(0)
         self._left = self._viewText.pop(0)
         self._top = self._viewText.pop(0)
+        
         if  _viewMode != 0:
             self._viewMode = _viewMode
             self.killTimer(self.timer_id)
@@ -177,6 +182,8 @@ class SecondWindow(QtWidgets.QWidget):
         _comand_size = 12
         _result_indent = 257
         _text_hight = 17
+        self._viewWindowHigh=(self._height//_text_hight)-2
+        print (self._viewWindowHigh)
         qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('green'))
 
@@ -527,13 +534,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.increment_pro = 0
         self.increment_pro1 = 0
-
+        self.nameText = ''
 
         self.local_filename_choose1 = ''
 
         
         self.mainWin1 ()
-        self.w2 = SecondWindow()
+        #self.w2 = SecondWindow()
         #self.w2.mapToGlobal( QPoint(self.w2_top, self.w2_left))
         #self.w2.show()
 
@@ -560,13 +567,19 @@ class MainWindow(QtWidgets.QMainWindow):
                                
         self.statusBar()
         
-        
+        self.nameTextBox = QLineEdit()  
+        self.nameTextBox.setText('') 
+        self.nameTextBox.setMaxLength(30) 
+        self.nameTextBox.setFixedWidth(165)
         self.btn_choose4 = QPushButton(self)  
         self.btn_choose4.setObjectName("Пустые")
         self.btn_choose4.setText("Показывать пустые")        
         self.btn_choose4.setCheckable(True)
         self.btn_choose4.setEnabled(False)
                 
+ 
+        #name, done1 = QtWidgets.QInputDialog.getText(
+        #     self, 'Input Dialog', 'Enter your name:')
         #self.btn_choose5 = QPushButton(self)
         #self.btn_choose5.setObjectName("Вывод")
         #self.btn_choose5.setText("Вывести")
@@ -661,6 +674,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox3.setSuffix('px')
         self.spinbox3.setFixedWidth(65)
 
+        self.spinbox4 = QSpinBox(self)
+        self.spinbox4.setRange(-65535, 65535)
+        self.spinbox4.setValue(self.w2_width)
+        self.spinbox4.setSuffix('px')
+        self.spinbox4.setFixedWidth(65)
+        
+        self.spinbox5 = QSpinBox(self)
+        self.spinbox5.setRange(-65535, 65535)
+        self.spinbox5.setValue(self.w2_height)
+        self.spinbox5.setSuffix('px')
+        self.spinbox5.setFixedWidth(65)
+
         self.combobox1 = QComboBox(self)
         self.combobox1.setFixedWidth(165)
         self.combobox1.hidePopup()
@@ -672,8 +697,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout = QVBoxLayout()
    
         #self.setLayout(self.left_layout)
-        
-        
+                
         self.btn_choose4.pressed.connect(self.slot_btn_choose4)
         #self.btn_choose5.pressed.connect(self.slot_btn_choose5)
         self.btn_chooseFile1.clicked.connect(self.slot_btn_chooseFile1)
@@ -695,18 +719,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox1.valueChanged.connect(self.spinBox_1)
         self.spinbox2.valueChanged.connect(self.spinBox_2)
         self.spinbox3.valueChanged.connect(self.spinBox_3)
+        self.spinbox4.valueChanged.connect(self.spinBox_4)
+        self.spinbox5.valueChanged.connect(self.spinBox_5)
+
+        self.nameTextBox.editingFinished.connect(self.onNameChanged)
        
         grid = QGridLayout()
-        grid.setSpacing(5)
+        grid.setSpacing(2)
 
         #grid.setColumnStretch(0, 1)
         #grid.setColumnStretch(1, 1)
         #grid.setRowStretch(0, 1)
         #grid.setRowStretch(0, 1)
         
+        
         self.right_layout.addWidget(self.text1)
-        self.right_layout.addWidget(self.list_widget, 1)
+        self.right_layout.addWidget(self.list_widget)
         #self.right_layout.addStretch(1) 
+        self.left_layout.addWidget(self.nameTextBox)
         self.left_layout.addWidget(self.text2)
         self.left_layout.addWidget(self.checkbox4) 
         self.left_layout.addWidget(self.checkbox5) 
@@ -722,6 +752,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.left_layout.addWidget(self.text4)
         self.left_layout.addWidget(self.spinbox2)
         self.left_layout.addWidget(self.spinbox3)
+        self.left_layout.addWidget(self.spinbox4)
+        self.left_layout.addWidget(self.spinbox5)
         #self.left_layout.addWidget(self.checkbox7)   
         
         self.left_layout.addWidget(self.btn_chooseFile1) #,alignment=QtCore.Qt.AlignTop
@@ -745,10 +777,10 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.left_layout.addStretch()
 
-        grid.addLayout(self.left_layout, 0, 0 , 
+        grid.addLayout(self.left_layout, 0, 0, 
                        alignment=QtCore.Qt.AlignLeft) 
         
-        grid.addLayout(self.right_layout, 0, 1, 0, 1, 
+        grid.addLayout(self.right_layout, 0, 1, 
                        alignment=QtCore.Qt.AlignRight) 
 
         #grid.addWidget(self.list_widget, 0, 1, 20, 20)      
@@ -854,6 +886,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         text_v.insert(0,self.w2_top)
         text_v.insert(0,self.w2_left)
+        text_v.insert(0,self.w2_width)
+        text_v.insert(0,self.w2_height)
         if self.sorted_rule == 8:       
             if self.append_rule == 1:  # Триггер для объединения результатов. 1 - эстафета
                 if self.autoreload == 1: # autoreload только обновляет выводимый текст, не сбрасывая экран
@@ -875,6 +909,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 text_v.insert(0, 11)
             else:
                 text_v.insert(0, 1)
+        text_v.insert(0,self.nameText)
         # Обновляем содержимое второго окна
         self.w2.updateSecondWin = text_v
           
@@ -1119,6 +1154,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def clicked(self, item):
         QMessageBox.information(
             self, "Подробнее", "Участник номер: " + item.text(), QMessageBox.Ok)
+            
+    def onNameChanged(self):
+        # Set the text of the result label to the entered name
+        self.nameText = self.nameTextBox.text()
 
     def checkBox_1(self, state): # Автоматическое обновление протокола. Имеет баг при выводе.
        if state == Qt.Checked:
@@ -1246,6 +1285,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.t.start()
         else:
             self.reload_timer = self.spinbox1.value()
+
     def spinBox_2(self):
         self.w2_top = self.spinbox2.value()
         self.w2.move(self.w2_top, self.w2_left)
@@ -1253,6 +1293,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def spinBox_3(self):
         self.w2_left = self.spinbox3.value()
         self.w2.move(self.w2_top, self.w2_left)
+
+    def spinBox_4(self):
+        self.w2_width = self.spinbox4.value()
+        self.w2.resize(self.w2_width, self.w2_height)
+        
+    def spinBox_5(self):
+        self.w2_height = self.spinbox5.value()
+        self.w2.resize(self.w2_width, self.w2_height)
 
     # def mousePressEvent(self, event):
     #    self.oldPos = event.globalPos()
@@ -1265,9 +1313,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def onCombo1Selected(self, index_val):
         self.group_rule = index_val
         self.reload()
-
-
-
 
     # 4 - по имени, 8 - по результату, 3 - по группе. По умолчанию 1 - по стартовому номеру
     def slot_btn_choose4(self):
