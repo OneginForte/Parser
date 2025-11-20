@@ -183,7 +183,6 @@ class SecondWindow(QtWidgets.QWidget):
         _result_indent = 257
         _text_hight = 17
         self._viewWindowHigh=(self._height//_text_hight)-2
-        print (self._viewWindowHigh)
         qp.setFont(QFont('Arial', 12))
         qp.setPen(QColor('green'))
 
@@ -237,6 +236,7 @@ class SecondWindow(QtWidgets.QWidget):
         _comand_size = 8
         _result_indent = 236
         _text_hight = 17
+        self._viewWindowHigh=(self._height//_text_hight)-2
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
                 
@@ -282,6 +282,7 @@ class SecondWindow(QtWidgets.QWidget):
         _comand_size = 5
         _result_indent = 257
         _text_hight = 17
+        self._viewWindowHigh=(self._height//_text_hight)-2
         qp.setFont(QFont('Arial', 12))
         for i in range(0, self._viewCount1):
             if i == len(self._viewText):
@@ -350,6 +351,7 @@ class SecondWindow(QtWidgets.QWidget):
         _text_hight = 17
         _count_highlight = False
         _temp_highlight = 0
+        self._viewWindowHigh=(self._height//_text_hight)-2
         qp.setFont(QFont('Arial', 12))
         for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
@@ -433,6 +435,7 @@ class SecondWindow(QtWidgets.QWidget):
         _comand_size = 8
         _result_indent = 236
         _text_hight = 17
+        self._viewWindowHigh=(self._height//_text_hight)-2
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
                 
@@ -571,6 +574,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nameTextBox.setText('') 
         self.nameTextBox.setMaxLength(30) 
         self.nameTextBox.setFixedWidth(165)
+
         self.btn_choose4 = QPushButton(self)  
         self.btn_choose4.setObjectName("Пустые")
         self.btn_choose4.setText("Показывать пустые")        
@@ -718,14 +722,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkbox10.stateChanged.connect(self.checkbox_10)
         self.spinbox1.valueChanged.connect(self.spinBox_1)
         self.spinbox2.valueChanged.connect(self.spinBox_2)
+        self.spinbox2.textChanged.connect(self.spinBox_2)
+        self.spinbox2.event(FocusOut)
         self.spinbox3.valueChanged.connect(self.spinBox_3)
+        self.spinbox2.textChanged.connect(self.spinBox_2)
         self.spinbox4.valueChanged.connect(self.spinBox_4)
+        self.spinbox4.textChanged.connect(self.spinBox_4)
         self.spinbox5.valueChanged.connect(self.spinBox_5)
+        self.spinbox5.textChanged.connect(self.spinBox_5)
 
         self.nameTextBox.editingFinished.connect(self.onNameChanged)
        
         grid = QGridLayout()
-        grid.setSpacing(2)
+        grid.setSpacing(0)
 
         #grid.setColumnStretch(0, 1)
         #grid.setColumnStretch(1, 1)
@@ -781,7 +790,7 @@ class MainWindow(QtWidgets.QMainWindow):
                        alignment=QtCore.Qt.AlignLeft) 
         
         grid.addLayout(self.right_layout, 0, 1, 
-                       alignment=QtCore.Qt.AlignRight) 
+                       alignment=QtCore.Qt.AlignCenter) 
 
         #grid.addWidget(self.list_widget, 0, 1, 20, 20)      
         
@@ -1481,6 +1490,7 @@ if __name__ == '__main__':
     dPars = Parser()
 
     app = QApplication(sys.argv)
+    
 
     w = MainWindow() 
     
