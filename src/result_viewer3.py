@@ -178,6 +178,7 @@ class SecondWindow(QtWidgets.QWidget):
         _result_indent = 257
         _text_hight = 14
         qp.setFont(QFont('Arial', 10))
+        qp.setPixelSize(10)
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):

@@ -11,27 +11,30 @@ from Pro_parser import Parser
 #from tkinter import CENTER
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QRect, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, QRect, QPoint
 from PyQt5.QtGui import QPainter, QFont, QColor, QPalette, QPixmap
 from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout, QListWidget,
                               QMessageBox, QPushButton, QVBoxLayout, QWidget, QCheckBox, QSpinBox, QLineEdit)
 
 
-class SecondWindow(QtWidgets.QWidget):
+class SecondWindow(QtWidgets.QMainWindow):
     viewText = pyqtSignal(list)
-    
-    
-    
-    def __init__(self, parent=None):
+
+    def __init__(self, root, widget: QtWidgets.QWidget = None, *args):  
+        QtWidgets.QMainWindow.__init__(self, *args)  
+    #def __init__(self, root, **kwargs):
+    #    super().__init__(root, **kwargs)
+        self.main = root 
+        if widget is not None:  
+            self.setCentralWidget(widget)  
+            widget.setParent(self)  
         # Передаём ссылку на родительский элемент и чтобы виджет
         # отображался как самостоятельное окно указываем тип окно
-        
-        super().__init__(parent)
-        self._parent = parent
+        self._parent = root
         self.start = 0
         self._viewText = list()
-        self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._temp_viewMode = 0
+        self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
         self._viewWindowHigh = 12
@@ -41,10 +44,11 @@ class SecondWindow(QtWidgets.QWidget):
         self.time = 0
         self.time_step = 35 #0.025
         self.timer_id = self.startTimer(200)
-        self._top = 0
-        self._left = 0
-        self._width = 320
-        self._height = 240
+        self._top = self._parent.w2_top
+        self._left = self._parent.w2_left
+        self._width = self._parent.w2_width
+        self._height = self._parent.w2_height
+        self._pixelsize = 18
         self.image = QPixmap(r"evraz30.bmp")
         self._text1 = '""'
         self.secondWin1()
@@ -98,13 +102,10 @@ class SecondWindow(QtWidgets.QWidget):
         pal.setColor(QPalette.Background, Qt.black)
         self.setAutoFillBackground(True)
         self.setPalette(pal)
-        #QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("plastique"))
-        #self.changePalette()
+        #self.QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("plastique"))
+        #self.changePalette()   
         self.resize(self._width ,self._height)
-        
-        self.show()
-
-
+       
     def paintEvent(self, param):
         qp = QPainter(self)
         
@@ -169,11 +170,13 @@ class SecondWindow(QtWidgets.QWidget):
     
     def viewMode1(self, qp):
         # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 12))
+        heapfont = QFont('Arial')
+        heapfont.setPixelSize(self._pixelsize)
+        qp.setFont(heapfont)
         qp.setPen(QColor('white'))
         self._text2 = 'Протокол старта:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
+        qp.drawText(QRect(0, self._pixelsize, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 52
         _nr_indent = 0
         _name_indent = 30
@@ -183,7 +186,9 @@ class SecondWindow(QtWidgets.QWidget):
         _result_indent = 257
         _text_hight = 17
         self._viewWindowHigh=(self._height//_text_hight)-2
-        qp.setFont(QFont('Arial', 12))
+        screenfont = QFont('Arial')
+        screenfont.setPixelSize(self._pixelsize)
+        qp.setFont(screenfont)
         qp.setPen(QColor('green'))
 
         for i in range(0,self._viewCount1):
@@ -225,8 +230,9 @@ class SecondWindow(QtWidgets.QWidget):
        
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
-        qp.setFont(QFont('Arial', 12))
-        #self._text1 = '        Открытие лыжного сезона 2024'
+        heapfont = QFont('Arial')
+        heapfont.setPixelSize(self._pixelsize)
+        qp.setFont(heapfont)
         self._text2 = 'Текущие результаты команд:'
         _text_indent = 52
         _nr_indent = 0
@@ -239,7 +245,9 @@ class SecondWindow(QtWidgets.QWidget):
         self._viewWindowHigh=(self._height//_text_hight)-2
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
-                
+        screenfont = QFont('Arial')
+        screenfont.setPixelSize(self._pixelsize)
+        qp.setFont(screenfont)          
         for i in range(self._viewWindowHigh):
                     if i == len(self._viewText):
                         break
@@ -268,9 +276,10 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 12))
+        heapfont = QFont('Arial')
+        heapfont.setPixelSize(self._pixelsize)
+        qp.setFont(heapfont)
         qp.setPen(QColor('white'))
-        #self._text1 = '          Спортивный забег "Пять Вершин"'
         self._text2 = 'Протокол финиша абсолют:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
@@ -283,7 +292,9 @@ class SecondWindow(QtWidgets.QWidget):
         _result_indent = 257
         _text_hight = 17
         self._viewWindowHigh=(self._height//_text_hight)-2
-        qp.setFont(QFont('Arial', 12))
+        screenfont = QFont('Arial')
+        screenfont.setPixelSize(self._pixelsize)
+        qp.setFont(screenfont)
         for i in range(0, self._viewCount1):
             if i == len(self._viewText):
                 break
@@ -337,22 +348,26 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode4(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
-        qp.setFont(QFont('Arial', 12))
+        heapfont = QFont('Arial')
+        heapfont.setPixelSize(self._pixelsize)
+        qp.setFont(heapfont)
         qp.setPen(QColor('white'))
         #self._text1 = '        Спортивный забег "Пять Вершин"'
         self._text2 = 'Протокол финиша эстафета:'
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
         _text_indent = 52
-        _nr_indent = 33
-        _name_indent = 68
-        _name_size = 17
-        _result_indent = 257
+        _nr_indent = 32
+        _name_indent = 63
+        _name_size = 19
+        _result_indent = 250
         _text_hight = 17
         _count_highlight = False
         _temp_highlight = 0
         self._viewWindowHigh=(self._height//_text_hight)-2
-        qp.setFont(QFont('Arial', 12))
+        screenfont = QFont('Arial')
+        screenfont.setPixelSize(self._pixelsize)
+        qp.setFont(screenfont)
         for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
                 break
@@ -424,8 +439,9 @@ class SecondWindow(QtWidgets.QWidget):
 
     def viewMode5(self, qp):
         qp.setPen(QColor('white'))
-        qp.setFont(QFont('Arial', 12))
-        #self._text1 = '        Спортивный забег "Пять Вершин"'
+        heapfont = QFont('Arial')
+        heapfont.setPixelSize(self._pixelsize)
+        qp.setFont(heapfont)
         self._text2 = 'Текущие командные результаты:'
         _text_indent = 52
         _nr_indent = 0
@@ -433,12 +449,14 @@ class SecondWindow(QtWidgets.QWidget):
         _name_size = 35
         _comand_indent = 211
         _comand_size = 8
-        _result_indent = 236
+        _result_indent = 225
         _text_hight = 17
         self._viewWindowHigh=(self._height//_text_hight)-2
         qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
-                
+        qp.drawText(QRect(0, self._pixelsize, self._width, 18), Qt.AlignCenter, self._text2)
+        screenfont = QFont('Arial')
+        screenfont.setPixelSize(self._pixelsize)
+        qp.setFont(screenfont)        
         for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
                 break
@@ -526,7 +544,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.w2_top = 0
         self.w2_left = 0
         self.w2_width = 320
-        self.w2_height = 240
+        self.w2_height = 480
 
         self.grp1 = []
 
@@ -542,7 +560,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.local_filename_choose1 = ''
 
         
-        self.mainWin1 ()
+        self.mainWin1()
         #self.w2 = SecondWindow()
         #self.w2.mapToGlobal( QPoint(self.w2_top, self.w2_left))
         #self.w2.show()
@@ -723,7 +741,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox1.valueChanged.connect(self.spinBox_1)
         self.spinbox2.valueChanged.connect(self.spinBox_2)
         self.spinbox2.textChanged.connect(self.spinBox_2)
-        self.spinbox2.event(FocusOut)
+        #self.spinbox2.event(FocusOut)
         self.spinbox3.valueChanged.connect(self.spinBox_3)
         self.spinbox2.textChanged.connect(self.spinBox_2)
         self.spinbox4.valueChanged.connect(self.spinBox_4)
@@ -1265,7 +1283,8 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.btn_choose3.setChecked(True)
         if state == Qt.Checked:
             self.viewSecond = 1
-            self.w2 = SecondWindow()
+            self.w2 = SecondWindow(self)
+            self.w2.show()
             self.reload()
             # self.btn_choose5.setChecked(True)
         else:
@@ -1298,18 +1317,22 @@ class MainWindow(QtWidgets.QMainWindow):
     def spinBox_2(self):
         self.w2_top = self.spinbox2.value()
         self.w2.move(self.w2_top, self.w2_left)
+        self.reload()
         
     def spinBox_3(self):
         self.w2_left = self.spinbox3.value()
         self.w2.move(self.w2_top, self.w2_left)
+        self.reload()
 
     def spinBox_4(self):
         self.w2_width = self.spinbox4.value()
         self.w2.resize(self.w2_width, self.w2_height)
+        self.reload()
         
     def spinBox_5(self):
         self.w2_height = self.spinbox5.value()
         self.w2.resize(self.w2_width, self.w2_height)
+        self.reload()
 
     # def mousePressEvent(self, event):
     #    self.oldPos = event.globalPos()
