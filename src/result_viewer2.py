@@ -40,8 +40,8 @@ class SecondWindow(QtWidgets.QMainWindow):
         self._viewCount1 = 1
         self._viewCount2 = 0
         self.time = 0
-        self.time_step = 35 #0.025
-        self.timer_id = self.startTimer(200)
+        self.time_step = 45 #0.025
+        self.timer_id = self.startTimer(100)
         self._top = self._parent.w2_top
         self._left = self._parent.w2_left
         self._width = self._parent.w2_width
@@ -81,13 +81,13 @@ class SecondWindow(QtWidgets.QMainWindow):
             self.killTimer(self.timer_id)
             self._viewLoop = 1
             self.start = 1
-            self.time_step = 35
+            self.time_step = 65
             self._viewCount1 = 1
             self._viewCount2 = 0
             _text_hight = self._pixelsize-1
             self._viewCount3 =(self.size().height()//_text_hight)-2
             self.time = 0
-            self.timer_id = self.startTimer(200)
+            self.timer_id = self.startTimer(100)
             #self.update()
         else: 
             self._viewMode = self._temp_viewMode
@@ -95,7 +95,7 @@ class SecondWindow(QtWidgets.QMainWindow):
     def secondWin1(self):
                       
         self.setGeometry( self._top, self._left, self._width ,self._height )
-        #self.mapToGlobal( QPoint(self._top, self._left))
+        self.mapToGlobal( QPoint(self._top, self._left))
         #self.setWindowTitle('Draw text')
         self.setWindowFlags(Qt.FramelessWindowHint |
                             Qt.WindowStaysOnTopHint)
@@ -221,7 +221,6 @@ class SecondWindow(QtWidgets.QMainWindow):
             self._viewCount2 = 0
             self._viewCount3 = self._viewWindowHigh
             self.time += self.time_step
-
         elif self._viewCount1 == self._viewCount3:
             self._viewCount1 = 1
             self._viewCount2 += self._viewWindowHigh
@@ -283,7 +282,7 @@ class SecondWindow(QtWidgets.QMainWindow):
         heapfont.setPixelSize(self._pixelsize-4)
         qp.setFont(heapfont)
         qp.setPen(QColor('white'))
-        self._text2 = 'ПРОТОКОЛ ФИНИША АБСОЛЮТ:'
+        self._text2 = 'ПРЕДВАРИТЕЛЬНЫЕ РЕЗУЛЬТАТЫ:'
         qp.drawText(QRect(0, 0, self._width, self._pixelsize-2),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, self._pixelsize-2, self._width, self._pixelsize-2), Qt.AlignCenter, self._text2)
         _text_indent = 46
@@ -357,7 +356,7 @@ class SecondWindow(QtWidgets.QMainWindow):
         heapfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(heapfont)
         qp.setPen(QColor('white'))
-        self._text2 = 'ПРОТОКОЛ ЭСТАФЕТА:'
+        self._text2 = 'РЕЗУЛЬТАТЫ ЭСТАФЕТ:'
         qp.drawText(QRect(0, 0, self._width, self._pixelsize-2),Qt.AlignCenter, self._text1)
         qp.drawText(QRect(0, self._pixelsize-2, self._width, self._pixelsize-2), Qt.AlignCenter, self._text2)
         _text_indent = 46
@@ -444,7 +443,7 @@ class SecondWindow(QtWidgets.QMainWindow):
         heapfont.setPixelSize(self._pixelsize-4)
         heapfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(heapfont)
-        self._text2 = 'КОМАНДНОЕ ВРЕМЯ:'
+        self._text2 = 'ЭСТАФЕТА КОМАНДНОЕ ВРЕМЯ:'
         _text_indent = 46
         _nr_indent = 0
         _name_indent = 25
@@ -579,7 +578,7 @@ class MainWindow(QtWidgets.QMainWindow):
   
         self.list_widget = QListWidget()
 
-        self.list_widget.setStyleSheet("QListWidget"
+        self.list_widget.setStyleSheet("CentralText"
                                   "{"
                                   "border : 1px solid black;"
                                   "font: 12pt Arial;"
@@ -635,7 +634,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                     alignment=QtCore.Qt.AlignCenter)
         self.text4 = QtWidgets.QLabel("Координаты",
                                     alignment=QtCore.Qt.AlignCenter)
-        self.text5 = QtWidgets.QLabel("Вывод",
+        self.text5 = QtWidgets.QLabel("Группировка эстафет",
                                     alignment=QtCore.Qt.AlignCenter)
         self.checkbox1 = QCheckBox('Обновлять автоматически', self)
         #self.checkbox2 = QCheckBox('Сохранять автоматически', self)
@@ -750,7 +749,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinbox5.valueChanged.connect(self.spinBox_5)
         self.spinbox5.textChanged.connect(self.spinBox_5)
 
-        self.nameTextBox.editingFinished.connect(self.onNameChanged)
+        self.nameTextBox.textChanged.connect(self.onNameChanged)
+        self.nameTextBox.mousePressEvent = self.onNameSelected
+
+
        
         grid = QGridLayout()
         grid.setSpacing(0)
@@ -1179,7 +1181,13 @@ class MainWindow(QtWidgets.QMainWindow):
             
     def onNameChanged(self):
         # Set the text of the result label to the entered name
+        
         self.nameText = self.nameTextBox.text()
+        if self.viewSecond == 1:
+            self.reload()
+
+    def onNameSelected(self, event):
+        self.nameTextBox.clear()
 
     def checkBox_1(self, state): # Автоматическое обновление протокола. Имеет баг при выводе.
        if state == Qt.Checked:
