@@ -751,12 +751,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.nameTextBox.textChanged.connect(self.onNameChanged)
         self.nameTextBox.mousePressEvent = self.onNameSelected
-
-
        
-        grid = QGridLayout()
-        grid.setSpacing(0)
-
         self.right_layout.addWidget(self.text1)
         self.right_layout.addWidget(self.list_widget)
         #self.right_layout.addStretch(1) 
@@ -801,6 +796,9 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.left_layout.addStretch()
 
+        grid = QGridLayout()
+        grid.setSpacing(0)
+
         grid.addLayout(self.left_layout, 0, 0, 
                        alignment=QtCore.Qt.AlignLeft) 
         
@@ -813,9 +811,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #centralWidget.addWidget(tempFrame)
         
         centralWidget.setLayout(grid)
-        self.setGeometry(500, 300, 1000, 500)
-        #self.oldPos = self.pos()
-        
+        #self.setGeometry(500, 300, 1000, 500)
+       
         #self.show()
  
     def reload(self):
@@ -844,7 +841,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         QListWidget.clear(self.list_widget)
 
-        
         lfr_pro_t = self.pro_preapare(lfr_pro_t)
         
         len_lfr = len(lfr_pro_t) 
