@@ -37,10 +37,8 @@ class SecondWindow(QtWidgets.QMainWindow):
         self._viewMode = 0 # Режим вывода. 0 - стартовый протокол. 1 - результаты 
         self._viewLoop = 0
         self._viewWindow = [[0],[0]]
-        self._viewWindowHigh = 12
         self._viewCount1 = 1
         self._viewCount2 = 0
-        self._viewCount3 = self._viewWindowHigh
         self.time = 0
         self.time_step = 35 #0.025
         self.timer_id = self.startTimer(200)
@@ -48,7 +46,9 @@ class SecondWindow(QtWidgets.QMainWindow):
         self._left = self._parent.w2_left
         self._width = self._parent.w2_width
         self._height = self._parent.w2_height
-        self._pixelsize = 18
+        self._pixelsize = self._parent.w2_fontsize
+        _text_hight = self._pixelsize-1
+        self._viewWindowHigh = self._viewCount3 =(self._height//_text_hight)-2
         self.image = QPixmap(r"evraz30.bmp")
         self._text1 = '""'
         self.secondWin1()
@@ -84,7 +84,8 @@ class SecondWindow(QtWidgets.QMainWindow):
             self.time_step = 35
             self._viewCount1 = 1
             self._viewCount2 = 0
-            self._viewCount3 = self._viewWindowHigh
+            _text_hight = self._pixelsize-1
+            self._viewCount3 =(self.size().height()//_text_hight)-2
             self.time = 0
             self.timer_id = self.startTimer(200)
             #self.update()
@@ -171,23 +172,24 @@ class SecondWindow(QtWidgets.QMainWindow):
     def viewMode1(self, qp):
         # self.qp.eraseRect(self._top, self._left, self._width, self._height)
         heapfont = QFont('Arial')
-        heapfont.setPixelSize(self._pixelsize)
+        heapfont.setPixelSize(self._pixelsize-4)
         qp.setFont(heapfont)
         qp.setPen(QColor('white'))
-        self._text2 = 'Протокол старта:'
-        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, self._pixelsize, self._width, 18), Qt.AlignCenter, self._text2)
-        _text_indent = 52
+        self._text2 = 'ПРОТОКОЛ СТАРТА:'
+        qp.drawText(QRect(0, 0, self._width, self._pixelsize-2),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, self._pixelsize-2, self._width, self._pixelsize-2), Qt.AlignCenter, self._text2)
+        _text_indent = 46
         _nr_indent = 0
-        _name_indent = 30
+        _name_indent = 29
         _name_size = 30
         _comand_indent = 231
         _comand_size = 12
         _result_indent = 257
-        _text_hight = 17
-        self._viewWindowHigh=(self._height//_text_hight)-2
+        _text_hight = self._pixelsize-1
+        self._viewWindowHigh=(self.size().height()//_text_hight)-2
         screenfont = QFont('Arial')
         screenfont.setPixelSize(self._pixelsize)
+        screenfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(screenfont)
         qp.setPen(QColor('green'))
 
@@ -231,22 +233,24 @@ class SecondWindow(QtWidgets.QMainWindow):
     def viewMode2(self, qp):
         qp.setPen(QColor('white'))
         heapfont = QFont('Arial')
-        heapfont.setPixelSize(self._pixelsize)
+        heapfont.setPixelSize(self._pixelsize-4)
         qp.setFont(heapfont)
+        qp.drawText(QRect(0, 0, self._width, self._pixelsize-2),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, self._pixelsize-2, self._width, self._pixelsize-2), Qt.AlignCenter, self._text2)
+        _text_indent = 46
         self._text2 = 'Текущие результаты команд:'
-        _text_indent = 52
+        _text_indent = 50
         _nr_indent = 0
         _name_indent = 25
         _name_size = 35
         _comand_indent = 211
         _comand_size = 8
         _result_indent = 236
-        _text_hight = 17
-        self._viewWindowHigh=(self._height//_text_hight)-2
-        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
+        _text_hight = self._pixelsize-1
+        self._viewWindowHigh=(self.size().height()//_text_hight)-2
         screenfont = QFont('Arial')
         screenfont.setPixelSize(self._pixelsize)
+        screenfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(screenfont)          
         for i in range(self._viewWindowHigh):
                     if i == len(self._viewText):
@@ -271,29 +275,29 @@ class SecondWindow(QtWidgets.QMainWindow):
                     
                     qp.setPen(QColor('red'))
                     qp.drawText(_result_indent, (i*_text_hight)+_text_indent, self._viewText[i][1])  
-                    
-                    
 
     def viewMode3(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
         heapfont = QFont('Arial')
-        heapfont.setPixelSize(self._pixelsize)
+        heapfont.setStyleHint(QFont.TypeWriter)
+        heapfont.setPixelSize(self._pixelsize-4)
         qp.setFont(heapfont)
         qp.setPen(QColor('white'))
-        self._text2 = 'Протокол финиша абсолют:'
-        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
-        _text_indent = 51
+        self._text2 = 'ПРОТОКОЛ ФИНИША АБСОЛЮТ:'
+        qp.drawText(QRect(0, 0, self._width, self._pixelsize-2),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, self._pixelsize-2, self._width, self._pixelsize-2), Qt.AlignCenter, self._text2)
+        _text_indent = 46
         _nr_indent = 29
-        _name_indent = 59
-        _name_size = 17
-        _comand_indent = 206
-        _comand_size = 5
-        _result_indent = 257
-        _text_hight = 17
-        self._viewWindowHigh=(self._height//_text_hight)-2
+        _name_indent = 58
+        _name_size = 15
+        _comand_indent = 198
+        _comand_size = 6
+        _result_indent = 255
+        _text_hight = self._pixelsize-1
+        self._viewWindowHigh=(self.size().height()//_text_hight)-2
         screenfont = QFont('Arial')
         screenfont.setPixelSize(self._pixelsize)
+        screenfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(screenfont)
         for i in range(0, self._viewCount1):
             if i == len(self._viewText):
@@ -349,24 +353,25 @@ class SecondWindow(QtWidgets.QMainWindow):
     def viewMode4(self, qp):
             # self.qp.eraseRect(self._top, self._left, self._width, self._height)
         heapfont = QFont('Arial')
-        heapfont.setPixelSize(self._pixelsize)
+        heapfont.setPixelSize(self._pixelsize-4)
+        heapfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(heapfont)
         qp.setPen(QColor('white'))
-        #self._text1 = '        Спортивный забег "Пять Вершин"'
-        self._text2 = 'Протокол финиша эстафета:'
-        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, 18, self._width, 18), Qt.AlignCenter, self._text2)
-        _text_indent = 52
+        self._text2 = 'ПРОТОКОЛ ЭСТАФЕТА:'
+        qp.drawText(QRect(0, 0, self._width, self._pixelsize-2),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, self._pixelsize-2, self._width, self._pixelsize-2), Qt.AlignCenter, self._text2)
+        _text_indent = 46
         _nr_indent = 32
         _name_indent = 63
         _name_size = 19
         _result_indent = 250
-        _text_hight = 17
         _count_highlight = False
         _temp_highlight = 0
-        self._viewWindowHigh=(self._height//_text_hight)-2
+        _text_hight = self._pixelsize-1
+        self._viewWindowHigh=(self.size().height()//_text_hight)-2
         screenfont = QFont('Arial')
         screenfont.setPixelSize(self._pixelsize)
+        screenfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(screenfont)
         for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
@@ -394,11 +399,8 @@ class SecondWindow(QtWidgets.QMainWindow):
                 _count_highlight = not _count_highlight
             
             if  _count_highlight == False:  
-        
                 qp.setPen(QColor('orange'))
-                   
             else:
-                
                 qp.setPen(QColor('green'))
 
             #qp.setPen(QColor('green'))
@@ -419,7 +421,6 @@ class SecondWindow(QtWidgets.QMainWindow):
                         self._viewText[self._viewCount2+i][3])
             
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
-
             self._viewCount3 = (
                 (len(self._viewText)) - self._viewCount2)
 
@@ -440,22 +441,24 @@ class SecondWindow(QtWidgets.QMainWindow):
     def viewMode5(self, qp):
         qp.setPen(QColor('white'))
         heapfont = QFont('Arial')
-        heapfont.setPixelSize(self._pixelsize)
+        heapfont.setPixelSize(self._pixelsize-4)
+        heapfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(heapfont)
-        self._text2 = 'Текущие командные результаты:'
-        _text_indent = 52
+        self._text2 = 'КОМАНДНОЕ ВРЕМЯ:'
+        _text_indent = 46
         _nr_indent = 0
         _name_indent = 25
         _name_size = 35
         _comand_indent = 211
         _comand_size = 8
         _result_indent = 225
-        _text_hight = 17
-        self._viewWindowHigh=(self._height//_text_hight)-2
-        qp.drawText(QRect(0, 0, self._width, 18),Qt.AlignCenter, self._text1)
-        qp.drawText(QRect(0, self._pixelsize, self._width, 18), Qt.AlignCenter, self._text2)
+        _text_hight = self._pixelsize-1
+        self._viewWindowHigh=(self.size().height()//_text_hight)-2
+        qp.drawText(QRect(0, 0, self._width, self._pixelsize-2),Qt.AlignCenter, self._text1)
+        qp.drawText(QRect(0, self._pixelsize-2, self._width, self._pixelsize-2), Qt.AlignCenter, self._text2)
         screenfont = QFont('Arial')
         screenfont.setPixelSize(self._pixelsize)
+        screenfont.setStyleHint(QFont.TypeWriter)
         qp.setFont(screenfont)        
         for i in range (0, self._viewCount1):
             if (self._viewCount2+i) == (len(self._viewText)):
@@ -481,7 +484,6 @@ class SecondWindow(QtWidgets.QMainWindow):
             qp.setPen(QColor('red'))
             qp.drawText(_result_indent, (i*_text_hight)+_text_indent, self._viewText[self._viewCount2+i][1])  
         
-        
         if (self._viewCount2 + self._viewWindowHigh) > (len(self._viewText)):
 
             self._viewCount3 = (
@@ -500,7 +502,6 @@ class SecondWindow(QtWidgets.QMainWindow):
             self.time += self.time_step
         else:
             self._viewCount1 += 1            
-
 
 class PT():
 
@@ -545,9 +546,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.w2_left = 0
         self.w2_width = 320
         self.w2_height = 480
+        self.w2_fontsize = 17
 
         self.grp1 = []
-
         self.pro1 = []
 
         self.grp_zag = []
@@ -558,9 +559,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nameText = ''
 
         self.local_filename_choose1 = ''
-
         
         self.mainWin1()
+
         #self.w2 = SecondWindow()
         #self.w2.mapToGlobal( QPoint(self.w2_top, self.w2_left))
         #self.w2.show()
@@ -568,14 +569,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def mainWin1 (self):
         
         self.setWindowIcon(QtGui.QIcon('src/Ski.ico'))
-        self.setWindowTitle("Вывод результатов Марафон-Электро на дисплей.")
+        self.setWindowTitle("Вывод результатов соревнований из Марафон-Электро на дисплей.")
         self.cwd = os.getcwd() # Получить текущее местоположение файла программы
         #self.resize(1500, 1300)
         #self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)
-  
   
         self.list_widget = QListWidget()
 
@@ -588,8 +588,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                
         self.statusBar()
         
+        self.text6 = QtWidgets.QLabel("Заголовок:",
+                                    alignment=QtCore.Qt.AlignCenter)
         self.nameTextBox = QLineEdit()  
-        self.nameTextBox.setText('') 
+        self.nameTextBox.setText('Заголовок') 
         self.nameTextBox.setMaxLength(30) 
         self.nameTextBox.setFixedWidth(165)
 
@@ -598,7 +600,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_choose4.setText("Показывать пустые")        
         self.btn_choose4.setCheckable(True)
         self.btn_choose4.setEnabled(False)
-                
  
         #name, done1 = QtWidgets.QInputDialog.getText(
         #     self, 'Input Dialog', 'Enter your name:')
@@ -754,12 +755,6 @@ class MainWindow(QtWidgets.QMainWindow):
         grid = QGridLayout()
         grid.setSpacing(0)
 
-        #grid.setColumnStretch(0, 1)
-        #grid.setColumnStretch(1, 1)
-        #grid.setRowStretch(0, 1)
-        #grid.setRowStretch(0, 1)
-        
-        
         self.right_layout.addWidget(self.text1)
         self.right_layout.addWidget(self.list_widget)
         #self.right_layout.addStretch(1) 
@@ -1498,9 +1493,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Теперь подготовим протоколы к сравнению и объединению результатов. Обновим виджеты в окне.
         self.reload()
         
-
     def closeEvent(self, event):              # +++
-        self.w2.close()
+        if self.viewSecond == 1:
+            self.w2.close()
 
     def keyPressEvent(self, e):
 
