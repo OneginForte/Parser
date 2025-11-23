@@ -20,14 +20,14 @@ from PyQt5.QtWidgets import ( QApplication, QComboBox, QFileDialog, QGridLayout,
 class SecondWindow(QtWidgets.QMainWindow):
     viewText = pyqtSignal(list)
 
-    def __init__(self, root, widget: QtWidgets.QWidget = None, *args):  
+    def __init__(self, root, *args):  
         QtWidgets.QMainWindow.__init__(self, *args)  
     #def __init__(self, root, **kwargs):
-    #    super().__init__(root, **kwargs)
-        self.main = root 
-        if widget is not None:  
-            self.setCentralWidget(widget)  
-            widget.setParent(self)  
+        #super().__init__(root, *args)
+        #self.main = root 
+        #if widget is not None:  
+        #    self.setCentralWidget(widget)  
+        #    widget.setParent(self)  
         # Передаём ссылку на родительский элемент и чтобы виджет
         # отображался как самостоятельное окно указываем тип окно
         self._parent = root
