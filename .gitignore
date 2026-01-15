@@ -7,6 +7,8 @@
 /.venv
 /Uploader
 /uploads
+/src/dist
+/sec/build
 /src2
 /src3
 /src4

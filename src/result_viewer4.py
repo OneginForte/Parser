@@ -1024,10 +1024,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 #msec += rez[1]*60
                 #msec += rez
         else:
-                rez[0] = 0
-                rez[1] = 0
-                rez[2] = 0
-                rez[3] = 0
+            rez[0] = 0
+            rez[1] = 0
+            rez[2] = 0
+            rez[3] = 0
                 #if time_rule !=1:
                 #if rez[0] > 9:
                 #    s =  str(rez[0]) + ':'
@@ -1053,9 +1053,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             s = s + ',0' + str(rez[3])
                 
-        lfr_pro_t.append(s)   
-                
-                   
+        lfr_pro_t.append(s)         
         
         return lfr_pro_t 
         
@@ -1169,8 +1167,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #*res, = filter(lambda x: x[0][-1] != 'ь', spisok)
 
-
-    #@pyqtSlot()
     def clicked(self, item):
         QMessageBox.information(
             self, "Подробнее", "Участник номер: " + item.text(), QMessageBox.Ok)
